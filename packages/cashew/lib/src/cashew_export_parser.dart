@@ -6,7 +6,7 @@ final class CashewExportParser {
   const CashewExportParser({CsvReader reader = const CsvReader()})
       : _reader = reader;
 
-  static const _byteOrderMark = '﻿';
+  static const _byteOrderMark = '\uFEFF';
 
   final CsvReader _reader;
 

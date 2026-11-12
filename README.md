@@ -6,6 +6,7 @@ item has its own category and its own split between you and other people.
 
 - `packages/domain`: the domain model and rules, in pure Dart.
 - `packages/data`: SQLite storage built on Drift, in pure Dart.
+- `packages/cashew`: reads a Cashew CSV export into the model.
 - `app`: the Flutter app (Android and web).
 - `docs/domain-model.md`: the model and the rules the statistics follow.
 
@@ -31,3 +32,14 @@ dart test
 ```
 
 Every push runs the same checks in GitHub Actions.
+
+## Checking a Cashew export
+
+This prints what your Cashew CSV export turns into: account balances and
+the income and expenses of each month.
+
+```sh
+cd packages/cashew
+dart pub get
+dart run bin/report.dart path/to/cashew-export.csv
+```
