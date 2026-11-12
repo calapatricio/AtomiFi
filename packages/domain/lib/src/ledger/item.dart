@@ -80,6 +80,31 @@ final class Item {
   /// The part of the price borne by other people.
   Money get othersAmount => price - ownAmount;
 
+  /// Moves [amount] that [person] will not pay back to the user's share.
+  Item writeOff(Person person, Money amount) {
+    final owed = -amountFor(person);
+    if (!amount.isPositive || amount.compareTo(owed) > 0) {
+      throw ArgumentError.value(
+        amount,
+        'amount',
+        'must be positive and at most what $person owes',
+      );
+    }
+    final amounts = {for (final share in shares) share.party: share.amount};
+    amounts[person] = amountFor(person) + amount;
+    amounts[const Me()] = ownAmount - amount;
+    return Item(
+      id: id,
+      name: name,
+      categoryId: categoryId,
+      shares: [
+        for (final entry in amounts.entries)
+          if (!entry.value.isZero) Share(entry.key, entry.value),
+      ],
+      offsets: offsets,
+    );
+  }
+
   void _requireValidShares() {
     if (shares.any((share) => share.amount.isZero)) {
       throw ArgumentError('A share cannot be zero.');
