@@ -10,11 +10,10 @@ dependencies:
   atomifi_domain:
     path: ../domain
   collection: ^1.19.0
-  drift: ^2.20.0
-  sqlite3: ^2.4.0
+  drift: ^2.35.0
 
 dev_dependencies:
-  build_runner: ^2.4.0
-  drift_dev: ^2.20.0
+  build_runner: ^2.17.0
+  drift_dev: ^2.35.0
   lints: ^5.0.0
   test: ^1.25.0
