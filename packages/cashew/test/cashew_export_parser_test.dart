@@ -44,7 +44,7 @@ void main() {
     });
 
     test('ignores a byte order mark before the header', () {
-      expect(parser.parse('﻿$export'), hasLength(4));
+      expect(parser.parse('\uFEFF$sampleExport'), hasLength(4));
     });
 
     test('reads no rows from an export with only a header', () {

@@ -91,12 +91,10 @@ final class _Categories {
     );
     final subcategory = row.subcategory;
     if (subcategory == null) return category.id;
-    return _byName
-        .putIfAbsent(
-          (row.category, subcategory),
-          () => _create(subcategory, within: row.category, parent: category),
-        )
-        .id;
+    return _byName.putIfAbsent(
+      (row.category, subcategory),
+      () => _create(subcategory, within: row.category, parent: category),
+    ).id;
   }
 
   Category _create(String name, {required String within, Category? parent}) =>
