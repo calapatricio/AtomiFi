@@ -123,6 +123,8 @@ final class Item {
     if (shares.isEmpty) {
       throw ArgumentError('An item needs at least one share.');
     }
-    return shares.map((share) => share.amount).reduce((sum, amount) => sum + amount);
+    return shares
+        .map((share) => share.amount)
+        .reduce((sum, amount) => sum + amount);
   }
 }

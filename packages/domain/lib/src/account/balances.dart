@@ -9,8 +9,7 @@ import 'account.dart';
 
 /// Works out what each account holds from the records of the ledger.
 final class Balances {
-  Balances(Iterable<LedgerRecord> records)
-      : _changes = _chronological(records);
+  Balances(Iterable<LedgerRecord> records) : _changes = _chronological(records);
 
   final List<BalanceChange> _changes;
 

@@ -50,12 +50,11 @@ final class Receivables {
   }
 
   Money _outstanding(Item item, Person person) {
-    final repaid = _items
-        .where((repayment) => repayment.offsets == item.id)
-        .fold(
-          Money.zero(item.price.currency),
-          (sum, repayment) => sum + repayment.amountFor(person),
-        );
+    final repaid =
+        _items.where((repayment) => repayment.offsets == item.id).fold(
+              Money.zero(item.price.currency),
+              (sum, repayment) => sum + repayment.amountFor(person),
+            );
     return -(item.amountFor(person) + repaid);
   }
 

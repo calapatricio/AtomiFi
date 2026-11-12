@@ -82,7 +82,8 @@ final class Money implements Comparable<Money> {
     }
     final total = weights.fold(0, (sum, weight) => sum + weight);
     if (total == 0) {
-      throw ArgumentError.value(weights, 'weights', 'must add up to more than 0');
+      throw ArgumentError.value(
+          weights, 'weights', 'must add up to more than 0');
     }
     return total;
   }
