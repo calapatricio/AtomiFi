@@ -34,8 +34,8 @@ final class DriftTransactionRepository implements TransactionRepository {
   @override
   Future<List<Transaction>> all() async {
     final currencies = await currencyByAccountId(_database);
-    final itemsByTransactionId = (await _itemRows())
-        .groupListsBy((item) => item.transactionId);
+    final itemsByTransactionId =
+        (await _itemRows()).groupListsBy((item) => item.transactionId);
     final sharesByItemId =
         (await _shareRows()).groupListsBy((share) => share.itemId);
     return [
