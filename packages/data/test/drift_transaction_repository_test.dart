@@ -130,6 +130,19 @@ void main() {
       expect((await transactions.all()).single.total, usd(1250));
     });
 
+    test('refuses a transaction of an account that does not exist', () async {
+      final orphan = Transaction(
+        id: const TransactionId('orphan'),
+        name: 'Orphan',
+        dateTime: DateTime(2026, 11, 2),
+        accountId: const AccountId('closed'),
+        items: _shopping().items,
+      );
+
+      await expectLater(transactions.save(orphan), throwsException);
+      expect(await transactions.all(), isEmpty);
+    });
+
     test('returns the transactions oldest first', () async {
       await transactions.save(_repayment());
       await transactions.save(_shopping());

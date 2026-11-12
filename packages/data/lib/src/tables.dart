@@ -42,8 +42,7 @@ class Transactions extends Table {
 @DataClassName('ItemRow')
 class Items extends Table {
   TextColumn get id => text()();
-  TextColumn get transactionId =>
-      text().references(Transactions, #id, onDelete: KeyAction.cascade)();
+  TextColumn get transactionId => text().references(Transactions, #id)();
   IntColumn get position => integer()();
   TextColumn get name => text()();
   TextColumn get categoryId => text().references(Categories, #id)();
@@ -56,8 +55,7 @@ class Items extends Table {
 /// The shares of an item. A share without a [person] is the user's own.
 @DataClassName('ShareRow')
 class Shares extends Table {
-  TextColumn get itemId =>
-      text().references(Items, #id, onDelete: KeyAction.cascade)();
+  TextColumn get itemId => text().references(Items, #id)();
   IntColumn get position => integer()();
   TextColumn get person => text().nullable()();
   IntColumn get amount => integer()();

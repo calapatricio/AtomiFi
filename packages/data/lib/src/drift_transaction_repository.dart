@@ -25,11 +25,12 @@ final class DriftTransactionRepository implements TransactionRepository {
       });
 
   @override
-  Future<void> remove(TransactionId id) async {
-    final statement = _database.delete(_database.transactions)
-      ..where((transactions) => transactions.id.equals(id.value));
-    await statement.go();
-  }
+  Future<void> remove(TransactionId id) => _database.transaction(() async {
+        await _removeItemsOf(id);
+        final statement = _database.delete(_database.transactions)
+          ..where((transactions) => transactions.id.equals(id.value));
+        await statement.go();
+      });
 
   @override
   Future<List<Transaction>> all() async {
@@ -50,9 +51,15 @@ final class DriftTransactionRepository implements TransactionRepository {
   }
 
   Future<void> _removeItemsOf(TransactionId id) async {
-    final statement = _database.delete(_database.items)
+    final itemsOfTransaction = _database.select(_database.items)
       ..where((items) => items.transactionId.equals(id.value));
-    await statement.go();
+    final itemIds = await itemsOfTransaction.map((item) => item.id).get();
+    final shares = _database.delete(_database.shares)
+      ..where((shares) => shares.itemId.isIn(itemIds));
+    await shares.go();
+    final items = _database.delete(_database.items)
+      ..where((items) => items.transactionId.equals(id.value));
+    await items.go();
   }
 
   Future<List<TransactionRow>> _transactionRows() {
