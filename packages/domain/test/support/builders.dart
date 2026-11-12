@@ -57,3 +57,21 @@ Transaction on(
       accountId: account.id,
       items: items,
     );
+
+Transfer moved(
+  Money sent, {
+  required Account from,
+  required Account to,
+  required DateTime on,
+  DateTime? arriving,
+  Money? received,
+}) =>
+    Transfer(
+      id: TransferId('transfer-${_sequence++}'),
+      outgoing: TransferLeg(accountId: from.id, dateTime: on, amount: sent),
+      incoming: TransferLeg(
+        accountId: to.id,
+        dateTime: arriving ?? on,
+        amount: received ?? sent,
+      ),
+    );

@@ -10,14 +10,7 @@ Transfer _transfer(
   Money sent, {
   Money? received,
 }) =>
-    Transfer(
-      id: const TransferId('transfer'),
-      dateTime: dateTime,
-      fromAccountId: from.id,
-      toAccountId: to.id,
-      sent: sent,
-      received: received,
-    );
+    moved(sent, from: from, to: to, on: dateTime, received: received);
 
 Revaluation _worth(DateTime dateTime, Account account, Money value) =>
     Revaluation(
@@ -68,6 +61,23 @@ void main() {
       ]);
 
       expect(balances.balanceOf(bank), eur(-30000));
+      expect(balances.balanceOf(savings), eur(30000));
+    });
+
+    test('each side of a transfer counts from its own date', () {
+      final balances = Balances([
+        moved(
+          eur(30000),
+          from: bank,
+          to: savings,
+          on: DateTime(2026, 11, 1),
+          arriving: DateTime(2026, 11, 3),
+        ),
+      ]);
+      final inBetween = DateTime(2026, 11, 2);
+
+      expect(balances.balanceOf(bank, at: inBetween), eur(-30000));
+      expect(balances.balanceOf(savings, at: inBetween), eur(0));
       expect(balances.balanceOf(savings), eur(30000));
     });
 

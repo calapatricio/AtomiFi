@@ -10,21 +10,29 @@ void main() {
       int sentCents = 30000,
       Money? received,
     }) =>
-        Transfer(
-          id: const TransferId('transfer'),
-          dateTime: DateTime(2026, 11, 1),
-          fromAccountId: bank.id,
-          toAccountId: to.id,
-          sent: eur(sentCents),
+        moved(
+          eur(sentCents),
+          from: bank,
+          to: to,
+          on: DateTime(2026, 11, 1),
+          arriving: DateTime(2026, 11, 2),
           received: received,
         );
 
-    test('receives what was sent unless told otherwise', () {
-      expect(transfer().received, eur(30000));
+    test('keeps one record for each account, with its own date', () {
+      final toSavings = transfer();
+
+      expect(toSavings.outgoing.accountId, bank.id);
+      expect(toSavings.outgoing.dateTime, DateTime(2026, 11, 1));
+      expect(toSavings.incoming.accountId, savings.id);
+      expect(toSavings.incoming.dateTime, DateTime(2026, 11, 2));
     });
 
     test('can receive a different amount in another currency', () {
-      expect(transfer(to: broker, received: usd(32400)).received, usd(32400));
+      final toBroker = transfer(to: broker, received: usd(32400));
+
+      expect(toBroker.outgoing.amount, eur(30000));
+      expect(toBroker.incoming.amount, usd(32400));
     });
 
     test('rejects a transfer from an account to itself', () {
