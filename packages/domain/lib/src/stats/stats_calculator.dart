@@ -3,7 +3,9 @@ import '../ids.dart';
 import '../ledger/item.dart';
 import '../ledger/transaction.dart';
 import '../money/currency.dart';
+import '../money/currency_converter.dart';
 import '../money/money.dart';
+import '../money/rate_table.dart';
 import 'date_range.dart';
 import 'period_stats.dart';
 
@@ -18,18 +20,22 @@ enum OffsetDating {
 
 /// Works out the user's own spending and income.
 ///
-/// Shares borne by other people never count. Amounts are netted per category.
+/// Shares borne by other people never count. Amounts are netted per category
+/// after converting them to [currency].
 final class StatsCalculator {
   StatsCalculator({
     required Iterable<Category> categories,
     required this.currency,
     this.offsetDating = OffsetDating.originalItemDate,
-  }) : _sideOfCategory = {
+    CurrencyConverter? converter,
+  })  : _converter = converter ?? RateTable(base: currency),
+        _sideOfCategory = {
           for (final category in categories) category.id: category.side,
         };
 
   final Currency currency;
   final OffsetDating offsetDating;
+  final CurrencyConverter _converter;
   final Map<CategoryId, CategorySide> _sideOfCategory;
 
   PeriodStats statsFor(DateRange period, List<Transaction> ledger) {
@@ -40,10 +46,11 @@ final class StatsCalculator {
         final date = _statsDate(item, transaction.dateTime, dateOfItem);
         if (item.ownAmount.isZero || !period.contains(date)) continue;
         _requireKnownCategory(item.categoryId);
+        final own = _converter.convert(item.ownAmount, currency);
         netByCategory.update(
           item.categoryId,
-          (net) => net + item.ownAmount,
-          ifAbsent: () => item.ownAmount,
+          (net) => net + own,
+          ifAbsent: () => own,
         );
       }
     }

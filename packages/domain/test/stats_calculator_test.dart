@@ -172,7 +172,7 @@ void main() {
       final calculator = StatsCalculator(
         categories: _categories,
         currency: Currency.eur,
-        converter: const RateTable(
+        converter: RateTable(
           base: Currency.eur,
           unitsPerBase: {Currency.usd: 1.08},
         ),

@@ -146,7 +146,7 @@ void main() {
 
   group('Balances.netWorth', () {
     test('adds up all accounts in one currency', () {
-      const rates = RateTable(
+      final rates = RateTable(
         base: Currency.eur,
         unitsPerBase: {Currency.usd: 1.08},
       );

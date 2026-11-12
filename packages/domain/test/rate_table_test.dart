@@ -5,7 +5,7 @@ import 'support/builders.dart';
 
 void main() {
   group('RateTable', () {
-    const rates = RateTable(
+    final rates = RateTable(
       base: Currency.eur,
       unitsPerBase: {Currency.usd: 1.08, Currency.jpy: 162},
     );

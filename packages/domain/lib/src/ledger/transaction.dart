@@ -1,9 +1,11 @@
 import '../ids.dart';
 import '../money/money.dart';
+import 'balance_change.dart';
 import 'item.dart';
+import 'ledger_record.dart';
 
 /// One record of a bank or cash account, made of one or more items.
-final class Transaction {
+final class Transaction implements LedgerRecord {
   Transaction({
     required this.id,
     required this.name,
@@ -23,6 +25,10 @@ final class Transaction {
 
   /// The amount that left or entered the account: the sum of all [items].
   final Money total;
+
+  @override
+  List<BalanceChange> get balanceChanges =>
+      [Movement(accountId, dateTime, total)];
 
   static Money _totalOf(Iterable<Item> items) {
     if (items.isEmpty) {
