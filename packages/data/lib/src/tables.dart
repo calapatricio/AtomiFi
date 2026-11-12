@@ -68,9 +68,11 @@ class Shares extends Table {
 class Transfers extends Table {
   TextColumn get id => text()();
   TextColumn get note => text()();
+  @ReferenceName('outgoingTransfers')
   TextColumn get fromAccountId => text().references(Accounts, #id)();
   DateTimeColumn get sentAt => dateTime()();
   IntColumn get sentAmount => integer()();
+  @ReferenceName('incomingTransfers')
   TextColumn get toAccountId => text().references(Accounts, #id)();
   DateTimeColumn get receivedAt => dateTime()();
   IntColumn get receivedAmount => integer()();
