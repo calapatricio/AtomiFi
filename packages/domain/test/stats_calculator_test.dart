@@ -162,6 +162,30 @@ void main() {
       expect(_stats(_november, ledger).income, eur(52000));
     });
 
+    test('converts items of other currencies to the stats currency', () {
+      final dollars = Item.mine(
+        id: const ItemId('dollars'),
+        name: 'Dollars',
+        categoryId: const CategoryId('food'),
+        price: usd(-1080),
+      );
+      final calculator = StatsCalculator(
+        categories: _categories,
+        currency: Currency.eur,
+        converter: const RateTable(
+          base: Currency.eur,
+          unitsPerBase: {Currency.usd: 1.08},
+        ),
+      );
+
+      final stats = calculator.statsFor(_november, [
+        on(DateTime(2026, 11, 2), [dollars], account: broker),
+        on(DateTime(2026, 11, 3), [mine(-500)]),
+      ]);
+
+      expect(stats.expenses, eur(1500));
+    });
+
     test('rejects an item in a category it does not know', () {
       final ledger = [
         on(DateTime(2026, 11, 2), [mine(-100, category: 'unknown')]),
