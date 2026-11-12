@@ -8,14 +8,14 @@ void main() {
     const parser = CashewExportParser();
 
     test('reads one row per record, even when a note spans lines', () {
-      final rows = parser.parse(export);
+      final rows = parser.parse(sampleExport);
 
       expect(rows, hasLength(4));
       expect(rows[1].note, 'Tacos - 14€\nCooltra - 4,5€');
     });
 
     test('reads the fields of a row', () {
-      final row = parser.parse(export).first;
+      final row = parser.parse(sampleExport).first;
 
       expect(row.account, 'Imagin');
       expect(row.amount, -0.5);
@@ -28,7 +28,7 @@ void main() {
     });
 
     test('reads the subcategory when there is one', () {
-      expect(parser.parse(export)[2].subcategory, 'Alcohol');
+      expect(parser.parse(sampleExport)[2].subcategory, 'Alcohol');
     });
 
     test('finds the columns by name, whatever their order', () {

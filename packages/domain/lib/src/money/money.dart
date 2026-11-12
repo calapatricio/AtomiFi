@@ -54,6 +54,16 @@ final class Money implements Comparable<Money> {
     return [for (final part in parts) Money(part * minorUnits.sign, currency)];
   }
 
+  /// The amount in whole units of its currency, such as `-12.50`.
+  String toDecimalString() {
+    final sign = isNegative ? '-' : '';
+    final digits =
+        minorUnits.abs().toString().padLeft(currency.decimals + 1, '0');
+    final whole = digits.substring(0, digits.length - currency.decimals);
+    final fraction = digits.substring(digits.length - currency.decimals);
+    return fraction.isEmpty ? '$sign$whole' : '$sign$whole.$fraction';
+  }
+
   @override
   int compareTo(Money other) => minorUnits.compareTo(_unitsOf(other));
 

@@ -58,7 +58,7 @@ void main() {
     });
 
     test('stores the accounts, categories and transactions it reads', () async {
-      await importer.import(export);
+      await importer.importCsv(sampleExport);
 
       expect(accounts.saved.map((account) => account.name), ['Imagin', 'Cash']);
       expect(categories.saved, hasLength(5));
@@ -66,7 +66,7 @@ void main() {
     });
 
     test('stores a category before its subcategories', () async {
-      await importer.import(export);
+      await importer.importCsv(sampleExport);
 
       final names = categories.saved.map((category) => category.name).toList();
 
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('tells what it imported', () async {
-      final ledger = await importer.import(export);
+      final ledger = await importer.importCsv(sampleExport);
 
       expect(ledger.transactions, transactions.saved);
       expect(ledger.skippedRows, 0);

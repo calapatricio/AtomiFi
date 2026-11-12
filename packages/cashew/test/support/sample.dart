@@ -4,7 +4,7 @@ const header = 'account,amount,amount unpaid,currency,title,note,date,income,'
     'type,category name,subcategory name,color,icon,emoji,budget,objective,'
     'extra';
 
-const export = '''
+const sampleExport = '''
 $header
 Imagin,-0.5,,EUR,BiciMad,,2026-11-09 04:40:33.000,false,default,Transporte,,0XFFFFEB3B,tram,,,,repeat every 1 month
 Imagin,21.2,,EUR,Bizum Moy,"Tacos - 14€
