@@ -11,8 +11,10 @@
 - **Share**: the part of an item borne by one party, either me or a named
   person. All shares of an item have the same sign.
 - **Account**: a name and a currency.
-- **Transfer**: money moved between two of my accounts. What is sent and
-  what is received may be in different currencies.
+- **Transfer**: money moved between two of my accounts. It is two linked
+  records, one per account, each with its own date and amount, so each one
+  matches a line in that bank's app. The amounts may be in different
+  currencies.
 - **Revaluation**: what an account was worth at one moment, typed in by me.
   The difference with the balance until then is the market's gain or loss.
 - **Category**: a name, a side (expense or income) and an optional parent.
