@@ -1,25 +1,15 @@
 import 'package:atomifi_data/atomifi_data.dart';
 import 'package:atomifi_domain/atomifi_domain.dart';
-import 'package:drift/native.dart';
 import 'package:test/test.dart';
 
-void main() {
-  const bank = Account(
-    id: AccountId('bank'),
-    name: 'Bank',
-    currency: Currency.eur,
-  );
-  const broker = Account(
-    id: AccountId('broker'),
-    name: 'Broker',
-    currency: Currency.jpy,
-  );
+import 'support/fixtures.dart';
 
+void main() {
   late AtomiFiDatabase database;
   late AccountRepository accounts;
 
   setUp(() {
-    database = AtomiFiDatabase(NativeDatabase.memory());
+    database = openDatabase();
     accounts = DriftAccountRepository(database);
   });
 
@@ -40,7 +30,7 @@ void main() {
       expect(saved.map((account) => account.name), ['Bank', 'Broker']);
       expect(
         saved.map((account) => account.currency),
-        [Currency.eur, Currency.jpy],
+        [Currency.eur, Currency.usd],
       );
     });
 
