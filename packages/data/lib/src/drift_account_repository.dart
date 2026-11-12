@@ -1,6 +1,7 @@
 import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:drift/drift.dart';
 
+import 'account_currencies.dart';
 import 'database.dart';
 
 /// Keeps accounts in the SQLite database.
@@ -32,6 +33,6 @@ final class DriftAccountRepository implements AccountRepository {
   static Account _toAccount(AccountRow row) => Account(
         id: AccountId(row.id),
         name: row.name,
-        currency: Currency(row.currencyCode, decimals: row.currencyDecimals),
+        currency: row.currency,
       );
 }

@@ -9,6 +9,7 @@ environment:
 dependencies:
   atomifi_domain:
     path: ../domain
+  collection: ^1.19.0
   drift: ^2.20.0
   sqlite3: ^2.4.0
 
