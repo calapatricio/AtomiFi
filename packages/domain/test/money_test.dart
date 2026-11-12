@@ -23,6 +23,33 @@ void main() {
     });
   });
 
+  group('Money.toDecimalString', () {
+    test('writes the amount in whole units of the currency', () {
+      expect(eur(123456).toDecimalString(), '1234.56');
+      expect(eur(5).toDecimalString(), '0.05');
+      expect(eur(0).toDecimalString(), '0.00');
+    });
+
+    test('puts the sign of an outflow first', () {
+      expect(eur(-50).toDecimalString(), '-0.50');
+    });
+
+    test('writes no decimals for a currency that has none', () {
+      expect(const Money(1620, Currency.jpy).toDecimalString(), '1620');
+    });
+  });
+
+  group('Currency.iso', () {
+    test('gives most currencies two decimals', () {
+      expect(Currency.iso('EUR'), Currency.eur);
+      expect(Currency.iso('GBP').decimals, 2);
+    });
+
+    test('knows the currencies that have no decimals', () {
+      expect(Currency.iso('JPY'), Currency.jpy);
+    });
+  });
+
   group('Money.allocate', () {
     test('gives the indivisible cents to the first parts', () {
       expect(
