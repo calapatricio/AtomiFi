@@ -5,6 +5,7 @@ import 'package:drift/drift.dart' show OrderingTerm;
 import 'account_currencies.dart';
 import 'database.dart';
 import 'transaction_mapping.dart';
+import 'transaction_rows.dart';
 
 /// Keeps transactions, with their items and shares, in the SQLite database.
 final class DriftTransactionRepository implements TransactionRepository {
@@ -50,17 +51,8 @@ final class DriftTransactionRepository implements TransactionRepository {
     ];
   }
 
-  Future<void> _removeItemsOf(TransactionId id) async {
-    final itemsOfTransaction = _database.select(_database.items)
-      ..where((items) => items.transactionId.equals(id.value));
-    final itemIds = await itemsOfTransaction.map((item) => item.id).get();
-    final shares = _database.delete(_database.shares)
-      ..where((shares) => shares.itemId.isIn(itemIds));
-    await shares.go();
-    final items = _database.delete(_database.items)
-      ..where((items) => items.transactionId.equals(id.value));
-    await items.go();
-  }
+  Future<void> _removeItemsOf(TransactionId id) =>
+      deleteItemsOfTransactions(_database, [id.value]);
 
   Future<List<TransactionRow>> _transactionRows() {
     final query = _database.select(_database.transactions)

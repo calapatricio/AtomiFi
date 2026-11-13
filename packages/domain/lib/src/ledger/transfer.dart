@@ -46,6 +46,10 @@ final class Transfer implements LedgerRecord {
   /// The record in the account the money reached.
   final TransferLeg incoming;
 
+  /// Whether the money left or reached the account with this id.
+  bool involves(AccountId accountId) =>
+      outgoing.accountId == accountId || incoming.accountId == accountId;
+
   @override
   List<BalanceChange> get balanceChanges => [
         Movement(outgoing.accountId, outgoing.dateTime, -outgoing.amount),

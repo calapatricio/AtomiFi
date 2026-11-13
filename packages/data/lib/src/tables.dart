@@ -10,6 +10,7 @@ class Accounts extends Table {
   IntColumn get color => integer().nullable()();
   TextColumn get iconName => text().nullable()();
   TextColumn get emoji => text().nullable()();
+  BoolColumn get archived => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
