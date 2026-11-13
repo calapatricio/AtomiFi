@@ -10,17 +10,15 @@ final class AccountSummary {
 }
 
 /// How the balance of an account changes when another one is removed.
-typedef BalanceChange = ({Account account, Money change});
+typedef AffectedBalance = ({Account account, Money change});
 
 /// The state and the actions of the accounts screen.
 final class AccountsViewModel extends ChangeNotifier {
   AccountsViewModel({
-    required AccountRepository accounts,
-    required Ledger ledger,
-    required String Function() newId,
-  }) : _accounts = accounts,
-       _ledger = ledger,
-       _newId = newId;
+    required this._accounts,
+    required this._ledger,
+    required this._newId,
+  });
 
   final AccountRepository _accounts;
   final Ledger _ledger;
@@ -80,7 +78,7 @@ final class AccountsViewModel extends ChangeNotifier {
 
   /// The other accounts whose balance [removal] would change, and by how
   /// much.
-  List<BalanceChange> balanceChangesOf(AccountRemoval removal) => [
+  List<AffectedBalance> balanceChangesOf(AccountRemoval removal) => [
     for (final summary in _summaries)
       if (summary.account.id != removal.account.id)
         (

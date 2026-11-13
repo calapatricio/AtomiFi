@@ -11,7 +11,7 @@ import 'accounts_view_model.dart';
 Future<bool> showRemoveAccountDialog(
   BuildContext context, {
   required AccountRemoval removal,
-  required List<BalanceChange> balanceChanges,
+  required List<AffectedBalance> balanceChanges,
 }) async {
   final confirmed = await showDialog<bool>(
     context: context,
@@ -24,7 +24,7 @@ class _RemoveAccountDialog extends StatelessWidget {
   const _RemoveAccountDialog(this.removal, this.balanceChanges);
 
   final AccountRemoval removal;
-  final List<BalanceChange> balanceChanges;
+  final List<AffectedBalance> balanceChanges;
 
   @override
   Widget build(BuildContext context) {
