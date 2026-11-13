@@ -1,4 +1,5 @@
 import 'package:atomifi/accounts/accounts_view_model.dart';
+import 'package:atomifi/transactions/transactions_view_model.dart';
 import 'package:atomifi/l10n/app_localizations.dart';
 import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:atomifi_domain/testing.dart';
@@ -16,7 +17,72 @@ const savings = Account(
   currency: Currency.eur,
 );
 
+const food = Category(
+  id: CategoryId('food'),
+  name: 'Food',
+  side: CategorySide.expense,
+  appearance: Appearance(emoji: '🍔'),
+);
+const alcohol = Category(
+  id: CategoryId('alcohol'),
+  name: 'Alcohol',
+  side: CategorySide.expense,
+);
+const salary = Category(
+  id: CategoryId('salary'),
+  name: 'Salary',
+  side: CategorySide.income,
+);
+
 Money eur(int cents) => Money(cents, Currency.eur);
+
+/// A store that already holds the accounts and categories above.
+Future<InMemoryStore> seededStore() async {
+  final store = InMemoryStore();
+  for (final account in [bank, savings]) {
+    await store.accounts.save(account);
+  }
+  for (final category in [food, alcohol, salary]) {
+    await store.categories.save(category);
+  }
+  return store;
+}
+
+Transaction spending(
+  String id, {
+  String name = 'Supermarket',
+  Account account = bank,
+  DateTime? dateTime,
+  Map<Category, int> centsByCategory = const {food: -1500},
+}) => Transaction(
+  id: TransactionId(id),
+  name: name,
+  dateTime: dateTime ?? DateTime(2026, 11, 6, 20, 30),
+  accountId: account.id,
+  items: [
+    for (final MapEntry(key: category, value: cents)
+        in centsByCategory.entries)
+      Item.mine(
+        id: ItemId('$id-${category.id.value}'),
+        name: category.name,
+        categoryId: category.id,
+        price: eur(cents),
+      ),
+  ],
+);
+
+Ledger ledgerOn(InMemoryStore store) => Ledger(
+  transactions: store.transactions,
+  transfers: store.transfers,
+  revaluations: store.revaluations,
+);
+
+TransactionsViewModel transactionsViewModelOn(InMemoryStore store) =>
+    TransactionsViewModel(
+      ledger: ledgerOn(store),
+      accounts: store.accounts,
+      categories: store.categories,
+    );
 
 Transaction income(String id, Account account, int cents) => Transaction(
   id: TransactionId(id),
