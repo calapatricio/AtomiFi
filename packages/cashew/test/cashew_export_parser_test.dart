@@ -75,7 +75,7 @@ void main() {
           isA<FormatException>().having(
             (error) => error.message,
             'message',
-            'Row 1: it has 5 fields, so it has no "note"',
+            'Row 1: it has 5 fields, so it has no "subcategory name"',
           ),
         ),
       );
