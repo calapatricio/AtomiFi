@@ -95,7 +95,9 @@ final class _Columns {
   String _field(List<String> record, String name) {
     final index = _indexByName[name]!;
     if (index >= record.length) {
-      throw FormatException('the "$name" field is missing');
+      throw FormatException(
+        'it has ${record.length} fields, so it has no "$name"',
+      );
     }
     return record[index];
   }

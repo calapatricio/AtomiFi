@@ -1,20 +1,30 @@
 /// Reads comma-separated text into records of fields.
 ///
 /// Fields may be wrapped in double quotes to hold commas, line breaks and,
-/// written twice, double quotes.
+/// written twice, double quotes. When the records of a text end in CRLF, a
+/// line feed on its own is part of a field, quoted or not.
 final class CsvReader {
   const CsvReader();
 
   List<List<String>> read(String text) {
-    final parser = _CsvParser();
+    final parser = _CsvParser(recordsEndInCrLf: text.contains('\r\n'));
     text.split('').forEach(parser.accept);
     return parser.finish();
   }
 }
 
-enum _Position { outsideQuotes, insideQuotes, afterQuoteInsideQuotes }
+enum _Position {
+  outsideQuotes,
+  afterCarriageReturn,
+  insideQuotes,
+  afterQuoteInsideQuotes,
+}
 
 final class _CsvParser {
+  _CsvParser({required bool recordsEndInCrLf})
+      : _recordsEndInCrLf = recordsEndInCrLf;
+
+  final bool _recordsEndInCrLf;
   final _records = <List<String>>[];
   final _field = StringBuffer();
   var _record = <String>[];
@@ -24,6 +34,8 @@ final class _CsvParser {
     switch (_position) {
       case _Position.outsideQuotes:
         _acceptOutsideQuotes(character);
+      case _Position.afterCarriageReturn:
+        _acceptAfterCarriageReturn(character);
       case _Position.insideQuotes:
         _acceptInsideQuotes(character);
       case _Position.afterQuoteInsideQuotes:
@@ -46,11 +58,28 @@ final class _CsvParser {
       case ',':
         _endField();
       case '\n':
-        _endRecord();
+        _acceptLineFeed();
       case '\r':
-        return;
+        _position = _Position.afterCarriageReturn;
       default:
         _field.write(character);
+    }
+  }
+
+  void _acceptLineFeed() {
+    if (_recordsEndInCrLf) {
+      _field.write('\n');
+    } else {
+      _endRecord();
+    }
+  }
+
+  void _acceptAfterCarriageReturn(String character) {
+    _position = _Position.outsideQuotes;
+    if (character == '\n') {
+      _endRecord();
+    } else {
+      _acceptOutsideQuotes(character);
     }
   }
 
