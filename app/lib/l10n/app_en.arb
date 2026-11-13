@@ -93,5 +93,45 @@
         "type": "int"
       }
     }
+  },
+  "newTransaction": "New transaction",
+  "editTransaction": "Edit transaction",
+  "addTransaction": "Add transaction",
+  "expense": "Expense",
+  "income": "Income",
+  "transactionName": "Name",
+  "account": "Account",
+  "note": "Note",
+  "items": "Items",
+  "itemName": "Item name (optional)",
+  "category": "Category",
+  "amount": "Amount",
+  "addItem": "Add item",
+  "removeItem": "Remove item",
+  "addPerson": "Add person",
+  "removePerson": "Remove person",
+  "splitEvenly": "Split evenly",
+  "person": "Person",
+  "yourPart": "Your part: {amount}",
+  "total": "Total: {amount}",
+  "itemNeedsAmount": "Enter an amount greater than zero",
+  "itemNeedsCategory": "Choose a category",
+  "shareIncomplete": "Give each person a name and an amount",
+  "personRepeated": "Each person can appear only once",
+  "sharesExceedAmount": "The parts of the others add up to more than the amount",
+  "deleteTransactionTitle": "Delete this transaction?",
+  "@yourPart": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@total": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

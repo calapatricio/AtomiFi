@@ -1,3 +1,4 @@
+import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -6,11 +7,22 @@ import '../money_formatter.dart';
 import '../widgets/appearance_avatar.dart';
 import 'transactions_view_model.dart';
 
+typedef OpenTransactionForm =
+    Future<void> Function(BuildContext context, {Transaction? existing});
+
 /// Lists everything that happened, day by day, latest first.
 class TransactionsScreen extends StatefulWidget {
-  const TransactionsScreen({super.key, required this.viewModel});
+  const TransactionsScreen({
+    super.key,
+    required this.viewModel,
+    required this.openForm,
+  });
 
   final TransactionsViewModel viewModel;
+
+  /// Opens the form for a new transaction or for [existing], and completes
+  /// when the user leaves it.
+  final OpenTransactionForm openForm;
 
   @override
   State<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -25,19 +37,31 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     _viewModel.load();
   }
 
+  Future<void> _openForm({Transaction? existing}) async {
+    await widget.openForm(context, existing: existing);
+    await _viewModel.load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(texts.transactionsTitle)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openForm,
+        tooltip: texts.addTransaction,
+        child: const Icon(Icons.add),
+      ),
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, _) => _viewModel.days.isEmpty
             ? Center(child: Text(texts.noTransactions))
             : ListView.builder(
                 itemCount: _viewModel.days.length,
-                itemBuilder: (context, index) =>
-                    _Day(day: _viewModel.days[index]),
+                itemBuilder: (context, index) => _Day(
+                  day: _viewModel.days[index],
+                  onEdit: (transaction) => _openForm(existing: transaction),
+                ),
               ),
       ),
     );
@@ -45,9 +69,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 }
 
 class _Day extends StatelessWidget {
-  const _Day({required this.day});
+  const _Day({required this.day, required this.onEdit});
 
   final DayOfEntries day;
+  final ValueChanged<Transaction> onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +89,10 @@ class _Day extends StatelessWidget {
         ),
         for (final entry in day.entries)
           switch (entry) {
-            TransactionEntry() => _TransactionTile(entry),
+            TransactionEntry() => _TransactionTile(
+              entry,
+              onTap: () => onEdit(entry.transaction),
+            ),
             TransferEntry() => _TransferTile(entry),
             RevaluationEntry() => _RevaluationTile(entry),
           },
@@ -74,9 +102,10 @@ class _Day extends StatelessWidget {
 }
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile(this.entry);
+  const _TransactionTile(this.entry, {required this.onTap});
 
   final TransactionEntry entry;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +120,7 @@ class _TransactionTile extends StatelessWidget {
               appearance: category.appearance,
               name: category.name,
             ),
+      onTap: onTap,
       title: Text(entry.transaction.name),
       subtitle: Text(
         texts.transactionPlace(

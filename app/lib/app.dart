@@ -1,3 +1,4 @@
+import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'accounts/accounts_screen.dart';
@@ -7,6 +8,8 @@ import 'home_shell.dart';
 import 'l10n/app_localizations.dart';
 import 'more/import_view_model.dart';
 import 'more/more_screen.dart';
+import 'transactions/transaction_form_screen.dart';
+import 'transactions/transaction_form_view_model.dart';
 import 'transactions/transactions_screen.dart';
 import 'transactions/transactions_view_model.dart';
 
@@ -35,6 +38,24 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
   );
   late final _import = ImportViewModel(importer: _dependencies.backupImporter);
 
+  Future<void> _openTransactionForm(
+    BuildContext context, {
+    Transaction? existing,
+  }) => Navigator.of(context).push<void>(
+    MaterialPageRoute(
+      builder: (_) => TransactionFormScreen(
+        viewModel: TransactionFormViewModel(
+          transactions: _dependencies.transactions,
+          accounts: _dependencies.accounts,
+          categories: _dependencies.categories,
+          newId: _dependencies.newId,
+          now: DateTime.now,
+          existing: existing,
+        ),
+      ),
+    ),
+  );
+
   @override
   void dispose() {
     _transactions.dispose();
@@ -53,7 +74,10 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     ],
     supportedLocales: AppLocalizations.supportedLocales,
     home: HomeShell(
-      transactions: (_) => TransactionsScreen(viewModel: _transactions),
+      transactions: (_) => TransactionsScreen(
+        viewModel: _transactions,
+        openForm: _openTransactionForm,
+      ),
       accounts: (_) => AccountsScreen(viewModel: _accounts),
       more: (_) => MoreScreen(importViewModel: _import),
     ),

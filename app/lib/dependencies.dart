@@ -12,6 +12,7 @@ final class Dependencies {
   const Dependencies({
     required this.accounts,
     required this.categories,
+    required this.transactions,
     required this.ledger,
     required this.backupImporter,
     required this.newId,
@@ -26,6 +27,7 @@ final class Dependencies {
     return Dependencies(
       accounts: accounts,
       categories: categories,
+      transactions: transactions,
       ledger: Ledger(
         transactions: transactions,
         transfers: transfers,
@@ -51,6 +53,7 @@ final class Dependencies {
 
   final AccountRepository accounts;
   final CategoryRepository categories;
+  final TransactionRepository transactions;
   final Ledger ledger;
   final BackupImporter backupImporter;
   final String Function() newId;

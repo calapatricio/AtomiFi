@@ -20,6 +20,20 @@ final class Money implements Comparable<Money> {
 
   const Money.zero(this.currency) : minorUnits = 0;
 
+  /// Reads an amount as a person types it, such as `12`, `12.5` or `12,50`.
+  ///
+  /// Gives nothing for text that is not an amount, that carries a sign or
+  /// that has more decimals than [currency] has.
+  static Money? tryParse(String text, Currency currency) {
+    final match = _typedAmount.firstMatch(text.trim());
+    final decimals = match?.group(2) ?? '';
+    if (match == null || decimals.length > currency.decimals) return null;
+    final digits = match.group(1)! + decimals.padRight(currency.decimals, '0');
+    return Money(int.parse(digits), currency);
+  }
+
+  static final _typedAmount = RegExp(r'^(\d+)(?:[.,](\d+))?$');
+
   final int minorUnits;
   final Currency currency;
 
@@ -34,6 +48,9 @@ final class Money implements Comparable<Money> {
       Money(minorUnits - _unitsOf(other), currency);
 
   Money operator -() => Money(-minorUnits, currency);
+
+  /// This amount without its sign.
+  Money abs() => Money(minorUnits.abs(), currency);
 
   /// Splits this amount in proportion to [weights] without losing a unit.
   ///
