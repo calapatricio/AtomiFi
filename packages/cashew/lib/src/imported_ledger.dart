@@ -17,6 +17,7 @@ final class ImportedLedger {
   final List<Category> categories;
   final List<Transaction> transactions;
 
-  /// How many rows were left out because they had no amount.
+  /// How many rows were left out because they had no amount, such as
+  /// upcoming transactions that were never paid.
   final int skippedRows;
 }

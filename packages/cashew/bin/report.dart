@@ -22,7 +22,7 @@ void main(List<String> arguments) {
     ..writeln('Transactions: ${ledger.transactions.length}')
     ..writeln('Accounts: ${ledger.accounts.length}')
     ..writeln('Categories: ${ledger.categories.length}')
-    ..writeln('Rows skipped for having no amount: ${ledger.skippedRows}')
+    ..writeln('Rows skipped (no amount, not paid yet): ${ledger.skippedRows}')
     ..writeln()
     ..writeln('Balances');
   summary.balances.forEach((account, balance) {

@@ -45,6 +45,9 @@ final class _Columns {
   static const _date = 'date';
   static const _category = 'category name';
   static const _subcategory = 'subcategory name';
+
+  /// Cashew leaves the amount of a transaction empty until it is paid.
+  static const _noAmount = 0.0;
   static const _needed = [
     _account,
     _amount,
@@ -78,6 +81,7 @@ final class _Columns {
 
   double _amountOf(List<String> record) {
     final text = _field(record, _amount);
+    if (text.isEmpty) return _noAmount;
     return double.tryParse(text) ??
         (throw FormatException('the amount "$text" is not a number'));
   }
