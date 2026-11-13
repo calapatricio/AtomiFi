@@ -128,10 +128,11 @@ void main() {
     });
 
     test('gives it one item that is entirely mine', () {
-      final item =
-          _convert(backup(transactions: [transaction()])).transactions.single
-              .items
-              .single;
+      final item = _convert(backup(transactions: [transaction()]))
+          .transactions
+          .single
+          .items
+          .single;
 
       expect(item.name, 'Tacos');
       expect(item.ownAmount, _eur(-2650));

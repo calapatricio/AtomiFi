@@ -44,7 +44,8 @@ void main() {
     });
 
     test('restores how a category looks', () async {
-      const looks = Appearance(color: 0xFFFFEB3B, iconName: 'tram', emoji: '🚋');
+      const looks =
+          Appearance(color: 0xFFFFEB3B, iconName: 'tram', emoji: '🚋');
       await categories.save(
         const Category(
           id: CategoryId('transport'),
