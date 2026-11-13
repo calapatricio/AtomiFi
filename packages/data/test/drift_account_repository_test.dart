@@ -48,6 +48,15 @@ void main() {
       expect((await accounts.all()).single.appearance, looks);
     });
 
+    test('restores whether an account is archived', () async {
+      await accounts.save(bank.archived());
+      await accounts.save(savings);
+
+      final saved = await accounts.all();
+
+      expect(saved.map((account) => account.isArchived), [true, false]);
+    });
+
     test('saving an account again replaces it', () async {
       await accounts.save(bank);
       await accounts.save(
@@ -59,6 +68,101 @@ void main() {
       );
 
       expect((await accounts.all()).single.name, 'Main bank');
+    });
+  });
+
+  group('DriftAccountRepository.remove', () {
+    late AtomiFiDatabase database;
+    late AccountRepository accounts;
+    late TransactionRepository transactions;
+    late TransferRepository transfers;
+    late RevaluationRepository revaluations;
+
+    Transaction spending(String id, Account account) => Transaction(
+          id: TransactionId(id),
+          name: 'Spending',
+          dateTime: DateTime(2026, 6, 21),
+          accountId: account.id,
+          items: [
+            Item(
+              id: ItemId('$id-item'),
+              name: 'Dinner',
+              categoryId: food.id,
+              shares: [
+                Share(const Me(), eur(-1000)),
+                Share(moy, eur(-500)),
+              ],
+            ),
+          ],
+        );
+
+    Transfer transfer(String id, Account from, Account to) => Transfer(
+          id: TransferId(id),
+          outgoing: TransferLeg(
+            accountId: from.id,
+            dateTime: DateTime(2026, 6, 1),
+            amount: eur(30000),
+          ),
+          incoming: TransferLeg(
+            accountId: to.id,
+            dateTime: DateTime(2026, 6, 1),
+            amount: eur(30000),
+          ),
+        );
+
+    setUp(() async {
+      database = await openSeededDatabase();
+      accounts = DriftAccountRepository(database);
+      transactions = DriftTransactionRepository(database);
+      transfers = DriftTransferRepository(database);
+      revaluations = DriftRevaluationRepository(database);
+      await transactions.save(spending('in-savings', savings));
+      await transactions.save(spending('in-bank', bank));
+      await transfers.save(transfer('deposit', bank, savings));
+      await transfers.save(transfer('withdrawal', savings, bank));
+      await transfers.save(transfer('elsewhere', bank, broker));
+      await revaluations.save(
+        Revaluation(
+          id: const RevaluationId('worth'),
+          accountId: savings.id,
+          dateTime: DateTime(2026, 6, 30),
+          value: eur(32500),
+        ),
+      );
+    });
+
+    tearDown(() => database.close());
+
+    test('removes the account', () async {
+      await accounts.remove(savings.id);
+
+      final left = await accounts.all();
+
+      expect(left.map((account) => account.id), [bank.id, broker.id]);
+    });
+
+    test('removes its transactions with their items and shares', () async {
+      await accounts.remove(savings.id);
+
+      final left = await transactions.all();
+
+      expect(left.single.id, const TransactionId('in-bank'));
+      expect(await database.select(database.items).get(), hasLength(1));
+      expect(await database.select(database.shares).get(), hasLength(2));
+    });
+
+    test('removes its revaluations', () async {
+      await accounts.remove(savings.id);
+
+      expect(await revaluations.all(), isEmpty);
+    });
+
+    test('removes the transfers it sent or received, and no others', () async {
+      await accounts.remove(savings.id);
+
+      final left = await transfers.all();
+
+      expect(left.single.id, const TransferId('elsewhere'));
     });
   });
 }

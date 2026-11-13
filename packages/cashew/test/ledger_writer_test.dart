@@ -11,6 +11,10 @@ final class _Accounts implements AccountRepository {
   Future<void> save(Account account) async => saved.add(account);
 
   @override
+  Future<void> remove(AccountId id) async =>
+      saved.removeWhere((account) => account.id == id);
+
+  @override
   Future<List<Account>> all() async => saved;
 }
 

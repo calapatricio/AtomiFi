@@ -35,6 +35,14 @@ void main() {
       expect(toBroker.incoming.amount, usd(32400));
     });
 
+    test('involves the two accounts it moves money between', () {
+      final toSavings = transfer();
+
+      expect(toSavings.involves(bank.id), isTrue);
+      expect(toSavings.involves(savings.id), isTrue);
+      expect(toSavings.involves(broker.id), isFalse);
+    });
+
     test('rejects a transfer from an account to itself', () {
       expect(() => transfer(to: bank), throwsArgumentError);
     });
