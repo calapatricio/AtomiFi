@@ -43,6 +43,26 @@ void main() {
       expect(saved.map((category) => category.parentId), [leisure.id, null]);
     });
 
+    test('restores how a category looks', () async {
+      const looks = Appearance(color: 0xFFFFEB3B, iconName: 'tram', emoji: '🚋');
+      await categories.save(
+        const Category(
+          id: CategoryId('transport'),
+          name: 'Transport',
+          side: CategorySide.expense,
+          appearance: looks,
+        ),
+      );
+
+      expect((await categories.all()).single.appearance, looks);
+    });
+
+    test('restores a category that looks like nothing in particular', () async {
+      await categories.save(food);
+
+      expect((await categories.all()).single.appearance, Appearance.none);
+    });
+
     test('saving a category again replaces it', () async {
       await categories.save(food);
       await categories.save(

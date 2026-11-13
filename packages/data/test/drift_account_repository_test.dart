@@ -34,6 +34,20 @@ void main() {
       );
     });
 
+    test('restores how an account looks', () async {
+      const looks = Appearance(color: 0xFF607D8B, iconName: 'bank');
+      await accounts.save(
+        const Account(
+          id: AccountId('bank'),
+          name: 'Bank',
+          currency: Currency.eur,
+          appearance: looks,
+        ),
+      );
+
+      expect((await accounts.all()).single.appearance, looks);
+    });
+
     test('saving an account again replaces it', () async {
       await accounts.save(bank);
       await accounts.save(

@@ -24,6 +24,20 @@ final class _Categories implements CategoryRepository {
   Future<List<Category>> all() async => saved;
 }
 
+final class _Transfers implements TransferRepository {
+  final saved = <Transfer>[];
+
+  @override
+  Future<void> save(Transfer transfer) async => saved.add(transfer);
+
+  @override
+  Future<void> remove(TransferId id) async =>
+      saved.removeWhere((transfer) => transfer.id == id);
+
+  @override
+  Future<List<Transfer>> all() async => saved;
+}
+
 final class _Transactions implements TransactionRepository {
   final saved = <Transaction>[];
 
@@ -38,27 +52,32 @@ final class _Transactions implements TransactionRepository {
   Future<List<Transaction>> all() async => saved;
 }
 
+ImportedLedger _ledger() => CashewConverter(newId: sequentialIds())
+    .convert(const CashewExportParser().parse(sampleExport));
+
 void main() {
-  group('CashewImporter', () {
+  group('LedgerWriter', () {
     late _Accounts accounts;
     late _Categories categories;
     late _Transactions transactions;
-    late CashewImporter importer;
+    late _Transfers transfers;
+    late LedgerWriter writer;
 
     setUp(() {
       accounts = _Accounts();
       categories = _Categories();
       transactions = _Transactions();
-      importer = CashewImporter(
-        converter: CashewConverter(newId: sequentialIds()),
+      transfers = _Transfers();
+      writer = LedgerWriter(
         accounts: accounts,
         categories: categories,
         transactions: transactions,
+        transfers: transfers,
       );
     });
 
-    test('stores the accounts, categories and transactions it reads', () async {
-      await importer.importCsv(sampleExport);
+    test('stores the accounts, categories and transactions', () async {
+      await writer.write(_ledger());
 
       expect(accounts.saved.map((account) => account.name), ['Imagin', 'Cash']);
       expect(categories.saved, hasLength(5));
@@ -66,18 +85,39 @@ void main() {
     });
 
     test('stores a category before its subcategories', () async {
-      await importer.importCsv(sampleExport);
+      await writer.write(_ledger());
 
       final names = categories.saved.map((category) => category.name).toList();
 
       expect(names.indexOf('Ocio'), lessThan(names.indexOf('Alcohol')));
     });
 
-    test('tells what it imported', () async {
-      final ledger = await importer.importCsv(sampleExport);
+    test('stores the transfers', () async {
+      final transfer = Transfer(
+        id: const TransferId('dca'),
+        outgoing: TransferLeg(
+          accountId: const AccountId('bank'),
+          dateTime: DateTime(2026, 11, 1),
+          amount: const Money(2000, Currency.eur),
+        ),
+        incoming: TransferLeg(
+          accountId: const AccountId('broker'),
+          dateTime: DateTime(2026, 11, 1),
+          amount: const Money(2000, Currency.eur),
+        ),
+      );
 
-      expect(ledger.transactions, transactions.saved);
-      expect(ledger.skippedRows, 0);
+      await writer.write(
+        ImportedLedger(
+          accounts: const [],
+          categories: const [],
+          transactions: const [],
+          transfers: [transfer],
+          skippedRows: 0,
+        ),
+      );
+
+      expect(transfers.saved, [transfer]);
     });
   });
 }

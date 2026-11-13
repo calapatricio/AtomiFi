@@ -26,6 +26,38 @@ void main() {
       expect(balances, {'Imagin': _eur(147350), 'Cash': _eur(-400)});
     });
 
+    test('counts transfers in the balances', () {
+      final ledger = CashewConverter(newId: sequentialIds()).convert([
+        row(account: 'Imagin', category: 'Salario', amount: 1500),
+        row(account: 'Cash', amount: -4),
+      ]);
+      final [imagin, cash] = ledger.accounts;
+      final withdrawal = Transfer(
+        id: const TransferId('withdrawal'),
+        outgoing: TransferLeg(
+          accountId: imagin.id,
+          dateTime: DateTime(2026, 11, 3),
+          amount: _eur(5000),
+        ),
+        incoming: TransferLeg(
+          accountId: cash.id,
+          dateTime: DateTime(2026, 11, 3),
+          amount: _eur(5000),
+        ),
+      );
+      final summary = LedgerSummary(
+        ImportedLedger(
+          accounts: ledger.accounts,
+          categories: ledger.categories,
+          transactions: ledger.transactions,
+          transfers: [withdrawal],
+          skippedRows: 0,
+        ),
+      );
+
+      expect(summary.balances.values, [_eur(145000), _eur(4600)]);
+    });
+
     test('tells the income and expenses of each month', () {
       final summary = _summaryOf([
         row(category: 'Salario', amount: 1500, date: DateTime(2026, 10, 28)),
