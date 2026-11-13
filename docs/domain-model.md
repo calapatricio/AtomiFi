@@ -11,6 +11,9 @@
 - **Share**: the part of an item borne by one party, either me or a named
   person. All shares of an item have the same sign.
 - **Account**: a name, a currency and an appearance (color, icon, emoji).
+  It can be archived, which keeps all its records but puts it out of sight,
+  or removed, which also removes its transactions, its revaluations and
+  both sides of the transfers it took part in.
 - **Transfer**: money moved between two of my accounts. It is two linked
   records, one per account, each with its own date and amount, so each one
   matches a line in that bank's app. The amounts may be in different
