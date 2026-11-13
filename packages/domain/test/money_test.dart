@@ -71,7 +71,8 @@ void main() {
     test('reads nothing from more decimals than the currency has', () {
       expect(Money.tryParse('1.234', Currency.eur), isNull);
       expect(Money.tryParse('1.5', Currency.jpy), isNull);
-      expect(Money.tryParse('1620', Currency.jpy), const Money(1620, Currency.jpy));
+      expect(Money.tryParse('1620', Currency.jpy),
+          const Money(1620, Currency.jpy));
     });
   });
 

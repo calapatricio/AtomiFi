@@ -16,11 +16,10 @@ void main() {
     Future<void> pump(WidgetTester tester) => pumpScreen(
       tester,
       HomeShell(
-        transactions: (_) =>
-            TransactionsScreen(
-              viewModel: transactionsViewModelOn(store),
-              openForm: (context, {existing}) async {},
-            ),
+        transactions: (_) => TransactionsScreen(
+          viewModel: transactionsViewModelOn(store),
+          openForm: (context, {existing}) async {},
+        ),
         accounts: (_) => AccountsScreen(viewModel: accountsViewModelOn(store)),
         more: (_) => const Text('More screen'),
       ),

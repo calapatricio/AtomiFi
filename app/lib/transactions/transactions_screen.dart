@@ -7,8 +7,10 @@ import '../money_formatter.dart';
 import '../widgets/appearance_avatar.dart';
 import 'transactions_view_model.dart';
 
-typedef OpenTransactionForm =
-    Future<void> Function(BuildContext context, {Transaction? existing});
+typedef OpenTransactionForm = Future<void> Function(
+  BuildContext context, {
+  Transaction? existing,
+});
 
 /// Lists everything that happened, day by day, latest first.
 class TransactionsScreen extends StatefulWidget {

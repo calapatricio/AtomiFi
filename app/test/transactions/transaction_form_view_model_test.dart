@@ -20,14 +20,16 @@ void main() {
   });
 
   group('A new transaction', () {
-    test('starts as an expense of now, in the first account, with one item',
-        () {
-      expect(form.isEditing, isFalse);
-      expect(form.direction, Direction.expense);
-      expect(form.dateTime, now);
-      expect(form.account!.id, bank.id);
-      expect(form.items, hasLength(1));
-    });
+    test(
+      'starts as an expense of now, in the first account, with one item',
+      () {
+        expect(form.isEditing, isFalse);
+        expect(form.direction, Direction.expense);
+        expect(form.dateTime, now);
+        expect(form.account!.id, bank.id);
+        expect(form.items, hasLength(1));
+      },
+    );
 
     test('cannot be saved until it is complete', () {
       expect(form.canSave, isFalse);

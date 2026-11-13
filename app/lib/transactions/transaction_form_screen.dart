@@ -153,15 +153,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     );
   }
 
-  Widget _directionPicker(AppLocalizations texts) =>
-      SegmentedButton<Direction>(
-        segments: [
-          ButtonSegment(value: Direction.expense, label: Text(texts.expense)),
-          ButtonSegment(value: Direction.income, label: Text(texts.income)),
-        ],
-        selected: {_form.direction},
-        onSelectionChanged: (selected) => _form.direction = selected.single,
-      );
+  Widget _directionPicker(AppLocalizations texts) => SegmentedButton<Direction>(
+    segments: [
+      ButtonSegment(value: Direction.expense, label: Text(texts.expense)),
+      ButtonSegment(value: Direction.income, label: Text(texts.income)),
+    ],
+    selected: {_form.direction},
+    onSelectionChanged: (selected) => _form.direction = selected.single,
+  );
 
   Widget _accountPicker(AppLocalizations texts) => DropdownMenu<AccountId>(
     key: ValueKey(_form.account?.id),
