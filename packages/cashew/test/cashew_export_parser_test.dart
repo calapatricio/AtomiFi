@@ -58,12 +58,38 @@ void main() {
       );
     });
 
+    test('rejects a row whose date cannot be read, saying which', () {
+      const broken = '$header\n'
+          'Imagin,-1,,EUR,BiciMad,,yesterday,false,default,Transporte,,,,,,,\n'
+          'Imagin,-1,,EUR,BiciMad,,9 Nov,false,default,Transporte,,,,,,,\n';
+
+      expect(
+        () => parser.parse(broken),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            'Row 1: the date "yesterday" cannot be read',
+          ),
+        ),
+      );
+    });
+
     test('rejects a row whose amount is not a number', () {
       const broken = '$header\n'
           'Imagin,five,,EUR,BiciMad,,2026-11-09 04:40:33.000,false,default,'
           'Transporte,,,,,,,\n';
 
-      expect(() => parser.parse(broken), throwsFormatException);
+      expect(
+        () => parser.parse(broken),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            'Row 1: the amount "five" is not a number',
+          ),
+        ),
+      );
     });
   });
 }
