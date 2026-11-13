@@ -19,33 +19,33 @@ const savings = Account(
 Money eur(int cents) => Money(cents, Currency.eur);
 
 Transaction income(String id, Account account, int cents) => Transaction(
-      id: TransactionId(id),
+  id: TransactionId(id),
+  name: 'Payroll',
+  dateTime: DateTime(2026, 11, 1),
+  accountId: account.id,
+  items: [
+    Item.mine(
+      id: ItemId('$id-item'),
       name: 'Payroll',
-      dateTime: DateTime(2026, 11, 1),
-      accountId: account.id,
-      items: [
-        Item.mine(
-          id: ItemId('$id-item'),
-          name: 'Payroll',
-          categoryId: const CategoryId('salary'),
-          price: eur(cents),
-        ),
-      ],
-    );
+      categoryId: const CategoryId('salary'),
+      price: eur(cents),
+    ),
+  ],
+);
 
 Transfer transfer(String id, Account from, Account to, int cents) => Transfer(
-      id: TransferId(id),
-      outgoing: TransferLeg(
-        accountId: from.id,
-        dateTime: DateTime(2026, 11, 2),
-        amount: eur(cents),
-      ),
-      incoming: TransferLeg(
-        accountId: to.id,
-        dateTime: DateTime(2026, 11, 2),
-        amount: eur(cents),
-      ),
-    );
+  id: TransferId(id),
+  outgoing: TransferLeg(
+    accountId: from.id,
+    dateTime: DateTime(2026, 11, 2),
+    amount: eur(cents),
+  ),
+  incoming: TransferLeg(
+    accountId: to.id,
+    dateTime: DateTime(2026, 11, 2),
+    amount: eur(cents),
+  ),
+);
 
 AccountsViewModel accountsViewModelOn(InMemoryStore store) {
   var nextId = 0;

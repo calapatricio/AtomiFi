@@ -30,15 +30,13 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        ),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          ...GlobalMaterialLocalizations.delegates,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: AccountsScreen(viewModel: _accounts),
-      );
+    onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      ...GlobalMaterialLocalizations.delegates,
+    ],
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: AccountsScreen(viewModel: _accounts),
+  );
 }

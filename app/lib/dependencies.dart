@@ -13,14 +13,14 @@ final class Dependencies {
 
   /// The dependencies of the real app, kept in [database].
   factory Dependencies.onDatabase(AtomiFiDatabase database) => Dependencies(
-        accounts: DriftAccountRepository(database),
-        ledger: Ledger(
-          transactions: DriftTransactionRepository(database),
-          transfers: DriftTransferRepository(database),
-          revaluations: DriftRevaluationRepository(database),
-        ),
-        newId: const Uuid().v4,
-      );
+    accounts: DriftAccountRepository(database),
+    ledger: Ledger(
+      transactions: DriftTransactionRepository(database),
+      transfers: DriftTransferRepository(database),
+      revaluations: DriftRevaluationRepository(database),
+    ),
+    newId: const Uuid().v4,
+  );
 
   final AccountRepository accounts;
   final Ledger ledger;

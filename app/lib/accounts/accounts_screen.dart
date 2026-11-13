@@ -59,8 +59,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
       ),
       body: ListenableBuilder(
         listenable: _viewModel,
-        builder: (context, _) => _viewModel.active.isEmpty &&
-                _viewModel.archived.isEmpty
+        builder: (context, _) =>
+            _viewModel.active.isEmpty && _viewModel.archived.isEmpty
             ? Center(child: Text(texts.noAccounts))
             : _accountList(texts),
       ),
@@ -68,33 +68,31 @@ class _AccountsScreenState extends State<AccountsScreen> {
   }
 
   Widget _accountList(AppLocalizations texts) => ListView(
-        children: [
-          for (final summary in _viewModel.active)
-            _AccountTile(
-              summary: summary,
-              actions: [
-                (texts.archive, () => _viewModel.archive(summary.account)),
-                (texts.delete, () => _remove(summary.account)),
-              ],
-            ),
-          if (_viewModel.archived.isNotEmpty)
-            ExpansionTile(
-              title: Text(
-                texts.archivedAccounts(_viewModel.archived.length),
+    children: [
+      for (final summary in _viewModel.active)
+        _AccountTile(
+          summary: summary,
+          actions: [
+            (texts.archive, () => _viewModel.archive(summary.account)),
+            (texts.delete, () => _remove(summary.account)),
+          ],
+        ),
+      if (_viewModel.archived.isNotEmpty)
+        ExpansionTile(
+          title: Text(texts.archivedAccounts(_viewModel.archived.length)),
+          children: [
+            for (final summary in _viewModel.archived)
+              _AccountTile(
+                summary: summary,
+                actions: [
+                  (texts.restore, () => _viewModel.restore(summary.account)),
+                  (texts.delete, () => _remove(summary.account)),
+                ],
               ),
-              children: [
-                for (final summary in _viewModel.archived)
-                  _AccountTile(
-                    summary: summary,
-                    actions: [
-                      (texts.restore, () => _viewModel.restore(summary.account)),
-                      (texts.delete, () => _remove(summary.account)),
-                    ],
-                  ),
-              ],
-            ),
-        ],
-      );
+          ],
+        ),
+    ],
+  );
 }
 
 /// Something the user can do with an account: its label and what it does.

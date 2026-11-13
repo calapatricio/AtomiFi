@@ -11,8 +11,10 @@ void main() {
 
     setUp(() => store = InMemoryStore());
 
-    Future<void> pump(WidgetTester tester) =>
-        pumpScreen(tester, AccountsScreen(viewModel: accountsViewModelOn(store)));
+    Future<void> pump(WidgetTester tester) => pumpScreen(
+      tester,
+      AccountsScreen(viewModel: accountsViewModelOn(store)),
+    );
 
     testWidgets('invites to add an account when there is none', (tester) async {
       await pump(tester);
@@ -91,8 +93,9 @@ void main() {
       );
     });
 
-    testWidgets('keeps the account when the deletion is cancelled',
-        (tester) async {
+    testWidgets('keeps the account when the deletion is cancelled', (
+      tester,
+    ) async {
       await store.accounts.save(bank);
       await pump(tester);
 

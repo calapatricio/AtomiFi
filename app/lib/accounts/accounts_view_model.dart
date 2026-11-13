@@ -18,9 +18,9 @@ final class AccountsViewModel extends ChangeNotifier {
     required AccountRepository accounts,
     required Ledger ledger,
     required String Function() newId,
-  })  : _accounts = accounts,
-        _ledger = ledger,
-        _newId = newId;
+  }) : _accounts = accounts,
+       _ledger = ledger,
+       _newId = newId;
 
   final AccountRepository _accounts;
   final Ledger _ledger;
@@ -31,15 +31,15 @@ final class AccountsViewModel extends ChangeNotifier {
 
   /// The accounts in use, ordered by name.
   List<AccountSummary> get active => [
-        for (final summary in _summaries)
-          if (!summary.account.isArchived) summary,
-      ];
+    for (final summary in _summaries)
+      if (!summary.account.isArchived) summary,
+  ];
 
   /// The retired accounts, ordered by name.
   List<AccountSummary> get archived => [
-        for (final summary in _summaries)
-          if (summary.account.isArchived) summary,
-      ];
+    for (final summary in _summaries)
+      if (summary.account.isArchived) summary,
+  ];
 
   Future<void> load() async {
     final accounts = await _accounts.all();
@@ -72,22 +72,22 @@ final class AccountsViewModel extends ChangeNotifier {
 
   /// What removing [account] would take with it.
   AccountRemoval removalOf(Account account) => AccountRemoval(
-        account: account,
-        transactions: _snapshot.transactions,
-        transfers: _snapshot.transfers,
-        revaluations: _snapshot.revaluations,
-      );
+    account: account,
+    transactions: _snapshot.transactions,
+    transfers: _snapshot.transfers,
+    revaluations: _snapshot.revaluations,
+  );
 
   /// The other accounts whose balance [removal] would change, and by how
   /// much.
   List<BalanceChange> balanceChangesOf(AccountRemoval removal) => [
-        for (final summary in _summaries)
-          if (summary.account.id != removal.account.id)
-            (
-              account: summary.account,
-              change: removal.balanceChangeOf(summary.account),
-            ),
-      ].where((entry) => !entry.change.isZero).toList();
+    for (final summary in _summaries)
+      if (summary.account.id != removal.account.id)
+        (
+          account: summary.account,
+          change: removal.balanceChangeOf(summary.account),
+        ),
+  ].where((entry) => !entry.change.isZero).toList();
 
   Future<void> _saveAndReload(Account account) async {
     await _accounts.save(account);

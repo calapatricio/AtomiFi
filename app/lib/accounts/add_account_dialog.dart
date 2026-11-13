@@ -37,9 +37,8 @@ class _AddAccountDialogState extends State<_AddAccountDialog> {
 
   void _save() {
     if (!_form.currentState!.validate()) return;
-    Navigator.of(context).pop<NewAccount>(
-      (name: _name.text, currencyCode: _currency.text),
-    );
+    Navigator.of(context)
+        .pop<NewAccount>((name: _name.text, currencyCode: _currency.text));
   }
 
   @override
@@ -66,8 +65,8 @@ class _AddAccountDialogState extends State<_AddAccountDialog> {
               textCapitalization: TextCapitalization.characters,
               validator: (code) =>
                   code != null && _currencyCode.hasMatch(code.trim())
-                      ? null
-                      : texts.currencyCodeInvalid,
+                  ? null
+                  : texts.currencyCodeInvalid,
             ),
           ],
         ),
