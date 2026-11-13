@@ -17,7 +17,10 @@ void main() {
       tester,
       HomeShell(
         transactions: (_) =>
-            TransactionsScreen(viewModel: transactionsViewModelOn(store)),
+            TransactionsScreen(
+              viewModel: transactionsViewModelOn(store),
+              openForm: (context, {existing}) async {},
+            ),
         accounts: (_) => AccountsScreen(viewModel: accountsViewModelOn(store)),
         more: (_) => const Text('More screen'),
       ),

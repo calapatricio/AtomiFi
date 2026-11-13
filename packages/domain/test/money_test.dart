@@ -50,6 +50,38 @@ void main() {
     });
   });
 
+  group('Money.tryParse', () {
+    test('reads whole amounts and amounts with decimals', () {
+      expect(Money.tryParse('12', Currency.eur), eur(1200));
+      expect(Money.tryParse('12.5', Currency.eur), eur(1250));
+      expect(Money.tryParse('0.05', Currency.eur), eur(5));
+    });
+
+    test('accepts a comma for the decimals and spaces around', () {
+      expect(Money.tryParse(' 12,50 ', Currency.eur), eur(1250));
+    });
+
+    test('reads nothing from what is not an amount', () {
+      expect(Money.tryParse('', Currency.eur), isNull);
+      expect(Money.tryParse('abc', Currency.eur), isNull);
+      expect(Money.tryParse('-5', Currency.eur), isNull);
+      expect(Money.tryParse('1.2.3', Currency.eur), isNull);
+    });
+
+    test('reads nothing from more decimals than the currency has', () {
+      expect(Money.tryParse('1.234', Currency.eur), isNull);
+      expect(Money.tryParse('1.5', Currency.jpy), isNull);
+      expect(Money.tryParse('1620', Currency.jpy), const Money(1620, Currency.jpy));
+    });
+  });
+
+  group('Money.abs', () {
+    test('drops the sign', () {
+      expect(eur(-250).abs(), eur(250));
+      expect(eur(250).abs(), eur(250));
+    });
+  });
+
   group('Money.allocate', () {
     test('gives the indivisible cents to the first parts', () {
       expect(

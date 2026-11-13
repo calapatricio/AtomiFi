@@ -1,4 +1,5 @@
 import 'package:atomifi/accounts/accounts_view_model.dart';
+import 'package:atomifi/transactions/transaction_form_view_model.dart';
 import 'package:atomifi/transactions/transactions_view_model.dart';
 import 'package:atomifi/l10n/app_localizations.dart';
 import 'package:atomifi_domain/atomifi_domain.dart';
@@ -139,4 +140,22 @@ Future<void> pumpScreen(WidgetTester tester, Widget screen) async {
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// The moment the tests take for now.
+final now = DateTime(2026, 11, 13, 16, 50);
+
+TransactionFormViewModel transactionFormOn(
+  InMemoryStore store, {
+  Transaction? existing,
+}) {
+  var nextId = 0;
+  return TransactionFormViewModel(
+    transactions: store.transactions,
+    accounts: store.accounts,
+    categories: store.categories,
+    newId: () => 'new-${nextId++}',
+    now: () => now,
+    existing: existing,
+  );
 }
