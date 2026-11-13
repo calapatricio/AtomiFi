@@ -63,17 +63,29 @@ final class _Columns {
       final subcategory = _field(record, _subcategory);
       return CashewRow(
         account: _field(record, _account),
-        amount: double.parse(_field(record, _amount)),
+        amount: _amountOf(record),
         currencyCode: _field(record, _currency),
         title: _field(record, _title),
         note: _field(record, _note),
-        date: DateTime.parse(_field(record, _date)),
+        date: _dateOf(record),
         category: _field(record, _category),
         subcategory: subcategory.isEmpty ? null : subcategory,
       );
     } on FormatException catch (error) {
       throw FormatException('Row $number: ${error.message}');
     }
+  }
+
+  double _amountOf(List<String> record) {
+    final text = _field(record, _amount);
+    return double.tryParse(text) ??
+        (throw FormatException('the amount "$text" is not a number'));
+  }
+
+  DateTime _dateOf(List<String> record) {
+    final text = _field(record, _date);
+    return DateTime.tryParse(text) ??
+        (throw FormatException('the date "$text" cannot be read'));
   }
 
   String _field(List<String> record, String name) {
