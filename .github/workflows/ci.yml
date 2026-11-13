@@ -68,3 +68,24 @@ jobs:
         run: dart format . && git diff --exit-code
       - run: flutter analyze
       - run: flutter test
+
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Generate the storage code
+        run: dart pub get && dart run build_runner build
+        working-directory: packages/data
+      - run: flutter build apk --debug
+        working-directory: app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atomifi-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
