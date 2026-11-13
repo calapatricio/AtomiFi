@@ -7,6 +7,9 @@ class Accounts extends Table {
   TextColumn get name => text()();
   TextColumn get currencyCode => text()();
   IntColumn get currencyDecimals => integer()();
+  IntColumn get color => integer().nullable()();
+  TextColumn get iconName => text().nullable()();
+  TextColumn get emoji => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -18,6 +21,9 @@ class Categories extends Table {
   TextColumn get name => text()();
   TextColumn get side => textEnum<CategorySide>()();
   TextColumn get parentId => text().nullable().references(Categories, #id)();
+  IntColumn get color => integer().nullable()();
+  TextColumn get iconName => text().nullable()();
+  TextColumn get emoji => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

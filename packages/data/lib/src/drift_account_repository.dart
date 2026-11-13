@@ -28,11 +28,19 @@ final class DriftAccountRepository implements AccountRepository {
         name: account.name,
         currencyCode: account.currency.code,
         currencyDecimals: account.currency.decimals,
+        color: Value(account.appearance.color),
+        iconName: Value(account.appearance.iconName),
+        emoji: Value(account.appearance.emoji),
       );
 
   static Account _toAccount(AccountRow row) => Account(
         id: AccountId(row.id),
         name: row.name,
         currency: row.currency,
+        appearance: Appearance(
+          color: row.color,
+          iconName: row.iconName,
+          emoji: row.emoji,
+        ),
       );
 }

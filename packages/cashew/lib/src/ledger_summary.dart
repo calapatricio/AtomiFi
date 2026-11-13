@@ -24,7 +24,10 @@ final class LedgerSummary {
   final ImportedLedger _ledger;
 
   Map<Account, Money> get balances {
-    final balances = Balances(_ledger.transactions);
+    final balances = Balances([
+      ..._ledger.transactions,
+      ..._ledger.transfers,
+    ]);
     return {
       for (final account in _ledger.accounts)
         account: balances.balanceOf(account),

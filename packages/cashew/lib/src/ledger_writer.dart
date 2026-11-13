@@ -1,31 +1,25 @@
 import 'package:atomifi_domain/atomifi_domain.dart';
 
-import 'cashew_converter.dart';
-import 'cashew_export_parser.dart';
 import 'imported_ledger.dart';
 
-/// Reads a Cashew CSV export and stores what it holds.
-final class CashewImporter {
-  CashewImporter({
-    required CashewConverter converter,
+/// Stores what an import produced.
+final class LedgerWriter {
+  LedgerWriter({
     required AccountRepository accounts,
     required CategoryRepository categories,
     required TransactionRepository transactions,
-    CashewExportParser parser = const CashewExportParser(),
-  })  : _parser = parser,
-        _converter = converter,
-        _accounts = accounts,
+    required TransferRepository transfers,
+  })  : _accounts = accounts,
         _categories = categories,
-        _transactions = transactions;
+        _transactions = transactions,
+        _transfers = transfers;
 
-  final CashewExportParser _parser;
-  final CashewConverter _converter;
   final AccountRepository _accounts;
   final CategoryRepository _categories;
   final TransactionRepository _transactions;
+  final TransferRepository _transfers;
 
-  Future<ImportedLedger> importCsv(String csv) async {
-    final ledger = _converter.convert(_parser.parse(csv));
+  Future<void> write(ImportedLedger ledger) async {
     for (final account in ledger.accounts) {
       await _accounts.save(account);
     }
@@ -35,6 +29,8 @@ final class CashewImporter {
     for (final transaction in ledger.transactions) {
       await _transactions.save(transaction);
     }
-    return ledger;
+    for (final transfer in ledger.transfers) {
+      await _transfers.save(transfer);
+    }
   }
 }

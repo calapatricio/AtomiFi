@@ -28,6 +28,9 @@ final class DriftCategoryRepository implements CategoryRepository {
         name: category.name,
         side: category.side,
         parentId: Value(category.parentId?.value),
+        color: Value(category.appearance.color),
+        iconName: Value(category.appearance.iconName),
+        emoji: Value(category.appearance.emoji),
       );
 
   static Category _toCategory(CategoryRow row) {
@@ -37,6 +40,11 @@ final class DriftCategoryRepository implements CategoryRepository {
       name: row.name,
       side: row.side,
       parentId: parentId == null ? null : CategoryId(parentId),
+      appearance: Appearance(
+        color: row.color,
+        iconName: row.iconName,
+        emoji: row.emoji,
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 export 'src/account/account.dart';
 export 'src/account/account_repository.dart';
 export 'src/account/balances.dart';
+export 'src/appearance.dart';
 export 'src/category/category.dart';
 export 'src/category/category_repository.dart';
 export 'src/ids.dart';
