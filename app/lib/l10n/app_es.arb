@@ -17,5 +17,17 @@
   "deleteAccountTitle": "¿Eliminar {name}?",
   "deleteAccountRecords": "{count, plural, =0{No tiene registros.} =1{También se eliminará su único registro.} other{También se eliminarán sus {count} registros.}}",
   "deleteAccountBalanceChange": "El saldo de {name} cambiará en {change}.",
-  "cannotBeUndone": "Esta acción no se puede deshacer."
+  "cannotBeUndone": "Esta acción no se puede deshacer.",
+  "transactionsTitle": "Movimientos",
+  "noTransactions": "Aún no hay movimientos.",
+  "transfer": "Transferencia",
+  "revaluation": "Revalorización",
+  "transferBetween": "{from} → {to}",
+  "transactionPlace": "{account} · {categories}",
+  "moreTitle": "Más",
+  "importCashewBackup": "Importar una copia de Cashew",
+  "importCashewBackupHint": "Elige el archivo de copia de seguridad de los ajustes de importación y exportación de Cashew.",
+  "importInProgress": "Importando…",
+  "importDone": "Importado. Movimientos: {transactions}. Transferencias: {transfers}. Omitidos: {skipped}.",
+  "importFailed": "Este archivo no es una copia de Cashew que se pueda leer."
 }

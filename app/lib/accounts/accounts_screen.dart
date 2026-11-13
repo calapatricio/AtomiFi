@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
-import 'account_avatar.dart';
+import '../widgets/appearance_avatar.dart';
 import 'accounts_view_model.dart';
 import 'add_account_dialog.dart';
 import 'remove_account_dialog.dart';
@@ -108,7 +108,10 @@ class _AccountTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final money = MoneyFormatter(Localizations.localeOf(context).toString());
     return ListTile(
-      leading: AccountAvatar(account: summary.account),
+      leading: AppearanceAvatar(
+        appearance: summary.account.appearance,
+        name: summary.account.name,
+      ),
       title: Text(summary.account.name),
       subtitle: Text(money.format(summary.balance)),
       trailing: PopupMenuButton<VoidCallback>(

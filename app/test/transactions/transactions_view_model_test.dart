@@ -60,10 +60,23 @@ void main() {
     });
 
     test('shows a transaction with its account and categories', () async {
+      Item item(String id, Category category) => Item.mine(
+        id: ItemId(id),
+        name: id,
+        categoryId: category.id,
+        price: eur(-500),
+      );
       await store.transactions.save(
-        spending(
-          'party',
-          centsByCategory: {alcohol: -1200, food: -180, alcohol: -300},
+        Transaction(
+          id: const TransactionId('party'),
+          name: 'Party',
+          dateTime: DateTime(2026, 11, 6, 20, 30),
+          accountId: bank.id,
+          items: [
+            item('rum', alcohol),
+            item('bananas', food),
+            item('beer', alcohol),
+          ],
         ),
       );
 

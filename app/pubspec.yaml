@@ -11,13 +11,18 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  atomifi_cashew:
+    path: ../packages/cashew
   atomifi_data:
     path: ../packages/data
   atomifi_domain:
     path: ../packages/domain
   drift_flutter: ^0.3.1
+  file_selector: ^1.0.0
   intl: any
   material_ui: ^1.1.0
+  path_provider: ^2.1.0
+  sqlite3: ^3.0.0
   uuid: ^4.0.0
 
 dev_dependencies:

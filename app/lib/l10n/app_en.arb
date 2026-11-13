@@ -48,5 +48,50 @@
       }
     }
   },
-  "cannotBeUndone": "This cannot be undone."
+  "cannotBeUndone": "This cannot be undone.",
+  "transactionsTitle": "Transactions",
+  "noTransactions": "No transactions yet.",
+  "transfer": "Transfer",
+  "revaluation": "Revaluation",
+  "transferBetween": "{from} → {to}",
+  "transactionPlace": "{account} · {categories}",
+  "moreTitle": "More",
+  "importCashewBackup": "Import a Cashew backup",
+  "importCashewBackupHint": "Choose the backup file from Cashew's import and export settings.",
+  "importInProgress": "Importing…",
+  "importDone": "Imported. Transactions: {transactions}. Transfers: {transfers}. Skipped: {skipped}.",
+  "importFailed": "This file is not a Cashew backup that can be read.",
+  "@transferBetween": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@transactionPlace": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      },
+      "categories": {
+        "type": "String"
+      }
+    }
+  },
+  "@importDone": {
+    "placeholders": {
+      "transactions": {
+        "type": "int"
+      },
+      "transfers": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  }
 }
