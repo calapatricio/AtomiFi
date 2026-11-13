@@ -8,6 +8,7 @@ export 'src/category/category_repository.dart';
 export 'src/ids.dart';
 export 'src/ledger/balance_change.dart';
 export 'src/ledger/item.dart';
+export 'src/ledger/ledger.dart';
 export 'src/ledger/ledger_record.dart';
 export 'src/ledger/party.dart';
 export 'src/ledger/receivables.dart';

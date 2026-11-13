@@ -49,7 +49,9 @@ void main() {
     test('adds an account in the currency with the given code', () async {
       await viewModel.add(name: '  Broker ', currencyCode: 'usd');
 
-      final broker = viewModel.active.first.account;
+      final broker = viewModel.active
+          .map((summary) => summary.account)
+          .firstWhere((account) => account.name == 'Broker');
 
       expect(broker.name, 'Broker');
       expect(broker.currency, Currency.usd);
@@ -104,15 +106,13 @@ void main() {
     });
 
     test('lists no balance change for a removal that affects nobody', () async {
-      await store.accounts.save(
-        const Account(
-          id: AccountId('cash'),
-          name: 'Cash',
-          currency: Currency.eur,
-        ),
+      const cash = Account(
+        id: AccountId('cash'),
+        name: 'Cash',
+        currency: Currency.eur,
       );
+      await store.accounts.save(cash);
       await viewModel.load();
-      final cash = viewModel.active.first.account;
 
       expect(viewModel.balanceChangesOf(viewModel.removalOf(cash)), isEmpty);
     });

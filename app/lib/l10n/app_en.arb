@@ -1,0 +1,52 @@
+{
+  "@@locale": "en",
+  "appTitle": "AtomiFi",
+  "accountsTitle": "Accounts",
+  "noAccounts": "No accounts yet. Add the first one.",
+  "addAccount": "Add account",
+  "accountName": "Name",
+  "accountNameRequired": "Enter a name",
+  "accountCurrency": "Currency code",
+  "currencyCodeInvalid": "Use a three-letter code such as EUR",
+  "archivedAccounts": "Archived ({count})",
+  "@archivedAccounts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archive": "Archive",
+  "restore": "Restore",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "save": "Save",
+  "deleteAccountTitle": "Delete {name}?",
+  "@deleteAccountTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountRecords": "{count, plural, =0{It has no records.} =1{Its only record will be deleted too.} other{Its {count} records will be deleted too.}}",
+  "@deleteAccountRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAccountBalanceChange": "The balance of {name} will change by {change}.",
+  "@deleteAccountBalanceChange": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotBeUndone": "This cannot be undone."
+}
