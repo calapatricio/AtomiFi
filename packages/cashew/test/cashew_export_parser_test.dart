@@ -66,6 +66,21 @@ void main() {
       expect(parser.parse(unpaid).single.amount, 0);
     });
 
+    test('rejects a row that is too short, saying how short', () {
+      const broken = '$header\nImagin,-1,,EUR,BiciMad\n';
+
+      expect(
+        () => parser.parse(broken),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            'Row 1: it has 5 fields, so it has no "note"',
+          ),
+        ),
+      );
+    });
+
     test('rejects a row whose date cannot be read, saying which', () {
       const broken = '$header\n'
           'Imagin,-1,,EUR,BiciMad,,yesterday,false,default,Transporte,,,,,,,\n'

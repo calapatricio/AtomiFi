@@ -37,6 +37,13 @@ void main() {
       ]);
     });
 
+    test('keeps a bare line break in a field when records end in CRLF', () {
+      expect(reader.read('a,one\ntwo,c\r\n1,2,3\r\n'), [
+        ['a', 'one\ntwo', 'c'],
+        ['1', '2', '3'],
+      ]);
+    });
+
     test('does not add a record for the final line break', () {
       expect(reader.read('a,b\n'), [
         ['a', 'b'],
