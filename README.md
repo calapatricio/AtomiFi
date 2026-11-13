@@ -33,6 +33,25 @@ dart test
 
 Every push runs the same checks in GitHub Actions.
 
+## Running the app
+
+Every push to `main` builds a debug APK. Open the latest run of the `ci`
+workflow in the Actions tab, download the `atomifi-debug-apk` artifact,
+unzip it and install the APK on your phone.
+
+To run it from source, with a device or emulator connected:
+
+```sh
+cd packages/data
+dart pub get
+dart run build_runner build
+cd ../../app
+flutter pub get
+flutter run
+```
+
+The app is in English and Spanish and follows the language of the device.
+
 ## Checking a Cashew import
 
 This prints what a Cashew backup turns into: how many transactions and
