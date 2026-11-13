@@ -11,7 +11,7 @@ void main() {
 
     setUp(() => database = openEmptyBackup());
 
-    tearDown(() => database.dispose());
+    tearDown(() => database.close());
 
     test('reads the wallets', () {
       database.execute(
@@ -105,7 +105,7 @@ void main() {
     test('rejects a database that is not laid out like a backup', () {
       final other = sqlite3.openInMemory()
         ..execute('CREATE TABLE wallets (id TEXT)');
-      addTearDown(other.dispose);
+      addTearDown(other.close);
 
       expect(() => reader.read(other), throwsFormatException);
     });

@@ -63,7 +63,7 @@ ImportedLedger _readBackup(String path) {
     return const CashewBackupConverter(defaultCurrencyCode: 'EUR')
         .convert(const CashewBackupReader().read(database));
   } finally {
-    database.dispose();
+    database.close();
   }
 }
 
