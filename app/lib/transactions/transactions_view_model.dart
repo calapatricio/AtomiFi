@@ -1,5 +1,5 @@
 import 'package:atomifi_domain/atomifi_domain.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 /// Something that happened in the ledger, with what is needed to show it.
 sealed class LedgerEntry {

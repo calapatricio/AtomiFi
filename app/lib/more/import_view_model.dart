@@ -1,5 +1,5 @@
 import 'package:atomifi_cashew/atomifi_cashew.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 import 'backup_importer.dart';
 

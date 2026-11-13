@@ -1,5 +1,5 @@
 import 'package:atomifi_domain/atomifi_domain.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 /// An account together with what it holds.
 final class AccountSummary {
