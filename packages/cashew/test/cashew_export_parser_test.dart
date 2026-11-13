@@ -58,6 +58,14 @@ void main() {
       );
     });
 
+    test('reads a row that was never paid as having no amount', () {
+      const unpaid = '$header\n'
+          'Imagin,,-39.9,EUR,Gym,,2026-12-01 00:00:00.000,false,subscription,'
+          'Deporte,,,,,,,\n';
+
+      expect(parser.parse(unpaid).single.amount, 0);
+    });
+
     test('rejects a row whose date cannot be read, saying which', () {
       const broken = '$header\n'
           'Imagin,-1,,EUR,BiciMad,,yesterday,false,default,Transporte,,,,,,,\n'
