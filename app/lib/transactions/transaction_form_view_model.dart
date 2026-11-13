@@ -18,9 +18,7 @@ typedef CategoryOption = ({CategoryId id, String label});
 
 /// The part of an item that somebody else bears, as it is being typed.
 final class ShareDraft {
-  ShareDraft._(this._changed, {String person = '', String amount = ''})
-    : _person = person,
-      _amount = amount;
+  ShareDraft._(this._changed, {this._person = '', this._amount = ''});
 
   final void Function() _changed;
   String _person;
@@ -48,14 +46,11 @@ final class ItemDraft {
     this._changed, {
     this.id,
     this.offsets,
-    String name = '',
-    String price = '',
-    CategoryId? categoryId,
+    this._name = '',
+    this._price = '',
+    this._categoryId,
     List<ShareDraft>? others,
-  }) : _name = name,
-       _price = price,
-       _categoryId = categoryId,
-       _others = others ?? [];
+  }) : _others = others ?? [];
 
   final void Function() _changed;
 
