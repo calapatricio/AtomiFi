@@ -33,13 +33,18 @@ dart test
 
 Every push runs the same checks in GitHub Actions.
 
-## Checking a Cashew export
+## Checking a Cashew import
 
-This prints what your Cashew CSV export turns into: account balances and
-the income and expenses of each month.
+This prints what a Cashew backup turns into: how many transactions and
+transfers it holds, the balance of each account and the income and expenses
+of each month. Compare them with what Cashew shows.
 
 ```sh
 cd packages/cashew
 dart pub get
-dart run bin/report.dart path/to/cashew-export.csv
+dart run bin/report.dart path/to/cashew-backup.sql
 ```
+
+The backup is the file Cashew writes from its import and export settings.
+The command also accepts a CSV export, which carries less: no colors or
+icons, no transfers, and the side of each category has to be guessed.

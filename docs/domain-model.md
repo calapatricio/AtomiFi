@@ -10,14 +10,15 @@
   payout of a bet).
 - **Share**: the part of an item borne by one party, either me or a named
   person. All shares of an item have the same sign.
-- **Account**: a name and a currency.
+- **Account**: a name, a currency and an appearance (color, icon, emoji).
 - **Transfer**: money moved between two of my accounts. It is two linked
   records, one per account, each with its own date and amount, so each one
   matches a line in that bank's app. The amounts may be in different
   currencies.
 - **Revaluation**: what an account was worth at one moment, typed in by me.
   The difference with the balance until then is the market's gain or loss.
-- **Category**: a name, a side (expense or income) and an optional parent.
+- **Category**: a name, a side (expense or income), an optional parent and
+  an appearance.
 - **Money**: an integer number of minor units plus a currency. Negative is
   money leaving an account.
 
