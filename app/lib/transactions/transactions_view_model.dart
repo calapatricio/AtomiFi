@@ -124,7 +124,9 @@ final class _EntryFactory {
       RevaluationEntry(revaluation, _accountById[revaluation.accountId]!),
   ];
 
-  List<Category> _categoriesOf(Transaction transaction) => {
-    for (final item in transaction.items) item.categoryId,
-  }.map((id) => _categoryById[id]).nonNulls.toList();
+  List<Category> _categoriesOf(Transaction transaction) =>
+      {for (final item in transaction.items) item.categoryId}
+          .map((id) => _categoryById[id])
+          .nonNulls
+          .toList();
 }

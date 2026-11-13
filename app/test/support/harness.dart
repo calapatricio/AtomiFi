@@ -60,8 +60,7 @@ Transaction spending(
   dateTime: dateTime ?? DateTime(2026, 11, 6, 20, 30),
   accountId: account.id,
   items: [
-    for (final MapEntry(key: category, value: cents)
-        in centsByCategory.entries)
+    for (final MapEntry(key: category, value: cents) in centsByCategory.entries)
       Item.mine(
         id: ItemId('$id-${category.id.value}'),
         name: category.name,
