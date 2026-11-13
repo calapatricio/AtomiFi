@@ -15,7 +15,7 @@ dependencies:
     path: ../packages/data
   atomifi_domain:
     path: ../packages/domain
-  drift_flutter: ^0.2.0
+  drift_flutter: ^0.3.1
   intl: any
   material_ui: ^1.1.0
   uuid: ^4.0.0
