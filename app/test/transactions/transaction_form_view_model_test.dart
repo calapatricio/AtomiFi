@@ -124,7 +124,10 @@ void main() {
 
       expect(sport.name, 'Sport');
       expect(sport.appearance.emoji, '⚽');
-      expect(form.mainCategories.map((category) => category.id), contains(sport.id));
+      expect(
+        form.mainCategories.map((category) => category.id),
+        contains(sport.id),
+      );
       expect(await store.categories.all(), hasLength(4));
     });
 

@@ -376,9 +376,8 @@ class _ItemCard extends StatelessWidget {
   String? _currencySymbol(BuildContext context) {
     final currency = form.currency;
     if (currency == null) return null;
-    return MoneyFormatter(
-      Localizations.localeOf(context).toString(),
-    ).symbolOf(currency);
+    return MoneyFormatter(Localizations.localeOf(context).toString())
+        .symbolOf(currency);
   }
 
   static String _describe(ItemProblem problem, AppLocalizations texts) =>
