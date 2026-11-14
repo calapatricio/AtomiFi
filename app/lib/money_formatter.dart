@@ -10,6 +10,12 @@ final class MoneyFormatter {
   /// The locale to write for, such as `en` or `es`.
   final String locale;
 
+  /// The symbol of [currency], such as `€`, or its code when it has none.
+  String symbolOf(Currency currency) => NumberFormat.simpleCurrency(
+    locale: locale,
+    name: currency.code,
+  ).currencySymbol;
+
   String format(Money money) {
     final currency = money.currency;
     return NumberFormat.simpleCurrency(

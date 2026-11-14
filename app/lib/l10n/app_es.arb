@@ -48,12 +48,18 @@
   "removePerson": "Quitar persona",
   "splitEvenly": "Dividir a partes iguales",
   "person": "Persona",
-  "yourPart": "Tu parte: {amount}",
-  "total": "Total: {amount}",
   "itemNeedsAmount": "Escribe un importe mayor que cero",
   "itemNeedsCategory": "Elige una categoría",
   "shareIncomplete": "Pon un nombre y un importe a cada persona",
   "personRepeated": "Cada persona solo puede aparecer una vez",
   "sharesExceedAmount": "Las partes de los demás suman más que el importe",
-  "deleteTransactionTitle": "¿Eliminar este movimiento?"
+  "deleteTransactionTitle": "¿Eliminar este movimiento?",
+  "me": "Yo",
+  "includeMe": "Incluirme",
+  "none": "Ninguna",
+  "addCategory": "Añadir categoría",
+  "categoryName": "Nombre",
+  "categoryNameRequired": "Escribe un nombre",
+  "emoji": "Emoji (opcional)",
+  "chooseCategory": "Elige una categoría"
 }

@@ -1,6 +1,8 @@
 import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:flutter/foundation.dart' show ChangeNotifier;
 
+import '../categories/category_choices.dart';
+
 /// Whether the money of a transaction leaves the account or comes in.
 enum Direction { expense, income }
 
@@ -12,9 +14,6 @@ enum ItemProblem {
   repeatedPerson,
   sharesExceedAmount,
 }
-
-/// A category to choose from, named with the category it belongs to.
-typedef CategoryOption = ({CategoryId id, String label});
 
 /// The part of an item that somebody else bears, as it is being typed.
 final class ShareDraft {
@@ -49,6 +48,7 @@ final class ItemDraft {
     this._name = '',
     this._price = '',
     this._categoryId,
+    this._includesMe = true,
     List<ShareDraft>? others,
   }) : _others = others ?? [];
 
@@ -63,6 +63,7 @@ final class ItemDraft {
   String _name;
   String _price;
   CategoryId? _categoryId;
+  bool _includesMe;
   List<ShareDraft> _others;
 
   String get name => _name;
@@ -87,12 +88,21 @@ final class ItemDraft {
     _changed();
   }
 
+  /// Whether I am one of those an even split divides the price among.
+  bool get includesMe => _includesMe;
+
+  set includesMe(bool includesMe) {
+    _includesMe = includesMe;
+    _changed();
+  }
+
   /// The parts borne by other people. What is left of the price is mine.
   List<ShareDraft> get others => List.unmodifiable(_others);
 }
 
 /// The state and the actions of the form that adds or edits a transaction.
-final class TransactionFormViewModel extends ChangeNotifier {
+final class TransactionFormViewModel extends ChangeNotifier
+    implements CategoryChoices {
   TransactionFormViewModel({
     required this._transactions,
     required this._accounts,
@@ -125,7 +135,7 @@ final class TransactionFormViewModel extends ChangeNotifier {
   Account? _account;
   late List<ItemDraft> _items;
   List<Account> _accountsInUse = const [];
-  List<CategoryOption> _categoryOptions = const [];
+  List<Category> _allCategories = const [];
 
   bool get isEditing => _existing != null;
 
@@ -153,8 +163,32 @@ final class TransactionFormViewModel extends ChangeNotifier {
   /// transaction being edited even when it is archived.
   List<Account> get accounts => _accountsInUse;
 
-  /// The categories to choose from, ordered by label.
-  List<CategoryOption> get categoryOptions => _categoryOptions;
+  /// The currency the amounts are typed in: that of the chosen account.
+  Currency? get currency => _account?.currency;
+
+  @override
+  List<Category> get mainCategories => [
+    for (final category in _allCategories)
+      if (category.parentId == null) category,
+  ];
+
+  @override
+  List<Category> subcategoriesOf(CategoryId id) => [
+    for (final category in _allCategories)
+      if (category.parentId == id) category,
+  ];
+
+  /// The name of a category, after that of the category it belongs to.
+  String labelOf(CategoryId id) {
+    final category = _categoryById(id);
+    final parentId = category?.parentId;
+    final parent = parentId == null ? null : _categoryById(parentId);
+    if (category == null) return '';
+    return parent == null ? category.name : '${parent.name} › ${category.name}';
+  }
+
+  /// The category with this id, to show how it looks.
+  Category? categoryOf(CategoryId id) => _categoryById(id);
 
   List<ItemDraft> get items => List.unmodifiable(_items);
 
@@ -168,8 +202,43 @@ final class TransactionFormViewModel extends ChangeNotifier {
     _account ??= accountId == null
         ? _accountsInUse.firstOrNull
         : _accountsInUse.where((account) => account.id == accountId).first;
-    _categoryOptions = _optionsOf(await _categories.all());
+    _allCategories = await _categories.all();
     notifyListeners();
+  }
+
+  /// Adds an account and chooses it for this transaction.
+  Future<void> addAccount({
+    required String name,
+    required String currencyCode,
+  }) async {
+    final account = Account(
+      id: AccountId(_newId()),
+      name: name.trim(),
+      currency: Currency.iso(currencyCode.trim().toUpperCase()),
+    );
+    await _accounts.save(account);
+    _account = account;
+    await load();
+  }
+
+  @override
+  Future<Category> addCategory({
+    required String name,
+    required CategorySide side,
+    String? emoji,
+    CategoryId? parentId,
+  }) async {
+    final parent = parentId == null ? null : _categoryById(parentId);
+    final category = Category(
+      id: CategoryId(_newId()),
+      name: name.trim(),
+      side: parent?.side ?? side,
+      parentId: parentId,
+      appearance: Appearance(emoji: emoji),
+    );
+    await _categories.save(category);
+    await load();
+    return category;
   }
 
   void addItem() => _change(() => _items.add(ItemDraft._(notifyListeners)));
@@ -182,19 +251,21 @@ final class TransactionFormViewModel extends ChangeNotifier {
   void removePerson(ItemDraft item, ShareDraft share) =>
       _change(() => item._others.remove(share));
 
-  /// Divides the price of [item] evenly between me and the others named in
-  /// it. The cents that cannot be divided fall on me.
+  /// Divides the price of [item] evenly among the others named in it, and
+  /// me when it [ItemDraft.includesMe]. The cents that cannot be divided
+  /// fall on me, or on the first person when I take no part.
   void splitEvenly(ItemDraft item) {
     final price = _priceOf(item);
     if (price == null || item._others.isEmpty) return;
-    final parts = price.allocate(List.filled(item._others.length + 1, 1));
+    final mine = item.includesMe ? 1 : 0;
+    final parts = price.allocate(List.filled(item._others.length + mine, 1));
     _change(() {
       item._others = [
         for (final (index, share) in item._others.indexed)
           ShareDraft._(
             notifyListeners,
             person: share.person,
-            amount: parts[index + 1].toDecimalString(),
+            amount: parts[index + mine].toDecimalString(),
           ),
       ];
     });
@@ -222,7 +293,7 @@ final class TransactionFormViewModel extends ChangeNotifier {
 
   /// What leaves or enters the account, when every amount can be read.
   Money? get total {
-    final currency = _account?.currency;
+    final currency = this.currency;
     final prices = [for (final item in _items) _priceOf(item)];
     if (currency == null || prices.contains(null)) return null;
     return prices.nonNulls.fold<Money>(
@@ -282,6 +353,7 @@ final class TransactionFormViewModel extends ChangeNotifier {
     name: item.name,
     price: item.price.abs().toDecimalString(),
     categoryId: item.categoryId,
+    includesMe: !item.ownAmount.isZero,
     others: [
       for (final Share(:party, :amount) in item.shares)
         if (party is Person)
@@ -298,7 +370,7 @@ final class TransactionFormViewModel extends ChangeNotifier {
   Money? _amountOf(ShareDraft share) => _read(share.amount);
 
   Money? _read(String typed) {
-    final currency = _account?.currency;
+    final currency = this.currency;
     return currency == null ? null : Money.tryParse(typed, currency);
   }
 
@@ -315,20 +387,8 @@ final class TransactionFormViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Category? _categoryById(CategoryId id) =>
+      _allCategories.where((category) => category.id == id).firstOrNull;
+
   static String _keyOf(String person) => person.trim().toLowerCase();
-
-  static List<CategoryOption> _optionsOf(List<Category> categories) {
-    final nameById = {
-      for (final category in categories) category.id: category.name,
-    };
-    String labelOf(Category category) {
-      final parent = nameById[category.parentId];
-      return parent == null ? category.name : '$parent › ${category.name}';
-    }
-
-    return [
-      for (final category in categories)
-        (id: category.id, label: labelOf(category)),
-    ]..sort((a, b) => a.label.compareTo(b.label));
-  }
 }

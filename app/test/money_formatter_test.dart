@@ -15,6 +15,11 @@ void main() {
       expect(formatter.format(const Money(-1250, Currency.eur)), '-€12.50');
     });
 
+    test('knows the symbol of a currency', () {
+      expect(formatter.symbolOf(Currency.eur), '€');
+      expect(formatter.symbolOf(Currency.usd), r'$');
+    });
+
     test('writes no decimals for a currency that has none', () {
       expect(formatter.format(const Money(1620, Currency.jpy)), '¥1,620');
     });

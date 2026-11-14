@@ -2,8 +2,12 @@ import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../accounts/add_account_dialog.dart';
+import '../categories/category_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
+import '../widgets/appearance_avatar.dart';
+import '../widgets/choice_carousel.dart';
 import 'transaction_form_view_model.dart';
 
 /// The form that adds a transaction or edits one: what it is, where and
@@ -53,6 +57,15 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (confirmed != true) return;
     await _form.delete();
     if (mounted) await Navigator.of(context).maybePop();
+  }
+
+  Future<void> _addAccount() async {
+    final account = await showAddAccountDialog(context);
+    if (account == null) return;
+    await _form.addAccount(
+      name: account.name,
+      currencyCode: account.currencyCode,
+    );
   }
 
   Future<void> _pickDate() async {
@@ -112,41 +125,46 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              _directionPicker(texts),
-              TextFormField(
-                initialValue: _form.name,
-                decoration: InputDecoration(labelText: texts.transactionName),
-                textCapitalization: TextCapitalization.sentences,
-                onChanged: (name) => _form.name = name,
-              ),
-              _accountPicker(texts),
-              _momentPickers(context),
-              TextFormField(
-                initialValue: _form.note,
-                decoration: InputDecoration(labelText: texts.note),
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: null,
-                onChanged: (note) => _form.note = note,
-              ),
-              Text(texts.items, style: Theme.of(context).textTheme.titleMedium),
-              for (final item in _form.items)
-                _ItemCard(key: ObjectKey(item), form: _form, item: item),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
-                  onPressed: _form.addItem,
-                  icon: const Icon(Icons.add),
-                  label: Text(texts.addItem),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                _directionPicker(texts),
+                _total(context),
+                TextFormField(
+                  initialValue: _form.name,
+                  decoration: InputDecoration(labelText: texts.transactionName),
+                  textCapitalization: TextCapitalization.sentences,
+                  onChanged: (name) => _form.name = name,
                 ),
-              ),
-              _total(context, texts),
-            ],
+                _accountPicker(texts),
+                _momentPickers(context),
+                TextFormField(
+                  initialValue: _form.note,
+                  decoration: InputDecoration(labelText: texts.note),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
+                  onChanged: (note) => _form.note = note,
+                ),
+                Text(
+                  texts.items,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                for (final item in _form.items)
+                  _ItemCard(key: ObjectKey(item), form: _form, item: item),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: _form.addItem,
+                    icon: const Icon(Icons.add),
+                    label: Text(texts.addItem),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -162,18 +180,27 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     onSelectionChanged: (selected) => _form.direction = selected.single,
   );
 
-  Widget _accountPicker(AppLocalizations texts) => DropdownMenu<AccountId>(
-    key: ValueKey(_form.account?.id),
-    label: Text(texts.account),
-    expandedInsets: EdgeInsets.zero,
-    initialSelection: _form.account?.id,
-    dropdownMenuEntries: [
-      for (final account in _form.accounts)
-        DropdownMenuEntry(value: account.id, label: account.name),
-    ],
-    onSelected: (id) => _form.account = _form.accounts
-        .where((account) => account.id == id)
+  /// The amount of the whole transaction, large, or a dash while one of
+  /// its amounts cannot be read.
+  Widget _total(BuildContext context) {
+    final total = _form.total;
+    final money = MoneyFormatter(Localizations.localeOf(context).toString());
+    return Text(
+      total == null ? '—' : money.format(total),
+      style: Theme.of(context).textTheme.displaySmall,
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _accountPicker(AppLocalizations texts) => ChoiceCarousel<Account>(
+    choices: _form.accounts,
+    selected: _form.accounts
+        .where((account) => account.id == _form.account?.id)
         .firstOrNull,
+    labelOf: (account) => account.name,
+    onSelected: (account) => _form.account = account,
+    addLabel: texts.addAccount,
+    onAdd: _addAccount,
   );
 
   Widget _momentPickers(BuildContext context) {
@@ -196,17 +223,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       ],
     );
   }
-
-  Widget _total(BuildContext context, AppLocalizations texts) {
-    final total = _form.total;
-    if (total == null) return const SizedBox.shrink();
-    final money = MoneyFormatter(Localizations.localeOf(context).toString());
-    return Text(
-      texts.total(money.format(total)),
-      style: Theme.of(context).textTheme.titleMedium,
-      textAlign: TextAlign.end,
-    );
-  }
 }
 
 /// One item of the transaction: its category and amount, its name and the
@@ -216,6 +232,11 @@ class _ItemCard extends StatelessWidget {
 
   final TransactionFormViewModel form;
   final ItemDraft item;
+
+  Future<void> _pickCategory(BuildContext context) async {
+    final id = await pickCategory(context, form);
+    if (id != null) item.categoryId = id;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,21 +249,22 @@ class _ItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 8,
           children: [
-            _categoryAndAmount(texts),
+            _categoryAndAmount(context, texts),
             TextFormField(
               initialValue: item.name,
               decoration: InputDecoration(labelText: texts.itemName),
               textCapitalization: TextCapitalization.sentences,
               onChanged: (name) => item.name = name,
             ),
+            if (item.others.isNotEmpty) _myPart(context, texts),
             for (final share in item.others)
               _ShareRow(
                 key: ObjectKey(share),
                 share: share,
+                currencySymbol: _currencySymbol(context),
                 onRemove: () => form.removePerson(item, share),
               ),
             _sharingActions(texts),
-            if (item.others.isNotEmpty) _ownPart(context, texts),
             if (problem != null)
               Text(
                 _describe(problem, texts),
@@ -254,62 +276,109 @@ class _ItemCard extends StatelessWidget {
     );
   }
 
-  Widget _categoryAndAmount(AppLocalizations texts) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: 8,
-    children: [
-      Expanded(
-        child: DropdownMenu<CategoryId>(
-          label: Text(texts.category),
-          expandedInsets: EdgeInsets.zero,
-          initialSelection: item.categoryId,
-          dropdownMenuEntries: [
-            for (final option in form.categoryOptions)
-              DropdownMenuEntry(value: option.id, label: option.label),
-          ],
-          onSelected: (id) => item.categoryId = id,
-        ),
+  Widget _categoryAndAmount(BuildContext context, AppLocalizations texts) =>
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Expanded(child: _categoryField(context, texts)),
+          SizedBox(
+            width: 120,
+            child: _AmountField(
+              initialValue: item.price,
+              label: texts.amount,
+              currencySymbol: _currencySymbol(context),
+              onChanged: (price) => item.price = price,
+            ),
+          ),
+          if (form.items.length > 1)
+            IconButton(
+              onPressed: () => form.removeItem(item),
+              tooltip: texts.removeItem,
+              icon: const Icon(Icons.close),
+            ),
+        ],
+      );
+
+  /// Shows the chosen category and opens the picker when it is tapped.
+  Widget _categoryField(BuildContext context, AppLocalizations texts) {
+    final id = item.categoryId;
+    final category = id == null ? null : form.categoryOf(id);
+    return InkWell(
+      onTap: () => _pickCategory(context),
+      child: InputDecorator(
+        decoration: InputDecoration(labelText: texts.category),
+        isEmpty: category == null,
+        child: category == null
+            ? null
+            : Row(
+                spacing: 8,
+                children: [
+                  SizedBox.square(
+                    dimension: 24,
+                    child: FittedBox(
+                      child: AppearanceAvatar(
+                        appearance: category.appearance,
+                        name: category.name,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      form.labelOf(category.id),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
       ),
-      SizedBox(
-        width: 110,
-        child: TextFormField(
-          initialValue: item.price,
-          decoration: InputDecoration(labelText: texts.amount),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          textAlign: TextAlign.end,
-          onChanged: (price) => item.price = price,
-        ),
-      ),
-      if (form.items.length > 1)
-        IconButton(
-          onPressed: () => form.removeItem(item),
-          tooltip: texts.removeItem,
-          icon: const Icon(Icons.close),
-        ),
-    ],
-  );
+    );
+  }
+
+  /// The row that shows I am one of those the item is shared among, with
+  /// the part that is left for me.
+  Widget _myPart(BuildContext context, AppLocalizations texts) {
+    final own = form.ownPartOf(item);
+    final money = MoneyFormatter(Localizations.localeOf(context).toString());
+    return Row(
+      spacing: 8,
+      children: [
+        const Icon(Icons.person),
+        Expanded(child: Text(texts.me)),
+        Text(own == null ? '—' : money.format(own)),
+      ],
+    );
+  }
 
   Widget _sharingActions(AppLocalizations texts) => Wrap(
     spacing: 8,
+    crossAxisAlignment: WrapCrossAlignment.center,
     children: [
       TextButton.icon(
         onPressed: () => form.addPerson(item),
         icon: const Icon(Icons.person_add_alt),
         label: Text(texts.addPerson),
       ),
-      if (item.others.isNotEmpty)
+      if (item.others.isNotEmpty) ...[
         TextButton(
           onPressed: () => form.splitEvenly(item),
           child: Text(texts.splitEvenly),
         ),
+        FilterChip(
+          label: Text(texts.includeMe),
+          selected: item.includesMe,
+          onSelected: (includesMe) => item.includesMe = includesMe,
+        ),
+      ],
     ],
   );
 
-  Widget _ownPart(BuildContext context, AppLocalizations texts) {
-    final own = form.ownPartOf(item);
-    if (own == null) return const SizedBox.shrink();
-    final money = MoneyFormatter(Localizations.localeOf(context).toString());
-    return Text(texts.yourPart(money.format(own)));
+  String? _currencySymbol(BuildContext context) {
+    final currency = form.currency;
+    if (currency == null) return null;
+    return MoneyFormatter(
+      Localizations.localeOf(context).toString(),
+    ).symbolOf(currency);
   }
 
   static String _describe(ItemProblem problem, AppLocalizations texts) =>
@@ -324,9 +393,15 @@ class _ItemCard extends StatelessWidget {
 
 /// One person an item is shared with, and the part that person bears.
 class _ShareRow extends StatelessWidget {
-  const _ShareRow({super.key, required this.share, required this.onRemove});
+  const _ShareRow({
+    super.key,
+    required this.share,
+    required this.currencySymbol,
+    required this.onRemove,
+  });
 
   final ShareDraft share;
+  final String? currencySymbol;
   final VoidCallback onRemove;
 
   @override
@@ -344,12 +419,11 @@ class _ShareRow extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: 110,
-          child: TextFormField(
+          width: 120,
+          child: _AmountField(
             initialValue: share.amount,
-            decoration: InputDecoration(labelText: texts.amount),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textAlign: TextAlign.end,
+            label: texts.amount,
+            currencySymbol: currencySymbol,
             onChanged: (amount) => share.amount = amount,
           ),
         ),
@@ -361,4 +435,28 @@ class _ShareRow extends StatelessWidget {
       ],
     );
   }
+}
+
+/// A field to type an amount of money in, followed by its currency.
+class _AmountField extends StatelessWidget {
+  const _AmountField({
+    required this.initialValue,
+    required this.label,
+    required this.currencySymbol,
+    required this.onChanged,
+  });
+
+  final String initialValue;
+  final String label;
+  final String? currencySymbol;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) => TextFormField(
+    initialValue: initialValue,
+    decoration: InputDecoration(labelText: label, suffixText: currencySymbol),
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    textAlign: TextAlign.end,
+    onChanged: onChanged,
+  );
 }
