@@ -46,7 +46,8 @@ void main() {
       expect(find.text('Edit transaction'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Supermarket'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, '15.00'), findsOneWidget);
-      expect(find.text('Total: -€15.00'), findsOneWidget);
+      expect(find.text('-€15.00'), findsOneWidget);
+      expect(find.text('Food'), findsWidgets);
       expect(canTapSave(tester), isTrue);
     });
 
@@ -67,6 +68,42 @@ void main() {
       final saved = (await store.transactions.all()).single;
       expect(saved.name, 'Market');
       expect(saved.total, eur(-2000));
+    });
+
+    testWidgets('shows the currency of the account next to each amount', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      expect(find.text('€'), findsOneWidget);
+    });
+
+    testWidgets('lets the account be chosen from those in use', (tester) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await pump(tester, existing: shopping);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Savings'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect((await store.transactions.all()).single.accountId, savings.id);
+    });
+
+    testWidgets('makes it plain that I am one of those sharing an item', (
+      tester,
+    ) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await pump(tester, existing: shopping);
+
+      await tester.ensureVisible(find.text('Add person'));
+      await tester.tap(find.text('Add person'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Me'), findsOneWidget);
+      expect(find.text('Include me'), findsOneWidget);
     });
 
     testWidgets('adds a person to share an item with', (tester) async {

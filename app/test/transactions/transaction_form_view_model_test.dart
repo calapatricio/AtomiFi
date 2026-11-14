@@ -99,7 +99,47 @@ void main() {
       expect(form.accounts.map((account) => account.id), [bank.id]);
     });
 
-    test('offers every category, a subcategory under its category', () async {
+    test('counts in the currency of its account', () {
+      expect(form.currency, Currency.eur);
+    });
+
+    test('can add an account on the spot and takes it', () async {
+      await form.addAccount(name: ' Broker ', currencyCode: 'usd');
+
+      expect(form.account!.name, 'Broker');
+      expect(form.currency, Currency.usd);
+      expect(form.accounts.map((account) => account.name), [
+        'Bank',
+        'Broker',
+        'Savings',
+      ]);
+    });
+
+    test('can add a category on the spot', () async {
+      final sport = await form.addCategory(
+        name: ' Sport ',
+        side: CategorySide.expense,
+        emoji: '⚽',
+      );
+
+      expect(sport.name, 'Sport');
+      expect(sport.appearance.emoji, '⚽');
+      expect(form.mainCategories.map((category) => category.id), contains(sport.id));
+      expect(await store.categories.all(), hasLength(4));
+    });
+
+    test('gives a new subcategory the side of its category', () async {
+      final bonus = await form.addCategory(
+        name: 'Bonus',
+        side: CategorySide.expense,
+        parentId: salary.id,
+      );
+
+      expect(bonus.side, CategorySide.income);
+      expect(form.subcategoriesOf(salary.id).single.id, bonus.id);
+    });
+
+    test('offers the categories, each with its subcategories', () async {
       await store.categories.save(
         const Category(
           id: CategoryId('leisure'),
@@ -117,13 +157,21 @@ void main() {
       );
       await form.load();
 
-      expect(form.categoryOptions.map((option) => option.label), [
+      expect(form.mainCategories.map((category) => category.name), [
         'Alcohol',
         'Food',
         'Leisure',
-        'Leisure › Cinema',
         'Salary',
       ]);
+      expect(
+        form
+            .subcategoriesOf(const CategoryId('leisure'))
+            .map((category) => category.name),
+        ['Cinema'],
+      );
+      expect(form.subcategoriesOf(food.id), isEmpty);
+      expect(form.labelOf(const CategoryId('cinema')), 'Leisure › Cinema');
+      expect(form.labelOf(food.id), 'Food');
     });
   });
 
@@ -233,6 +281,25 @@ void main() {
       expect(form.ownPartOf(item), eur(157));
     });
 
+    test('counts me in unless told otherwise', () {
+      expect(item.includesMe, isTrue);
+    });
+
+    test('can divide the amount among the others only', () {
+      for (final name in ['Moy', 'Mario']) {
+        form.addPerson(item);
+        item.others.last.person = name;
+      }
+      item
+        ..price = '6.25'
+        ..includesMe = false;
+
+      form.splitEvenly(item);
+
+      expect(item.others.map((share) => share.amount), ['3.13', '3.12']);
+      expect(form.ownPartOf(item), eur(0));
+    });
+
     test('lets a person be removed', () {
       form.addPerson(item);
 
@@ -300,6 +367,28 @@ void main() {
       expect(item.others.single.person, 'Moy');
       expect(item.others.single.amount, '14.00');
       expect(form.canSave, isTrue);
+    });
+
+    test('knows whether I bear a part of each item', () async {
+      final watch = Transaction(
+        id: const TransactionId('watch'),
+        name: 'Watch',
+        dateTime: DateTime(2026, 11, 8),
+        accountId: bank.id,
+        items: [
+          Item(
+            id: const ItemId('watch-item'),
+            name: 'Watch',
+            categoryId: food.id,
+            shares: [Share(moy, eur(-6296))],
+          ),
+        ],
+      );
+      final watchForm = transactionFormOn(store, existing: watch);
+      await watchForm.load();
+
+      expect(form.items.single.includesMe, isTrue);
+      expect(watchForm.items.single.includesMe, isFalse);
     });
 
     test('replaces it, keeping its ids and what its items offset', () async {
