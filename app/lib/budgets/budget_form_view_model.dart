@@ -126,7 +126,9 @@ final class BudgetFormViewModel extends ChangeNotifier {
     final every = int.tryParse(_every.trim());
     return every == null || every < 1
         ? null
-        : RecurringPeriod(Recurrence(every: every, unit: _unit, anchor: _start));
+        : RecurringPeriod(
+            Recurrence(every: every, unit: _unit, anchor: _start),
+          );
   }
 
   BudgetScope get _scope => switch (_coverage) {

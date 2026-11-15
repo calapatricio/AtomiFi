@@ -103,8 +103,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 _coverage(texts),
-                if (_form.coverage == BudgetCoverage.categories)
-                  _categories(),
+                if (_form.coverage == BudgetCoverage.categories) _categories(),
                 if (_form.coverage == BudgetCoverage.chosenItems)
                   Text(texts.coversChosenItemsHint),
               ],
