@@ -42,7 +42,8 @@ void main() {
           insert,
           ['leisure', 'Ocio', '0xffff7043', 'smiley.png', null, 0, null],
         )
-        ..execute(insert, ['alcohol', 'Alcohol', null, null, '🍺', 0, 'leisure'])
+        ..execute(
+            insert, ['alcohol', 'Alcohol', null, null, '🍺', 0, 'leisure'])
         ..execute(insert, ['work', 'Trabajo', null, null, null, 1, null]);
 
       final [leisure, alcohol, work] = reader.read(database).categories;

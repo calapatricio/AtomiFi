@@ -149,9 +149,7 @@ void main() {
       expect(removeButton().onPressed, isNotNull);
     });
 
-    testWidgets('shows the emoji of the category of each item', (
-      tester,
-    ) async {
+    testWidgets('shows the emoji of the category of each item', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);
 

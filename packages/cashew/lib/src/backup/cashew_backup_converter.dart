@@ -45,8 +45,7 @@ final class CashewBackupConverter {
     };
     return {
       for (final BackupTransaction(:id, :budgetId) in backup.transactions)
-        if (budgetId != null && imported.contains(id))
-          _itemIdOf(id): budgetId,
+        if (budgetId != null && imported.contains(id)) _itemIdOf(id): budgetId,
     };
   }
 
