@@ -66,8 +66,8 @@ final class _Budgets implements BudgetRepository {
   Future<void> remove(BudgetId id) async => _store._budgets.remove(id);
 
   @override
-  Future<List<Budget>> all() async => _store._budgets.values.toList()
-    ..sort((a, b) => a.name.compareTo(b.name));
+  Future<List<Budget>> all() async =>
+      _store._budgets.values.toList()..sort((a, b) => a.name.compareTo(b.name));
 }
 
 final class _Categories implements CategoryRepository {

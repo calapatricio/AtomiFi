@@ -77,8 +77,7 @@ final class Recurrence {
         RecurrenceUnit.day => _daysUntil(moment) ~/ every,
         RecurrenceUnit.week => _daysUntil(moment) ~/ (every * _daysInWeek),
         RecurrenceUnit.month => _monthsUntil(moment) ~/ every,
-        RecurrenceUnit.year =>
-          _monthsUntil(moment) ~/ (every * _monthsInYear),
+        RecurrenceUnit.year => _monthsUntil(moment) ~/ (every * _monthsInYear),
       };
 
   DateTime _daysLater(int days) =>
@@ -102,7 +101,5 @@ final class Recurrence {
           .inDays;
 
   int _monthsUntil(DateTime moment) =>
-      (moment.year - anchor.year) * _monthsInYear +
-      moment.month -
-      anchor.month;
+      (moment.year - anchor.year) * _monthsInYear + moment.month - anchor.month;
 }

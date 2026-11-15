@@ -36,8 +36,9 @@ final class DriftBudgetRepository implements BudgetRepository {
 
   @override
   Future<List<Budget>> all() async {
-    final categories = (await _database.select(_database.budgetCategories).get())
-        .groupListsBy((row) => row.budgetId);
+    final categories =
+        (await _database.select(_database.budgetCategories).get())
+            .groupListsBy((row) => row.budgetId);
     final items = (await _database.select(_database.budgetItems).get())
         .groupListsBy((row) => row.budgetId);
     final query = _database.select(_database.budgets)

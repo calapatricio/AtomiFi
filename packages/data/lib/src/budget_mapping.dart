@@ -91,7 +91,8 @@ BudgetPeriod _periodOf(BudgetRow row) {
   final unit = row.recurrenceUnit;
   final anchor = row.recurrenceAnchor;
   if (every != null && unit != null && anchor != null) {
-    return RecurringPeriod(Recurrence(every: every, unit: unit, anchor: anchor));
+    return RecurringPeriod(
+        Recurrence(every: every, unit: unit, anchor: anchor));
   }
   return FixedPeriod(DateRange(row.fixedStart!, row.fixedEnd!));
 }
