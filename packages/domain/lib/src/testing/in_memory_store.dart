@@ -1,5 +1,7 @@
 import '../account/account.dart';
 import '../account/account_repository.dart';
+import '../budget/budget.dart';
+import '../budget/budget_repository.dart';
 import '../category/category.dart';
 import '../category/category_repository.dart';
 import '../ids.dart';
@@ -14,12 +16,14 @@ import '../ledger/transfer_repository.dart';
 /// ones, for tests that need storage but not a database.
 final class InMemoryStore {
   final _accounts = <AccountId, Account>{};
+  final _budgets = <BudgetId, Budget>{};
   final _categories = <CategoryId, Category>{};
   final _transactions = <TransactionId, Transaction>{};
   final _transfers = <TransferId, Transfer>{};
   final _revaluations = <RevaluationId, Revaluation>{};
 
   late final AccountRepository accounts = _Accounts(this);
+  late final BudgetRepository budgets = _Budgets(this);
   late final CategoryRepository categories = _Categories(this);
   late final TransactionRepository transactions = _Transactions(this);
   late final TransferRepository transfers = _Transfers(this);
@@ -47,6 +51,22 @@ final class _Accounts implements AccountRepository {
 
   @override
   Future<List<Account>> all() async => _store._accounts.values.toList()
+    ..sort((a, b) => a.name.compareTo(b.name));
+}
+
+final class _Budgets implements BudgetRepository {
+  _Budgets(this._store);
+
+  final InMemoryStore _store;
+
+  @override
+  Future<void> save(Budget budget) async => _store._budgets[budget.id] = budget;
+
+  @override
+  Future<void> remove(BudgetId id) async => _store._budgets.remove(id);
+
+  @override
+  Future<List<Budget>> all() async => _store._budgets.values.toList()
     ..sort((a, b) => a.name.compareTo(b.name));
 }
 

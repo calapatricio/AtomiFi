@@ -14,4 +14,14 @@ final class DateRange {
 
   bool contains(DateTime moment) =>
       !moment.isBefore(start) && moment.isBefore(end);
+
+  @override
+  bool operator ==(Object other) =>
+      other is DateRange && other.start == start && other.end == end;
+
+  @override
+  int get hashCode => Object.hash(start, end);
+
+  @override
+  String toString() => '$start to $end';
 }

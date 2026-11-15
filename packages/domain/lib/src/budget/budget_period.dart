@@ -1,4 +1,5 @@
 import '../stats/date_range.dart';
+import '../time/recurrence.dart';
 
 /// The stretch of time a budget's limit applies to.
 sealed class BudgetPeriod {
@@ -8,13 +9,14 @@ sealed class BudgetPeriod {
   DateRange rangeAt(DateTime moment);
 }
 
-/// A new period every calendar month.
-final class EveryMonth extends BudgetPeriod {
-  const EveryMonth();
+/// A period that starts over: every month, every two weeks, every year.
+final class RecurringPeriod extends BudgetPeriod {
+  const RecurringPeriod(this.recurrence);
+
+  final Recurrence recurrence;
 
   @override
-  DateRange rangeAt(DateTime moment) =>
-      DateRange.month(moment.year, moment.month);
+  DateRange rangeAt(DateTime moment) => recurrence.periodAt(moment);
 }
 
 /// One period that never repeats, such as a holiday.
