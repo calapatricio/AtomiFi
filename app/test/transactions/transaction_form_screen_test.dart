@@ -149,6 +149,26 @@ void main() {
       expect(removeButton().onPressed, isNotNull);
     });
 
+    testWidgets('shows the emoji of the category of each item', (
+      tester,
+    ) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+
+      await pump(tester, existing: shopping);
+
+      expect(find.text('🍔'), findsOneWidget);
+      expect(find.text('Food'), findsWidgets);
+    });
+
+    testWidgets('invites to choose a category for an item without one', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      expect(find.text('Choose a category'), findsOneWidget);
+    });
+
     testWidgets('adds a person to share an item with', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);

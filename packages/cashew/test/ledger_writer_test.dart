@@ -42,6 +42,20 @@ final class _Transfers implements TransferRepository {
   Future<List<Transfer>> all() async => saved;
 }
 
+final class _Budgets implements BudgetRepository {
+  final saved = <Budget>[];
+
+  @override
+  Future<void> save(Budget budget) async => saved.add(budget);
+
+  @override
+  Future<void> remove(BudgetId id) async =>
+      saved.removeWhere((budget) => budget.id == id);
+
+  @override
+  Future<List<Budget>> all() async => saved;
+}
+
 final class _Transactions implements TransactionRepository {
   final saved = <Transaction>[];
 
@@ -65,6 +79,7 @@ void main() {
     late _Categories categories;
     late _Transactions transactions;
     late _Transfers transfers;
+    late _Budgets budgets;
     late LedgerWriter writer;
 
     setUp(() {
@@ -72,11 +87,13 @@ void main() {
       categories = _Categories();
       transactions = _Transactions();
       transfers = _Transfers();
+      budgets = _Budgets();
       writer = LedgerWriter(
         accounts: accounts,
         categories: categories,
         transactions: transactions,
         transfers: transfers,
+        budgets: budgets,
       );
     });
 
@@ -122,6 +139,28 @@ void main() {
       );
 
       expect(transfers.saved, [transfer]);
+    });
+
+    test('stores the budgets', () async {
+      final budget = Budget(
+        id: const BudgetId('monthly'),
+        name: 'Monthly',
+        limit: const Money(120000, Currency.eur),
+        period: RecurringPeriod(Recurrence.calendarMonths),
+        scope: const AllSpending(),
+      );
+
+      await writer.write(
+        ImportedLedger(
+          accounts: const [],
+          categories: const [],
+          transactions: const [],
+          budgets: [budget],
+          skippedRows: 0,
+        ),
+      );
+
+      expect(budgets.saved, [budget]);
     });
   });
 }

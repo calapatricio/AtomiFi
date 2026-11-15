@@ -10,8 +10,10 @@ Database openEmptyBackup() => sqlite3.openInMemory()
       name TEXT NOT NULL,
       colour TEXT,
       icon_name TEXT,
+      emoji_icon_name TEXT,
       currency TEXT,
-      decimals INTEGER NOT NULL DEFAULT 2
+      decimals INTEGER NOT NULL DEFAULT 2,
+      archived INTEGER NOT NULL DEFAULT 0
     )''')
   ..execute('''
     CREATE TABLE categories (
@@ -34,8 +36,29 @@ Database openEmptyBackup() => sqlite3.openInMemory()
       sub_category_fk TEXT,
       wallet_fk TEXT NOT NULL,
       date_created INTEGER NOT NULL,
-      paid INTEGER NOT NULL DEFAULT 0
+      paid INTEGER NOT NULL DEFAULT 0,
+      shared_reference_budget_pk TEXT
+    )''')
+  ..execute('''
+    CREATE TABLE budgets (
+      budget_pk TEXT NOT NULL PRIMARY KEY,
+      name TEXT NOT NULL,
+      colour TEXT,
+      amount REAL NOT NULL,
+      start_date INTEGER NOT NULL,
+      end_date INTEGER NOT NULL,
+      period_length INTEGER NOT NULL,
+      reoccurrence INTEGER,
+      category_fks TEXT,
+      category_fks_exclude TEXT,
+      added_transactions_only INTEGER NOT NULL DEFAULT 0,
+      income INTEGER NOT NULL DEFAULT 0,
+      archived INTEGER NOT NULL DEFAULT 0,
+      wallet_fk TEXT NOT NULL DEFAULT '0'
     )''');
+
+/// Seconds since the epoch, the way the backup keeps moments.
+int secondsOf(DateTime moment) => moment.millisecondsSinceEpoch ~/ 1000;
 
 BackupWallet wallet({
   String id = 'imagin',
@@ -44,6 +67,8 @@ BackupWallet wallet({
   int decimals = 2,
   String? colour,
   String? iconName,
+  String? emoji,
+  bool archived = false,
 }) =>
     BackupWallet(
       id: id,
@@ -52,6 +77,8 @@ BackupWallet wallet({
       decimals: decimals,
       colour: colour,
       iconName: iconName,
+      emoji: emoji,
+      archived: archived,
     );
 
 BackupCategory category({
@@ -84,6 +111,7 @@ BackupTransaction transaction({
   String? subcategoryId,
   bool paid = true,
   String? pairedId,
+  String? budgetId,
 }) =>
     BackupTransaction(
       id: id,
@@ -96,15 +124,51 @@ BackupTransaction transaction({
       subcategoryId: subcategoryId,
       paid: paid,
       pairedId: pairedId,
+      budgetId: budgetId,
+    );
+
+BackupBudget budget({
+  String id = 'monthly',
+  String name = 'Mensual',
+  double amount = 1200,
+  DateTime? start,
+  DateTime? end,
+  int periodLength = 1,
+  BackupReoccurrence reoccurrence = BackupReoccurrence.monthly,
+  List<String> categoryIds = const [],
+  List<String> excludedCategoryIds = const [],
+  bool addedTransactionsOnly = false,
+  bool income = false,
+  bool archived = false,
+  String walletId = 'imagin',
+  String? colour,
+}) =>
+    BackupBudget(
+      id: id,
+      name: name,
+      amount: amount,
+      start: start ?? DateTime(2026, 6, 1),
+      end: end ?? DateTime(2026, 7, 1),
+      periodLength: periodLength,
+      reoccurrence: reoccurrence,
+      categoryIds: categoryIds,
+      excludedCategoryIds: excludedCategoryIds,
+      addedTransactionsOnly: addedTransactionsOnly,
+      income: income,
+      archived: archived,
+      walletId: walletId,
+      colour: colour,
     );
 
 CashewBackup backup({
   List<BackupWallet>? wallets,
   List<BackupCategory>? categories,
   List<BackupTransaction> transactions = const [],
+  List<BackupBudget> budgets = const [],
 }) =>
     CashewBackup(
       wallets: wallets ?? [wallet()],
       categories: categories ?? [category()],
       transactions: transactions,
+      budgets: budgets,
     );

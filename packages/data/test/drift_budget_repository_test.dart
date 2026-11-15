@@ -83,6 +83,15 @@ void main() {
       expect(scope.categoryIds, {leisure.id, food.id});
     });
 
+    test('restores the categories a budget for all spending leaves out',
+        () async {
+      await budgets.save(_budget(scope: AllSpending(except: {leisure.id})));
+
+      final scope = (await budgets.all()).single.scope as AllSpending;
+
+      expect(scope.except, {leisure.id});
+    });
+
     test('restores the items put in a budget', () async {
       await budgets.save(
         _budget(scope: const ChosenItems({ItemId('hotel'), ItemId('dinner')})),

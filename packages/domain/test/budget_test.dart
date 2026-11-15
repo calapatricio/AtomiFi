@@ -113,6 +113,23 @@ void main() {
       expect(progress.spent, eur(3000));
     });
 
+    test('leaves out the categories it is told to, and their subcategories',
+        () {
+      final budget = _budget(
+        scope: const AllSpending(except: {CategoryId('leisure')}),
+      );
+
+      final progress = _progress(budget, [
+        on(DateTime(2026, 11, 2), [
+          mine(-1500, category: 'food'),
+          mine(-800, category: 'leisure'),
+          mine(-1200, category: 'alcohol'),
+        ]),
+      ]);
+
+      expect(progress.spent, eur(1500));
+    });
+
     test('is overspent once more than its limit is gone', () {
       final progress = _progress(_budget(limitCents: 1000), [
         on(DateTime(2026, 11, 2), [mine(-1500)]),
