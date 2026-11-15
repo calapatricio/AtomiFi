@@ -260,7 +260,8 @@ class _ItemCard extends StatelessWidget {
               textCapitalization: TextCapitalization.sentences,
               onChanged: (name) => item.name = name,
             ),
-            if (item.others.isNotEmpty && item.includesMe) _myPart(context, texts),
+            if (item.others.isNotEmpty && item.includesMe)
+              _myPart(context, texts),
             for (final share in item.others)
               _ShareRow(
                 key: ObjectKey(share),
