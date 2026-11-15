@@ -1,5 +1,4 @@
 import 'package:atomifi/budgets/budget_form_screen.dart';
-import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:atomifi_domain/testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
