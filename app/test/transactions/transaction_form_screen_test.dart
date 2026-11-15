@@ -136,9 +136,8 @@ void main() {
     ) async {
       await pump(tester);
 
-      IconButton removeButton() => tester.widget(
-        find.widgetWithIcon(IconButton, Icons.close).first,
-      );
+      IconButton removeButton() =>
+          tester.widget(find.widgetWithIcon(IconButton, Icons.close).first);
 
       expect(removeButton().onPressed, isNull);
 
