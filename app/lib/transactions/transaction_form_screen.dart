@@ -324,7 +324,6 @@ class _ItemCard extends StatelessWidget {
             tooltip: texts.removeItem,
             icon: const Icon(Icons.close),
           ),
-            ),
         ],
       );
 
