@@ -22,8 +22,9 @@
   The difference with the balance until then is the market's gain or loss.
 - **Category**: a name, a side (expense or income), an optional parent and
   an appearance.
-- **Budget**: a limit on what I spend over a period. The period is every
-  calendar month or one fixed stretch of time. It covers all spending, the
+- **Budget**: a limit on what I spend over a period. The period either
+  starts over every so many days, weeks, months or years from a first day,
+  or is one fixed stretch of time. It covers all spending, the
   spending in some categories and their subcategories, or only the items
   put in it one by one. Only my own share of each item counts against it,
   and refunds are taken off.
