@@ -11,6 +11,7 @@ import 'more/cashew_backup_file_importer.dart';
 final class Dependencies {
   const Dependencies({
     required this.accounts,
+    required this.budgets,
     required this.categories,
     required this.transactions,
     required this.ledger,
@@ -26,6 +27,7 @@ final class Dependencies {
     final transfers = DriftTransferRepository(database);
     return Dependencies(
       accounts: accounts,
+      budgets: DriftBudgetRepository(database),
       categories: categories,
       transactions: transactions,
       ledger: Ledger(
@@ -48,10 +50,15 @@ final class Dependencies {
     );
   }
 
-  /// The currency of imported accounts that do not say which one they use.
+  /// The currency of imported accounts that do not say which one they use,
+  /// and of the limits of budgets.
   static const _defaultCurrencyCode = 'EUR';
 
+  /// The currency amounts that belong to no account are counted in.
+  Currency get mainCurrency => Currency.iso(_defaultCurrencyCode);
+
   final AccountRepository accounts;
+  final BudgetRepository budgets;
   final CategoryRepository categories;
   final TransactionRepository transactions;
   final Ledger ledger;

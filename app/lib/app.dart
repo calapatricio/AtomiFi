@@ -3,6 +3,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'accounts/accounts_screen.dart';
 import 'accounts/accounts_view_model.dart';
+import 'budgets/budget_form_screen.dart';
+import 'budgets/budget_form_view_model.dart';
+import 'budgets/budgets_screen.dart';
+import 'budgets/budgets_view_model.dart';
 import 'dependencies.dart';
 import 'home_shell.dart';
 import 'l10n/app_localizations.dart';
@@ -36,6 +40,12 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     ledger: _dependencies.ledger,
     newId: _dependencies.newId,
   );
+  late final _budgets = BudgetsViewModel(
+    budgets: _dependencies.budgets,
+    ledger: _dependencies.ledger,
+    categories: _dependencies.categories,
+    now: DateTime.now,
+  );
   late final _import = ImportViewModel(importer: _dependencies.backupImporter);
 
   Future<void> _openTransactionForm(
@@ -56,10 +66,26 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     ),
   );
 
+  Future<void> _openBudgetForm(BuildContext context) =>
+      Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => BudgetFormScreen(
+            viewModel: BudgetFormViewModel(
+              budgets: _dependencies.budgets,
+              categories: _dependencies.categories,
+              currency: _dependencies.mainCurrency,
+              newId: _dependencies.newId,
+              now: DateTime.now,
+            ),
+          ),
+        ),
+      );
+
   @override
   void dispose() {
     _transactions.dispose();
     _accounts.dispose();
+    _budgets.dispose();
     _import.dispose();
     super.dispose();
   }
@@ -78,6 +104,8 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         viewModel: _transactions,
         openForm: _openTransactionForm,
       ),
+      budgets: (_) =>
+          BudgetsScreen(viewModel: _budgets, openForm: _openBudgetForm),
       accounts: (_) => AccountsScreen(viewModel: _accounts),
       more: (_) => MoreScreen(importViewModel: _import),
     ),

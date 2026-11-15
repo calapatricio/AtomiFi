@@ -11,11 +11,13 @@ class HomeShell extends StatefulWidget {
   const HomeShell({
     super.key,
     required this.transactions,
+    required this.budgets,
     required this.accounts,
     required this.more,
   });
 
   final WidgetBuilder transactions;
+  final WidgetBuilder budgets;
   final WidgetBuilder accounts;
   final WidgetBuilder more;
 
@@ -29,7 +31,12 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
-    final screens = [widget.transactions, widget.accounts, widget.more];
+    final screens = [
+      widget.transactions,
+      widget.budgets,
+      widget.accounts,
+      widget.more,
+    ];
     return Scaffold(
       body: KeyedSubtree(
         key: ValueKey(_selected),
@@ -42,6 +49,10 @@ class _HomeShellState extends State<HomeShell> {
           NavigationDestination(
             icon: const Icon(Icons.receipt_long),
             label: texts.transactionsTitle,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.savings_outlined),
+            label: texts.budgetsTitle,
           ),
           NavigationDestination(
             icon: const Icon(Icons.account_balance_wallet),

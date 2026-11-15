@@ -136,5 +136,71 @@
         "type": "String"
       }
     }
+  },
+  "budgetsTitle": "Budgets",
+  "noBudgets": "No budgets yet. Add the first one.",
+  "addBudget": "Add budget",
+  "newBudget": "New budget",
+  "budgetName": "Name",
+  "budgetLimit": "Limit",
+  "budgetSpentOfLimit": "{spent} of {limit}",
+  "budgetLeft": "{amount} left",
+  "budgetOver": "{amount} over",
+  "dateSpan": "{start} – {end}",
+  "deleteBudgetTitle": "Delete {name}?",
+  "repeats": "Repeats",
+  "every": "Every",
+  "unitDays": "days",
+  "unitWeeks": "weeks",
+  "unitMonths": "months",
+  "unitYears": "years",
+  "startingOn": "Starting",
+  "from": "From",
+  "until": "Until",
+  "covers": "What it counts",
+  "coversAllSpending": "All spending",
+  "coversCategories": "Some categories",
+  "coversChosenItems": "Chosen items",
+  "coversChosenItemsHint": "Add items to this budget from the transaction form.",
+  "@budgetSpentOfLimit": {
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@dateSpan": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteBudgetTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

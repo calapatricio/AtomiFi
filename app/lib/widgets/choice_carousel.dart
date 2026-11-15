@@ -2,7 +2,9 @@ import 'package:material_ui/material_ui.dart';
 
 /// A row of choices to slide through sideways, of which one is selected.
 ///
-/// It can end with a way to add a choice: give it both [addLabel] and
+/// The selected choice is told apart by its background alone, so choosing
+/// never changes the size of anything. The row can end with a button to
+/// add a choice: give it both [addLabel], which names the button, and
 /// [onAdd].
 class ChoiceCarousel<T> extends StatelessWidget {
   const ChoiceCarousel({
@@ -37,6 +39,7 @@ class ChoiceCarousel<T> extends StatelessWidget {
       avatar: avatarOf?.call(choice),
       label: Text(labelOf(choice)),
       selected: choice == selected,
+      showCheckmark: false,
       side: color == null ? null : BorderSide(color: color, width: 2),
       selectedColor: color?.withValues(alpha: 0.25),
       onSelected: (_) => onSelected(choice),
@@ -54,8 +57,8 @@ class ChoiceCarousel<T> extends StatelessWidget {
           for (final choice in choices) _chipFor(choice),
           if (addLabel != null && onAdd != null)
             ActionChip(
-              avatar: const Icon(Icons.add),
-              label: Text(addLabel),
+              label: const Icon(Icons.add, size: 18),
+              tooltip: addLabel,
               onPressed: onAdd,
             ),
         ],

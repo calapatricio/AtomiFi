@@ -6,7 +6,6 @@ import '../accounts/add_account_dialog.dart';
 import '../categories/category_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
-import '../widgets/appearance_avatar.dart';
 import '../widgets/choice_carousel.dart';
 import 'transaction_form_view_model.dart';
 
@@ -171,14 +170,36 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     );
   }
 
-  Widget _directionPicker(AppLocalizations texts) => SegmentedButton<Direction>(
-    segments: [
-      ButtonSegment(value: Direction.expense, label: Text(texts.expense)),
-      ButtonSegment(value: Direction.income, label: Text(texts.income)),
-    ],
-    selected: {_form.direction},
-    onSelectionChanged: (selected) => _form.direction = selected.single,
-  );
+  /// Chooses between money that leaves, in red, and money that comes in,
+  /// in green. The choice shows in the color alone.
+  Widget _directionPicker(AppLocalizations texts) {
+    final isExpense = _form.direction == Direction.expense;
+    return SegmentedButton<Direction>(
+      showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: isExpense
+            ? Colors.red.shade100
+            : Colors.green.shade100,
+        selectedForegroundColor: isExpense
+            ? Colors.red.shade900
+            : Colors.green.shade900,
+      ),
+      segments: [
+        ButtonSegment(
+          value: Direction.expense,
+          icon: const Icon(Icons.arrow_downward),
+          label: Text(texts.expense),
+        ),
+        ButtonSegment(
+          value: Direction.income,
+          icon: const Icon(Icons.arrow_upward),
+          label: Text(texts.income),
+        ),
+      ],
+      selected: {_form.direction},
+      onSelectionChanged: (selected) => _form.direction = selected.single,
+    );
+  }
 
   /// The amount of the whole transaction, large, or a dash while one of
   /// its amounts cannot be read.
@@ -296,47 +317,28 @@ class _ItemCard extends StatelessWidget {
               onChanged: (price) => item.price = price,
             ),
           ),
-          if (form.items.length > 1)
-            IconButton(
-              onPressed: () => form.removeItem(item),
-              tooltip: texts.removeItem,
-              icon: const Icon(Icons.close),
+          IconButton(
+            onPressed: form.items.length > 1
+                ? () => form.removeItem(item)
+                : null,
+            tooltip: texts.removeItem,
+            icon: const Icon(Icons.close),
+          ),
             ),
         ],
       );
 
-  /// Shows the chosen category and opens the picker when it is tapped.
+  /// Shows the chosen category and opens the picker when it is tapped. It
+  /// is a field like the amount next to it, so the two line up.
   Widget _categoryField(BuildContext context, AppLocalizations texts) {
     final id = item.categoryId;
-    final category = id == null ? null : form.categoryOf(id);
-    return InkWell(
+    final label = id == null ? '' : form.labelOf(id);
+    return TextFormField(
+      key: ValueKey(label),
+      initialValue: label,
+      readOnly: true,
+      decoration: InputDecoration(labelText: texts.category),
       onTap: () => _pickCategory(context),
-      child: InputDecorator(
-        decoration: InputDecoration(labelText: texts.category),
-        isEmpty: category == null,
-        child: category == null
-            ? null
-            : Row(
-                spacing: 8,
-                children: [
-                  SizedBox.square(
-                    dimension: 24,
-                    child: FittedBox(
-                      child: AppearanceAvatar(
-                        appearance: category.appearance,
-                        name: category.name,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      form.labelOf(category.id),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-      ),
     );
   }
 
