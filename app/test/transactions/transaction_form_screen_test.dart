@@ -131,6 +131,24 @@ void main() {
       );
     });
 
+    testWidgets('keeps the place of the button that removes an item', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      IconButton removeButton() =>
+          tester.widget(find.byTooltip('Remove item').first);
+
+      expect(removeButton().onPressed, isNull);
+
+      await tester.ensureVisible(find.text('Add item'));
+      await tester.tap(find.text('Add item'));
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Remove item'), findsNWidgets(2));
+      expect(removeButton().onPressed, isNotNull);
+    });
+
     testWidgets('adds a person to share an item with', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);

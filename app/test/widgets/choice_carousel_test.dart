@@ -39,6 +39,18 @@ void main() {
       expect(isSelected(tester, 'Cash'), isFalse);
     });
 
+    testWidgets('marks the selected choice without changing its size', (
+      tester,
+    ) async {
+      await pump(tester, selected: 'Savings');
+
+      final chip = tester.widget<ChoiceChip>(
+        find.widgetWithText(ChoiceChip, 'Savings'),
+      );
+
+      expect(chip.showCheckmark, isFalse);
+    });
+
     testWidgets('tells which choice was tapped', (tester) async {
       final tapped = <String>[];
       await pump(tester, onSelected: tapped.add);
@@ -54,7 +66,7 @@ void main() {
       var added = 0;
       await pump(tester, onAdd: () => added++);
 
-      await tester.tap(find.text('Add account'));
+      await tester.tap(find.byTooltip('Add account'));
 
       expect(added, 1);
     });

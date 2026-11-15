@@ -1,4 +1,6 @@
 import 'package:atomifi/accounts/accounts_view_model.dart';
+import 'package:atomifi/budgets/budget_form_view_model.dart';
+import 'package:atomifi/budgets/budgets_view_model.dart';
 import 'package:atomifi/transactions/transaction_form_view_model.dart';
 import 'package:atomifi/transactions/transactions_view_model.dart';
 import 'package:atomifi/l10n/app_localizations.dart';
@@ -159,3 +161,34 @@ TransactionFormViewModel transactionFormOn(
     existing: existing,
   );
 }
+
+BudgetsViewModel budgetsViewModelOn(InMemoryStore store) => BudgetsViewModel(
+  budgets: store.budgets,
+  ledger: ledgerOn(store),
+  categories: store.categories,
+  now: () => now,
+);
+
+BudgetFormViewModel budgetFormOn(InMemoryStore store) {
+  var nextId = 0;
+  return BudgetFormViewModel(
+    budgets: store.budgets,
+    categories: store.categories,
+    currency: Currency.eur,
+    newId: () => 'new-${nextId++}',
+    now: () => now,
+  );
+}
+
+Budget monthlyBudget({
+  String id = 'monthly',
+  String name = 'Monthly',
+  int limitCents = 100000,
+  BudgetScope scope = const AllSpending(),
+}) => Budget(
+  id: BudgetId(id),
+  name: name,
+  limit: eur(limitCents),
+  period: RecurringPeriod(Recurrence.calendarMonths),
+  scope: scope,
+);

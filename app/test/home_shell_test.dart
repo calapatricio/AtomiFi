@@ -20,6 +20,7 @@ void main() {
           viewModel: transactionsViewModelOn(store),
           openForm: (context, {existing}) async {},
         ),
+        budgets: (_) => const Text('Budgets screen'),
         accounts: (_) => AccountsScreen(viewModel: accountsViewModelOn(store)),
         more: (_) => const Text('More screen'),
       ),
@@ -37,6 +38,10 @@ void main() {
       await tester.tap(find.text('Accounts'));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(AppBar, 'Accounts'), findsOneWidget);
+
+      await tester.tap(find.text('Budgets'));
+      await tester.pumpAndSettle();
+      expect(find.text('Budgets screen'), findsOneWidget);
 
       await tester.tap(find.text('More'));
       await tester.pumpAndSettle();
