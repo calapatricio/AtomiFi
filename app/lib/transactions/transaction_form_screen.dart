@@ -198,6 +198,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         .where((account) => account.id == _form.account?.id)
         .firstOrNull,
     labelOf: (account) => account.name,
+    colorOf: (account) {
+      final color = account.appearance.color;
+      return color == null ? null : Color(color);
+    },
     onSelected: (account) => _form.account = account,
     addLabel: texts.addAccount,
     onAdd: _addAccount,
@@ -256,7 +260,7 @@ class _ItemCard extends StatelessWidget {
               textCapitalization: TextCapitalization.sentences,
               onChanged: (name) => item.name = name,
             ),
-            if (item.others.isNotEmpty) _myPart(context, texts),
+            if (item.others.isNotEmpty && item.includesMe) _myPart(context, texts),
             for (final share in item.others)
               _ShareRow(
                 key: ObjectKey(share),
@@ -267,7 +271,7 @@ class _ItemCard extends StatelessWidget {
             _sharingActions(texts),
             if (problem != null)
               Text(
-                _describe(problem, texts),
+                _describe(context, problem, texts),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
           ],
@@ -380,14 +384,26 @@ class _ItemCard extends StatelessWidget {
         .symbolOf(currency);
   }
 
-  static String _describe(ItemProblem problem, AppLocalizations texts) =>
-      switch (problem) {
-        ItemProblem.invalidAmount => texts.itemNeedsAmount,
-        ItemProblem.missingCategory => texts.itemNeedsCategory,
-        ItemProblem.incompleteShare => texts.shareIncomplete,
-        ItemProblem.repeatedPerson => texts.personRepeated,
-        ItemProblem.sharesExceedAmount => texts.sharesExceedAmount,
-      };
+  String _describe(
+    BuildContext context,
+    ItemProblem problem,
+    AppLocalizations texts,
+  ) => switch (problem) {
+    ItemProblem.invalidAmount => texts.itemNeedsAmount,
+    ItemProblem.missingCategory => texts.itemNeedsCategory,
+    ItemProblem.incompleteShare => texts.shareIncomplete,
+    ItemProblem.repeatedPerson => texts.personRepeated,
+    ItemProblem.sharesExceedAmount => texts.sharesExceedAmount,
+    ItemProblem.sharesDoNotAddUp => _partsDoNotAddUp(context, texts),
+  };
+
+  String _partsDoNotAddUp(BuildContext context, AppLocalizations texts) {
+    final money = MoneyFormatter(Localizations.localeOf(context).toString());
+    final sum = form.othersTotalOf(item);
+    final own = form.ownPartOf(item);
+    if (sum == null || own == null) return texts.shareIncomplete;
+    return texts.sharesDoNotAddUp(money.format(sum), money.format(sum + own));
+  }
 }
 
 /// One person an item is shared with, and the part that person bears.

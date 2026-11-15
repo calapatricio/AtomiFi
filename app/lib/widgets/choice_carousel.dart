@@ -12,6 +12,7 @@ class ChoiceCarousel<T> extends StatelessWidget {
     required this.labelOf,
     required this.onSelected,
     this.avatarOf,
+    this.colorOf,
     this.addLabel,
     this.onAdd,
   });
@@ -23,8 +24,24 @@ class ChoiceCarousel<T> extends StatelessWidget {
 
   /// What to show before the label of a choice, if anything.
   final Widget Function(T choice)? avatarOf;
+
+  /// The color that tells a choice apart, if it has one. It outlines the
+  /// choice and tints it when it is selected.
+  final Color? Function(T choice)? colorOf;
   final String? addLabel;
   final VoidCallback? onAdd;
+
+  Widget _chipFor(T choice) {
+    final color = colorOf?.call(choice);
+    return ChoiceChip(
+      avatar: avatarOf?.call(choice),
+      label: Text(labelOf(choice)),
+      selected: choice == selected,
+      side: color == null ? null : BorderSide(color: color, width: 2),
+      selectedColor: color?.withValues(alpha: 0.25),
+      onSelected: (_) => onSelected(choice),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +51,7 @@ class ChoiceCarousel<T> extends StatelessWidget {
       child: Row(
         spacing: 8,
         children: [
-          for (final choice in choices)
-            ChoiceChip(
-              avatar: avatarOf?.call(choice),
-              label: Text(labelOf(choice)),
-              selected: choice == selected,
-              onSelected: (_) => onSelected(choice),
-            ),
+          for (final choice in choices) _chipFor(choice),
           if (addLabel != null && onAdd != null)
             ActionChip(
               avatar: const Icon(Icons.add),

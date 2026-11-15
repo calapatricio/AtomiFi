@@ -38,13 +38,20 @@ final class StatsCalculator {
   final CurrencyConverter _converter;
   final Map<CategoryId, CategorySide> _sideOfCategory;
 
-  PeriodStats statsFor(DateRange period, List<Transaction> ledger) {
+  /// The stats of [period], counting only the items that [where] accepts
+  /// when it is given.
+  PeriodStats statsFor(
+    DateRange period,
+    List<Transaction> ledger, {
+    bool Function(Item item)? where,
+  }) {
     final dateOfItem = _datesByItem(ledger);
     final netByCategory = <CategoryId, Money>{};
     for (final transaction in ledger) {
       for (final item in transaction.items) {
         final date = _statsDate(item, transaction.dateTime, dateOfItem);
         if (item.ownAmount.isZero || !period.contains(date)) continue;
+        if (where != null && !where(item)) continue;
         _requireKnownCategory(item.categoryId);
         final own = _converter.convert(item.ownAmount, currency);
         netByCategory.update(

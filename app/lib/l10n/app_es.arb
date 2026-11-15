@@ -61,5 +61,6 @@
   "categoryName": "Nombre",
   "categoryNameRequired": "Escribe un nombre",
   "emoji": "Emoji (opcional)",
-  "chooseCategory": "Elige una categoría"
+  "chooseCategory": "Elige una categoría",
+  "sharesDoNotAddUp": "Las partes suman {sum}, pero el importe es {amount}"
 }

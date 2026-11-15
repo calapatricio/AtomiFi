@@ -13,6 +13,7 @@ enum ItemProblem {
   incompleteShare,
   repeatedPerson,
   sharesExceedAmount,
+  sharesDoNotAddUp,
 }
 
 /// The part of an item that somebody else bears, as it is being typed.
@@ -88,7 +89,8 @@ final class ItemDraft {
     _changed();
   }
 
-  /// Whether I am one of those an even split divides the price among.
+  /// Whether I bear a part of an item that is shared. When I do not, the
+  /// parts of the others must add up to the whole price.
   bool get includesMe => _includesMe;
 
   set includesMe(bool includesMe) {
@@ -271,12 +273,24 @@ final class TransactionFormViewModel extends ChangeNotifier
     });
   }
 
-  /// The part of [item] that is mine, when its amounts can be read.
+  /// What the others bear of [item] in all, when their amounts can be read.
+  Money? othersTotalOf(ItemDraft item) {
+    final currency = this.currency;
+    final parts = [for (final share in item._others) _amountOf(share)];
+    if (currency == null || parts.contains(null)) return null;
+    return parts.nonNulls.fold<Money>(
+      Money.zero(currency),
+      (sum, part) => sum + part,
+    );
+  }
+
+  /// What is left of the price of [item] once the others have borne their
+  /// parts, when its amounts can be read and they do not exceed the price.
   Money? ownPartOf(ItemDraft item) {
     final price = _priceOf(item);
-    final others = [for (final share in item._others) _amountOf(share)];
-    if (price == null || others.contains(null)) return null;
-    final own = others.nonNulls.fold(price, (left, part) => left - part);
+    final others = othersTotalOf(item);
+    if (price == null || others == null) return null;
+    final own = price - others;
     return own.isNegative ? null : own;
   }
 
@@ -287,7 +301,11 @@ final class TransactionFormViewModel extends ChangeNotifier
     if (item._others.any(_isIncomplete)) return ItemProblem.incompleteShare;
     final people = {for (final share in item._others) _keyOf(share.person)};
     if (people.length != item._others.length) return ItemProblem.repeatedPerson;
-    if (ownPartOf(item) == null) return ItemProblem.sharesExceedAmount;
+    final own = ownPartOf(item);
+    if (own == null) return ItemProblem.sharesExceedAmount;
+    if (_isSharedWithoutMe(item) && !own.isZero) {
+      return ItemProblem.sharesDoNotAddUp;
+    }
     return null;
   }
 
@@ -389,6 +407,9 @@ final class TransactionFormViewModel extends ChangeNotifier
 
   Category? _categoryById(CategoryId id) =>
       _allCategories.where((category) => category.id == id).firstOrNull;
+
+  static bool _isSharedWithoutMe(ItemDraft item) =>
+      !item.includesMe && item._others.isNotEmpty;
 
   static String _keyOf(String person) => person.trim().toLowerCase();
 }

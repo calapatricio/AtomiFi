@@ -125,5 +125,16 @@
   "categoryName": "Name",
   "categoryNameRequired": "Enter a name",
   "emoji": "Emoji (optional)",
-  "chooseCategory": "Choose a category"
+  "chooseCategory": "Choose a category",
+  "sharesDoNotAddUp": "The parts add up to {sum}, but the amount is {amount}",
+  "@sharesDoNotAddUp": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }
