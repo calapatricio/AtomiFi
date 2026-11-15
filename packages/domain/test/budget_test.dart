@@ -21,14 +21,14 @@ const _categories = [
 
 Budget _budget({
   int limitCents = 100000,
-  BudgetPeriod period = const EveryMonth(),
+  BudgetPeriod? period,
   BudgetScope scope = const AllSpending(),
 }) =>
     Budget(
       id: const BudgetId('budget'),
       name: 'Budget',
       limit: eur(limitCents),
-      period: period,
+      period: period ?? RecurringPeriod(Recurrence.calendarMonths),
       scope: scope,
     );
 
@@ -50,11 +50,19 @@ void main() {
   });
 
   group('BudgetPeriod', () {
-    test('every month runs from the first day to the last', () {
-      final range = const EveryMonth().rangeAt(DateTime(2026, 11, 15, 13));
+    test('a recurring period is the one its recurrence gives', () {
+      final fortnightly = RecurringPeriod(
+        Recurrence(
+          every: 2,
+          unit: RecurrenceUnit.week,
+          anchor: DateTime(2026, 11, 13),
+        ),
+      );
 
-      expect(range.start, DateTime(2026, 11));
-      expect(range.end, DateTime(2026, 12));
+      expect(
+        fortnightly.rangeAt(DateTime(2026, 11, 20)),
+        DateRange(DateTime(2026, 11, 13), DateTime(2026, 11, 27)),
+      );
     });
 
     test('a fixed period is the same whenever it is asked', () {
