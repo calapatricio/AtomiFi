@@ -26,17 +26,21 @@ BudgetsCompanion budgetRowOf(Budget budget) {
   );
 }
 
-List<BudgetCategoriesCompanion> budgetCategoryRowsOf(Budget budget) {
-  final scope = budget.scope;
-  return [
-    if (scope is CategorySpending)
-      for (final categoryId in scope.categoryIds)
+/// The rows for the categories a budget names: the ones it is for, or the
+/// ones a budget for all spending leaves out.
+List<BudgetCategoriesCompanion> budgetCategoryRowsOf(Budget budget) => [
+      for (final categoryId in _categoriesNamedBy(budget.scope))
         BudgetCategoriesCompanion.insert(
           budgetId: budget.id.value,
           categoryId: categoryId.value,
         ),
-  ];
-}
+    ];
+
+Set<CategoryId> _categoriesNamedBy(BudgetScope scope) => switch (scope) {
+      AllSpending(:final except) => except,
+      CategorySpending(:final categoryIds) => categoryIds,
+      ChosenItems() => const {},
+    };
 
 List<BudgetItemsCompanion> budgetItemRowsOf(Budget budget) {
   final scope = budget.scope;
@@ -65,10 +69,8 @@ Budget budgetOf(
       ),
       period: _periodOf(row),
       scope: switch (row.scopeKind) {
-        BudgetScopeKind.allSpending => const AllSpending(),
-        BudgetScopeKind.categories => CategorySpending({
-            for (final category in categories) CategoryId(category.categoryId),
-          }),
+        BudgetScopeKind.allSpending => AllSpending(except: _idsOf(categories)),
+        BudgetScopeKind.categories => CategorySpending(_idsOf(categories)),
         BudgetScopeKind.chosenItems => ChosenItems({
             for (final item in items) ItemId(item.itemId),
           }),
@@ -79,6 +81,10 @@ Budget budgetOf(
         emoji: row.emoji,
       ),
     );
+
+Set<CategoryId> _idsOf(List<BudgetCategoryRow> rows) => {
+      for (final row in rows) CategoryId(row.categoryId),
+    };
 
 BudgetScopeKind _kindOf(BudgetScope scope) => switch (scope) {
       AllSpending() => BudgetScopeKind.allSpending,

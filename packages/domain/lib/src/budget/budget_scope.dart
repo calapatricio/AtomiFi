@@ -9,12 +9,16 @@ sealed class BudgetScope {
   bool covers(Item item, CategoryTree categories);
 }
 
-/// Everything that is spent.
+/// Everything that is spent, but for the categories in [except] and their
+/// subcategories.
 final class AllSpending extends BudgetScope {
-  const AllSpending();
+  const AllSpending({this.except = const {}});
+
+  final Set<CategoryId> except;
 
   @override
-  bool covers(Item item, CategoryTree categories) => true;
+  bool covers(Item item, CategoryTree categories) => !except
+      .any((categoryId) => categories.isWithin(item.categoryId, categoryId));
 }
 
 /// What is spent in some categories and in their subcategories.

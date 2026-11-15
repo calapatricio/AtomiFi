@@ -126,7 +126,8 @@ class Budgets extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// The categories a budget for some categories covers.
+/// The categories a budget names: the ones a budget for some categories
+/// covers, or the ones a budget for all spending leaves out.
 @DataClassName('BudgetCategoryRow')
 class BudgetCategories extends Table {
   TextColumn get budgetId => text().references(Budgets, #id)();

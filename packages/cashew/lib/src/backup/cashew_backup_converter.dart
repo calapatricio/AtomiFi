@@ -4,9 +4,10 @@ import 'package:atomifi_domain/atomifi_domain.dart';
 
 import '../imported_ledger.dart';
 import 'cashew_backup.dart';
+import 'cashew_budget_converter.dart';
 
-/// Turns a Cashew backup into accounts, categories, transactions and
-/// transfers.
+/// Turns a Cashew backup into accounts, categories, transactions,
+/// transfers and budgets.
 ///
 /// Everything keeps the id it has in Cashew, so importing a backup again
 /// replaces what the first import created.
@@ -25,8 +26,28 @@ final class CashewBackupConverter {
       categories: categories,
       transactions: movements.transactions,
       transfers: movements.transfers,
+      budgets: CashewBudgetConverter(
+        accounts: accounts,
+        categories: categories,
+        defaultCurrency: Currency.iso(defaultCurrencyCode.toUpperCase()),
+      ).convert(backup.budgets, _budgetByItemOf(backup, movements)),
       skippedRows: backup.transactions.length - movements.count,
     );
+  }
+
+  /// The budget each imported item was added to by hand in Cashew.
+  static Map<ItemId, String> _budgetByItemOf(
+    CashewBackup backup,
+    _Movements movements,
+  ) {
+    final imported = {
+      for (final transaction in movements.transactions) transaction.id.value,
+    };
+    return {
+      for (final BackupTransaction(:id, :budgetId) in backup.transactions)
+        if (budgetId != null && imported.contains(id))
+          _itemIdOf(id): budgetId,
+    };
   }
 
   Account _accountOf(BackupWallet wallet) => Account(
@@ -36,7 +57,12 @@ final class CashewBackupConverter {
           (wallet.currencyCode ?? defaultCurrencyCode).toUpperCase(),
           decimals: wallet.decimals,
         ),
-        appearance: _appearanceOf(wallet.colour, wallet.iconName, null),
+        appearance: appearanceOf(
+          wallet.colour,
+          wallet.iconName,
+          wallet.emoji,
+        ),
+        isArchived: wallet.archived,
       );
 
   /// Categories first and subcategories after them, as storing them needs.
@@ -54,25 +80,17 @@ final class CashewBackupConverter {
       name: category.name,
       side: category.income ? CategorySide.income : CategorySide.expense,
       parentId: parentId == null ? null : CategoryId(parentId),
-      appearance: _appearanceOf(
+      appearance: appearanceOf(
         category.colour,
         category.iconName,
         category.emoji,
       ),
     );
   }
-
-  static Appearance _appearanceOf(
-    String? colour,
-    String? iconName,
-    String? emoji,
-  ) =>
-      Appearance(
-        color: colour == null ? null : int.tryParse(colour),
-        iconName: iconName?.replaceFirst(RegExp(r'\.png$'), ''),
-        emoji: emoji,
-      );
 }
+
+/// The id of the only item of an imported transaction.
+ItemId _itemIdOf(String transactionId) => ItemId('$transactionId-item');
 
 /// A paid transaction of the backup with its account and its amount.
 final class _Movement {
@@ -164,7 +182,7 @@ final class _Movements {
       accountId: movement.account.id,
       items: [
         Item.mine(
-          id: ItemId('${source.id}-item'),
+          id: _itemIdOf(source.id),
           name: source.name,
           categoryId: _categoryIdOf(source),
           price: movement.amount,

@@ -6,6 +6,7 @@ import '../accounts/add_account_dialog.dart';
 import '../categories/category_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
+import '../widgets/appearance_avatar.dart';
 import '../widgets/choice_carousel.dart';
 import 'transaction_form_view_model.dart';
 
@@ -304,7 +305,7 @@ class _ItemCard extends StatelessWidget {
 
   Widget _categoryAndAmount(BuildContext context, AppLocalizations texts) =>
       Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 8,
         children: [
           Expanded(child: _categoryField(context, texts)),
@@ -327,17 +328,35 @@ class _ItemCard extends StatelessWidget {
         ],
       );
 
-  /// Shows the chosen category and opens the picker when it is tapped. It
-  /// is a field like the amount next to it, so the two line up.
+  /// Shows the emoji and the name of the chosen category, and opens the
+  /// picker when it is tapped.
   Widget _categoryField(BuildContext context, AppLocalizations texts) {
     final id = item.categoryId;
-    final label = id == null ? '' : form.labelOf(id);
-    return TextFormField(
-      key: ValueKey(label),
-      initialValue: label,
-      readOnly: true,
-      decoration: InputDecoration(labelText: texts.category),
+    final category = id == null ? null : form.categoryOf(id);
+    return InkWell(
       onTap: () => _pickCategory(context),
+      borderRadius: BorderRadius.circular(28),
+      child: Row(
+        spacing: 12,
+        children: [
+          if (category == null)
+            const CircleAvatar(child: Icon(Icons.category_outlined))
+          else
+            AppearanceAvatar(
+              appearance: category.appearance,
+              name: category.name,
+            ),
+          Expanded(
+            child: Text(
+              category == null
+                  ? texts.chooseCategory
+                  : form.labelOf(category.id),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
