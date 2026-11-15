@@ -106,6 +106,31 @@ void main() {
       expect(find.text('Include me'), findsOneWidget);
     });
 
+    testWidgets('leaves me out of an item I take no part in', (tester) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await pump(tester, existing: shopping);
+      await tester.ensureVisible(find.text('Add person'));
+      await tester.tap(find.text('Add person'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Person'),
+        'Moy',
+      );
+      await tester.enterText(find.widgetWithText(TextFormField, '').last, '10');
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Include me'));
+      await tester.tap(find.text('Include me'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Me'), findsNothing);
+      expect(
+        find.text('The parts add up to €10.00, but the amount is €15.00'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('adds a person to share an item with', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);

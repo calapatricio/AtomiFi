@@ -59,6 +59,29 @@ void main() {
       expect(added, 1);
     });
 
+    testWidgets('outlines each choice in its own color when it has one', (
+      tester,
+    ) async {
+      await pumpScreen(
+        tester,
+        Scaffold(
+          body: ChoiceCarousel<String>(
+            choices: const ['Bank', 'Cash'],
+            selected: null,
+            labelOf: (choice) => choice,
+            colorOf: (choice) => choice == 'Bank' ? Colors.teal : null,
+            onSelected: (_) {},
+          ),
+        ),
+      );
+
+      ChoiceChip chip(String label) =>
+          tester.widget(find.widgetWithText(ChoiceChip, label));
+
+      expect(chip('Bank').side?.color, Colors.teal);
+      expect(chip('Cash').side, isNull);
+    });
+
     testWidgets('offers nothing to add otherwise', (tester) async {
       await pump(tester);
 

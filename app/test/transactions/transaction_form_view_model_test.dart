@@ -303,6 +303,34 @@ void main() {
       expect(form.ownPartOf(item), eur(0));
     });
 
+    test('needs the parts to add up when I take no part', () async {
+      form.addPerson(item);
+      item.others.single
+        ..person = 'Moy'
+        ..amount = '14';
+      item.includesMe = false;
+
+      expect(form.othersTotalOf(item), eur(1400));
+      expect(form.problemOf(item), ItemProblem.sharesDoNotAddUp);
+      expect(form.canSave, isFalse);
+
+      item.others.single.amount = '26.50';
+      expect(form.problemOf(item), isNull);
+      await form.save();
+
+      expect((await saved()).items.single.shares, [Share(moy, eur(-2650))]);
+    });
+
+    test('is all mine again once nobody else is left', () {
+      form.addPerson(item);
+      item.includesMe = false;
+
+      form.removePerson(item, item.others.single);
+
+      expect(form.problemOf(item), isNull);
+      expect(form.ownPartOf(item), eur(2650));
+    });
+
     test('lets a person be removed', () {
       form.addPerson(item);
 
