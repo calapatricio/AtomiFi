@@ -71,6 +71,22 @@ void main() {
       ]);
     });
 
+    test('counts the balance correction category on neither side', () {
+      final ledger = _convert(
+        backup(
+          categories: [
+            category(),
+            category(id: '0', name: 'Corrección de Balance'),
+          ],
+        ),
+      );
+
+      expect(ledger.categories.map((category) => category.side), [
+        CategorySide.expense,
+        CategorySide.neutral,
+      ]);
+    });
+
     test('lists a category before its subcategories', () {
       final ledger = _convert(
         backup(

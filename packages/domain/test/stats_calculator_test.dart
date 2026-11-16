@@ -17,6 +17,11 @@ const _categories = [
   ),
   Category(id: CategoryId('salary'), name: 'Salary', side: CategorySide.income),
   Category(
+    id: CategoryId('correction'),
+    name: 'Balance correction',
+    side: CategorySide.neutral,
+  ),
+  Category(
     id: CategoryId('betting'),
     name: 'Betting',
     side: CategorySide.income,
@@ -184,6 +189,20 @@ void main() {
       ]);
 
       expect(stats.expenses, eur(1500));
+    });
+
+    test('counts a neutral category as neither spending nor income', () {
+      final ledger = [
+        on(DateTime(2026, 11, 1), [mine(250000, category: 'correction')]),
+        on(DateTime(2026, 11, 2), [mine(-4000, category: 'correction')]),
+        on(DateTime(2026, 11, 3), [mine(-500)]),
+      ];
+
+      final stats = _stats(_november, ledger);
+
+      expect(stats.expenses, eur(500));
+      expect(stats.income, eur(0));
+      expect(stats.netFor(const CategoryId('correction')), eur(246000));
     });
 
     test('rejects an item in a category it does not know', () {

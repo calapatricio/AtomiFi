@@ -64,6 +64,18 @@ void main() {
       expect((await categories.all()).single.appearance, Appearance.none);
     });
 
+    test('restores a category that counts on neither side', () async {
+      await categories.save(
+        const Category(
+          id: CategoryId('correction'),
+          name: 'Balance correction',
+          side: CategorySide.neutral,
+        ),
+      );
+
+      expect((await categories.all()).single.side, CategorySide.neutral);
+    });
+
     test('saving a category again replaces it', () async {
       await categories.save(food);
       await categories.save(

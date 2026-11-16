@@ -17,6 +17,11 @@ const _categories = [
     parentId: CategoryId('leisure'),
   ),
   Category(id: CategoryId('salary'), name: 'Salary', side: CategorySide.income),
+  Category(
+    id: CategoryId('correction'),
+    name: 'Balance correction',
+    side: CategorySide.neutral,
+  ),
 ];
 
 Budget _budget({
@@ -125,6 +130,15 @@ void main() {
           mine(-800, category: 'leisure'),
           mine(-1200, category: 'alcohol'),
         ]),
+      ]);
+
+      expect(progress.spent, eur(1500));
+    });
+
+    test('does not count what is in a neutral category', () {
+      final progress = _progress(_budget(), [
+        on(DateTime(2026, 11, 1), [mine(250000, category: 'correction')]),
+        on(DateTime(2026, 11, 2), [mine(-1500)]),
       ]);
 
       expect(progress.spent, eur(1500));
