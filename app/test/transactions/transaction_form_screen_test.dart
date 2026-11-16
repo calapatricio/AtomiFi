@@ -213,6 +213,18 @@ void main() {
       expect(await itemsInBudget(store, 'trip'), isEmpty);
     });
 
+    testWidgets('lets the amount of an item be typed with a minus', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      final amount = tester.widget<TextField>(
+        find.widgetWithText(TextField, 'Amount'),
+      );
+
+      expect(amount.keyboardType.signed, isTrue);
+    });
+
     testWidgets('offers no goal when there is none', (tester) async {
       await pump(tester);
 

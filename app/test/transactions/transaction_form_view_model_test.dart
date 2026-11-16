@@ -233,6 +233,83 @@ void main() {
     });
   });
 
+  group('An item that goes against the rest of its transaction', () {
+    setUp(() {
+      form.name = 'Supermarket';
+      form.items.single
+        ..categoryId = food.id
+        ..price = '10';
+      form.addItem();
+      form.items.last
+        ..name = 'Bottle deposit back'
+        ..categoryId = food.id;
+    });
+
+    test('counts the other way when its amount starts with a minus', () async {
+      form.items.last.price = '-0.25';
+
+      expect(form.total, eur(-975));
+      await form.save();
+      final transaction = await saved();
+
+      expect(transaction.items.map((item) => item.price), [
+        eur(-1000),
+        eur(25),
+      ]);
+      expect(transaction.total, eur(-975));
+    });
+
+    test('is money that left when the transaction is income', () async {
+      form.direction = Direction.income;
+      form.items.last.price = '-0.25';
+
+      await form.save();
+
+      expect((await saved()).items.last.price, eur(-25));
+    });
+
+    test('is divided with other people on its own side', () async {
+      final item = form.items.last..price = '-3';
+      form.addPerson(item);
+      item.others.single
+        ..person = 'Moy'
+        ..amount = '1';
+
+      expect(form.ownPartOf(item), eur(200));
+      await form.save();
+
+      expect((await saved()).items.last.shares, [
+        Share(const Me(), eur(200)),
+        Share(moy, eur(100)),
+      ]);
+    });
+
+    test('still needs an amount after the minus', () {
+      for (final price in ['-', '-0', '--1', '1-']) {
+        form.items.last.price = price;
+        expect(
+          form.problemOf(form.items.last),
+          ItemProblem.invalidAmount,
+          reason: 'price "$price"',
+        );
+      }
+    });
+
+    test('shows its minus again when the transaction is edited', () async {
+      final shopping = spending(
+        'shopping',
+        centsByCategory: const {food: -1000, alcohol: 25},
+      );
+      await store.transactions.save(shopping);
+      form = transactionFormOn(store, existing: shopping);
+      await form.load();
+
+      expect(form.direction, Direction.expense);
+      expect(form.items.map((item) => item.price), ['10.00', '-0.25']);
+      expect(form.total, eur(-975));
+    });
+  });
+
   group('Splitting an item with other people', () {
     late ItemDraft item;
 
