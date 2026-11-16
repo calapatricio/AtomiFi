@@ -9,7 +9,8 @@
   of its shares. It may offset an earlier item (a repayment, a refund, the
   payout of a bet).
 - **Share**: the part of an item borne by one party, either me or a named
-  person. All shares of an item have the same sign.
+  person. All shares of an item have the same sign. Items of the same
+  transaction may have different signs.
 - **Account**: a name, a currency and an appearance (color, icon, emoji).
   It can be archived, which keeps all its records but puts it out of sight,
   or removed, which also removes its transactions, its revaluations and
@@ -59,6 +60,7 @@
 
 Each slice is built on its own branch: first a commit with failing tests,
 then the code that makes them pass. `main` only receives green branches.
+The whole loop is in `CLAUDE.md`.
 
 ## Left out of Cashew's model on purpose
 

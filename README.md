@@ -6,9 +6,14 @@ item has its own category and its own split between you and other people.
 
 - `packages/domain`: the domain model and rules, in pure Dart.
 - `packages/data`: SQLite storage built on Drift, in pure Dart.
-- `packages/cashew`: reads a Cashew CSV export into the model.
+- `packages/cashew`: reads a Cashew backup or CSV export into the model.
 - `app`: the Flutter app (Android and web).
 - `docs/domain-model.md`: the model and the rules the statistics follow.
+- `docs/decisions.md`: what was decided and why.
+- `docs/backlog.md`: what is done, what comes next and the known limits.
+- `docs/prompts.md`: how to ask Claude for changes.
+- `CLAUDE.md`: the working rules Claude follows in this repository.
+- `tool`: scripts to wait for CI and apply its formatting.
 
 ## Running the tests
 
