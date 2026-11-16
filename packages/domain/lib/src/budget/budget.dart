@@ -32,16 +32,25 @@ final class Budget {
   ///
   /// Only a budget for chosen items takes items one by one.
   Budget withItem(ItemId itemId) => switch (scope) {
-        ChosenItems(:final itemIds) => Budget(
+        ChosenItems(:final itemIds) => withItems({...itemIds, itemId}),
+        AllSpending() || CategorySpending() => throw _takesNoItems(),
+      };
+
+  /// This budget holding [itemIds] and no other items.
+  ///
+  /// Only a budget for chosen items takes items one by one.
+  Budget withItems(Set<ItemId> itemIds) => switch (scope) {
+        ChosenItems() => Budget(
             id: id,
             name: name,
             limit: limit,
             period: period,
-            scope: ChosenItems({...itemIds, itemId}),
+            scope: ChosenItems(itemIds),
             appearance: appearance,
           ),
-        AllSpending() || CategorySpending() => throw StateError(
-            'The budget "$name" does not take items one by one.',
-          ),
+        AllSpending() || CategorySpending() => throw _takesNoItems(),
       };
+
+  StateError _takesNoItems() =>
+      StateError('The budget "$name" does not take items one by one.');
 }

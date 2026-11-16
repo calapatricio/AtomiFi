@@ -202,5 +202,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "budget": "Budget"
 }

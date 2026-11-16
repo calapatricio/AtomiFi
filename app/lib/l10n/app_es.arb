@@ -87,5 +87,6 @@
   "coversAllSpending": "Todo el gasto",
   "coversCategories": "Algunas categorías",
   "coversChosenItems": "Conceptos elegidos",
-  "coversChosenItemsHint": "Añade conceptos a este presupuesto desde el formulario de movimientos."
+  "coversChosenItemsHint": "Añade conceptos a este presupuesto desde el formulario de movimientos.",
+  "budget": "Presupuesto"
 }

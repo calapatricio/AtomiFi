@@ -65,6 +65,7 @@ final class ItemDraft {
   String _price;
   CategoryId? _categoryId;
   bool _includesMe;
+  BudgetId? _budgetId;
   List<ShareDraft> _others;
 
   String get name => _name;
@@ -89,6 +90,14 @@ final class ItemDraft {
     _changed();
   }
 
+  /// The budget for chosen items this item is put in, if any.
+  BudgetId? get budgetId => _budgetId;
+
+  set budgetId(BudgetId? budgetId) {
+    _budgetId = budgetId;
+    _changed();
+  }
+
   /// Whether I bear a part of an item that is shared. When I do not, the
   /// parts of the others must add up to the whole price.
   bool get includesMe => _includesMe;
@@ -109,6 +118,7 @@ final class TransactionFormViewModel extends ChangeNotifier
     required this._transactions,
     required this._accounts,
     required this._categories,
+    required this._budgets,
     required this._newId,
     required DateTime Function() now,
     Transaction? existing,
@@ -127,6 +137,7 @@ final class TransactionFormViewModel extends ChangeNotifier
   final TransactionRepository _transactions;
   final AccountRepository _accounts;
   final CategoryRepository _categories;
+  final BudgetAssignments _budgets;
   final String Function() _newId;
   final Transaction? _existing;
 
@@ -138,6 +149,8 @@ final class TransactionFormViewModel extends ChangeNotifier
   late List<ItemDraft> _items;
   List<Account> _accountsInUse = const [];
   List<Category> _allCategories = const [];
+  List<Budget> _itemBudgets = const [];
+  bool _knowsBudgetsOfItems = false;
 
   bool get isEditing => _existing != null;
 
@@ -192,6 +205,9 @@ final class TransactionFormViewModel extends ChangeNotifier
   /// The category with this id, to show how it looks.
   Category? categoryOf(CategoryId id) => _categoryById(id);
 
+  /// The budgets an item can be put in: those that take items one by one.
+  List<Budget> get itemBudgets => _itemBudgets;
+
   List<ItemDraft> get items => List.unmodifiable(_items);
 
   Future<void> load() async {
@@ -205,7 +221,19 @@ final class TransactionFormViewModel extends ChangeNotifier
         ? _accountsInUse.firstOrNull
         : _accountsInUse.where((account) => account.id == accountId).first;
     _allCategories = await _categories.all();
+    _itemBudgets = await _budgets.budgetsForChosenItems();
+    await _findBudgetsOfItems();
     notifyListeners();
+  }
+
+  /// Finds, the first time, the budget each item being edited is in.
+  Future<void> _findBudgetsOfItems() async {
+    if (_knowsBudgetsOfItems) return;
+    _knowsBudgetsOfItems = true;
+    final budgetByItem = await _budgets.budgetOfEach(_existingItemIds);
+    for (final item in _items) {
+      item._budgetId = budgetByItem[item.id];
+    }
   }
 
   /// Adds an account and chooses it for this transaction.
@@ -330,6 +358,7 @@ final class TransactionFormViewModel extends ChangeNotifier
     if (!canSave) {
       throw StateError('The transaction is not complete yet.');
     }
+    final items = [for (final draft in _items) _itemOf(draft)];
     await _transactions.save(
       Transaction(
         id: _existing?.id ?? TransactionId(_newId()),
@@ -337,16 +366,29 @@ final class TransactionFormViewModel extends ChangeNotifier
         note: _note.trim(),
         dateTime: _dateTime,
         accountId: _account!.id,
-        items: [for (final item in _items) _itemOf(item)],
+        items: items,
       ),
     );
+    await _budgets.assign({
+      for (final itemId in _existingItemIds) itemId: null,
+      for (final (index, item) in items.indexed) item.id: _items[index].budgetId,
+    });
   }
 
   /// Deletes the transaction being edited.
   Future<void> delete() async {
     final existing = _existing;
-    if (existing != null) await _transactions.remove(existing.id);
+    if (existing == null) return;
+    await _transactions.remove(existing.id);
+    await _budgets.assign({
+      for (final itemId in _existingItemIds) itemId: null,
+    });
   }
+
+  /// The ids of the items the transaction had before it was edited.
+  List<ItemId> get _existingItemIds => [
+    for (final item in _existing?.items ?? const <Item>[]) item.id,
+  ];
 
   Item _itemOf(ItemDraft draft) {
     final own = ownPartOf(draft)!;

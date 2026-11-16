@@ -4,6 +4,7 @@ export 'src/account/account_repository.dart';
 export 'src/account/balances.dart';
 export 'src/appearance.dart';
 export 'src/budget/budget.dart';
+export 'src/budget/budget_assignments.dart';
 export 'src/budget/budget_period.dart';
 export 'src/budget/budget_progress.dart';
 export 'src/budget/budget_repository.dart';
