@@ -28,6 +28,10 @@
   spending in some categories and their subcategories, or only the items
   put in it one by one. Only my own share of each item counts against it,
   and refunds are taken off.
+- **Goal**: an amount to reach, either by saving or by spending, with an
+  optional deadline. Only the items put in it one by one count towards it,
+  whatever their date, and only my own share of each. An item counts
+  towards one goal at most.
 - **Money**: an integer number of minor units plus a currency. Negative is
   money leaving an account.
 
