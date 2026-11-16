@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -8,6 +10,10 @@ import 'budgets/budget_form_view_model.dart';
 import 'budgets/budgets_screen.dart';
 import 'budgets/budgets_view_model.dart';
 import 'dependencies.dart';
+import 'goals/goal_form_screen.dart';
+import 'goals/goal_form_view_model.dart';
+import 'goals/goals_screen.dart';
+import 'goals/goals_view_model.dart';
 import 'home_shell.dart';
 import 'l10n/app_localizations.dart';
 import 'more/import_view_model.dart';
@@ -46,6 +52,10 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     categories: _dependencies.categories,
     now: DateTime.now,
   );
+  late final _goals = GoalsViewModel(
+    goals: _dependencies.goals,
+    ledger: _dependencies.ledger,
+  );
   late final _import = ImportViewModel(importer: _dependencies.backupImporter);
 
   Future<void> _openTransactionForm(
@@ -59,6 +69,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
           accounts: _dependencies.accounts,
           categories: _dependencies.categories,
           budgets: _dependencies.budgetAssignments,
+          goals: _dependencies.goalAssignments,
           newId: _dependencies.newId,
           now: DateTime.now,
           existing: existing,
@@ -82,11 +93,34 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         ),
       );
 
+  void _openGoals(BuildContext context) => unawaited(
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => GoalsScreen(viewModel: _goals, openForm: _openGoalForm),
+      ),
+    ),
+  );
+
+  Future<void> _openGoalForm(BuildContext context) =>
+      Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => GoalFormScreen(
+            viewModel: GoalFormViewModel(
+              goals: _dependencies.goals,
+              currency: _dependencies.mainCurrency,
+              newId: _dependencies.newId,
+              now: DateTime.now,
+            ),
+          ),
+        ),
+      );
+
   @override
   void dispose() {
     _transactions.dispose();
     _accounts.dispose();
     _budgets.dispose();
+    _goals.dispose();
     _import.dispose();
     super.dispose();
   }
@@ -108,7 +142,8 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
       budgets: (_) =>
           BudgetsScreen(viewModel: _budgets, openForm: _openBudgetForm),
       accounts: (_) => AccountsScreen(viewModel: _accounts),
-      more: (_) => MoreScreen(importViewModel: _import),
+      more: (_) =>
+          MoreScreen(importViewModel: _import, openGoals: _openGoals),
     ),
   );
 }

@@ -66,6 +66,7 @@ final class ItemDraft {
   CategoryId? _categoryId;
   bool _includesMe;
   BudgetId? _budgetId;
+  GoalId? _goalId;
   List<ShareDraft> _others;
 
   String get name => _name;
@@ -98,6 +99,14 @@ final class ItemDraft {
     _changed();
   }
 
+  /// The goal this item counts towards, if any.
+  GoalId? get goalId => _goalId;
+
+  set goalId(GoalId? goalId) {
+    _goalId = goalId;
+    _changed();
+  }
+
   /// Whether I bear a part of an item that is shared. When I do not, the
   /// parts of the others must add up to the whole price.
   bool get includesMe => _includesMe;
@@ -119,6 +128,7 @@ final class TransactionFormViewModel extends ChangeNotifier
     required this._accounts,
     required this._categories,
     required this._budgets,
+    required this._goals,
     required this._newId,
     required DateTime Function() now,
     Transaction? existing,
@@ -138,6 +148,7 @@ final class TransactionFormViewModel extends ChangeNotifier
   final AccountRepository _accounts;
   final CategoryRepository _categories;
   final BudgetAssignments _budgets;
+  final GoalAssignments _goals;
   final String Function() _newId;
   final Transaction? _existing;
 
@@ -150,7 +161,8 @@ final class TransactionFormViewModel extends ChangeNotifier
   List<Account> _accountsInUse = const [];
   List<Category> _allCategories = const [];
   List<Budget> _itemBudgets = const [];
-  bool _knowsBudgetsOfItems = false;
+  List<Goal> _itemGoals = const [];
+  bool _knowsWhereItemsAre = false;
 
   bool get isEditing => _existing != null;
 
@@ -208,6 +220,9 @@ final class TransactionFormViewModel extends ChangeNotifier
   /// The budgets an item can be put in: those that take items one by one.
   List<Budget> get itemBudgets => _itemBudgets;
 
+  /// The goals an item can count towards.
+  List<Goal> get itemGoals => _itemGoals;
+
   List<ItemDraft> get items => List.unmodifiable(_items);
 
   Future<void> load() async {
@@ -222,17 +237,22 @@ final class TransactionFormViewModel extends ChangeNotifier
         : _accountsInUse.where((account) => account.id == accountId).first;
     _allCategories = await _categories.all();
     _itemBudgets = await _budgets.budgetsForChosenItems();
-    await _findBudgetsOfItems();
+    _itemGoals = await _goals.goals();
+    await _findWhereItemsAre();
     notifyListeners();
   }
 
-  /// Finds, the first time, the budget each item being edited is in.
-  Future<void> _findBudgetsOfItems() async {
-    if (_knowsBudgetsOfItems) return;
-    _knowsBudgetsOfItems = true;
+  /// Finds, the first time, the budget each item being edited is in and
+  /// the goal it counts towards.
+  Future<void> _findWhereItemsAre() async {
+    if (_knowsWhereItemsAre) return;
+    _knowsWhereItemsAre = true;
     final budgetByItem = await _budgets.budgetOfEach(_existingItemIds);
+    final goalByItem = await _goals.goalOfEach(_existingItemIds);
     for (final item in _items) {
-      item._budgetId = budgetByItem[item.id];
+      item
+        .._budgetId = budgetByItem[item.id]
+        .._goalId = goalByItem[item.id];
     }
   }
 
@@ -375,6 +395,10 @@ final class TransactionFormViewModel extends ChangeNotifier
       for (final (index, item) in items.indexed)
         item.id: _items[index].budgetId,
     });
+    await _goals.assign({
+      for (final itemId in _existingItemIds) itemId: null,
+      for (final (index, item) in items.indexed) item.id: _items[index].goalId,
+    });
   }
 
   /// Deletes the transaction being edited.
@@ -382,9 +406,9 @@ final class TransactionFormViewModel extends ChangeNotifier
     final existing = _existing;
     if (existing == null) return;
     await _transactions.remove(existing.id);
-    await _budgets.assign({
-      for (final itemId in _existingItemIds) itemId: null,
-    });
+    final inNothing = {for (final itemId in _existingItemIds) itemId: null};
+    await _budgets.assign(inNothing);
+    await _goals.assign(inNothing);
   }
 
   /// The ids of the items the transaction had before it was edited.

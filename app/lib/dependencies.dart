@@ -14,6 +14,8 @@ final class Dependencies {
     required this.budgets,
     required this.budgetAssignments,
     required this.categories,
+    required this.goals,
+    required this.goalAssignments,
     required this.transactions,
     required this.ledger,
     required this.backupImporter,
@@ -33,6 +35,8 @@ final class Dependencies {
       budgets: budgets,
       budgetAssignments: BudgetAssignments(budgets),
       categories: categories,
+      goals: goals,
+      goalAssignments: GoalAssignments(goals),
       transactions: transactions,
       ledger: Ledger(
         transactions: transactions,
@@ -57,7 +61,7 @@ final class Dependencies {
   }
 
   /// The currency of imported accounts that do not say which one they use,
-  /// and of the limits of budgets.
+  /// and of the limits of budgets and the targets of goals.
   static const _defaultCurrencyCode = 'EUR';
 
   /// The currency amounts that belong to no account are counted in.
@@ -67,6 +71,8 @@ final class Dependencies {
   final BudgetRepository budgets;
   final BudgetAssignments budgetAssignments;
   final CategoryRepository categories;
+  final GoalRepository goals;
+  final GoalAssignments goalAssignments;
   final TransactionRepository transactions;
   final Ledger ledger;
   final BackupImporter backupImporter;

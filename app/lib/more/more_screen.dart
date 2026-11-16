@@ -3,11 +3,19 @@ import 'package:material_ui/material_ui.dart';
 import '../l10n/app_localizations.dart';
 import 'import_view_model.dart';
 
-/// The things that are done once in a while, such as importing a backup.
+/// The things that are looked at or done once in a while, such as the goals
+/// or importing a backup.
 class MoreScreen extends StatelessWidget {
-  const MoreScreen({super.key, required this.importViewModel});
+  const MoreScreen({
+    super.key,
+    required this.importViewModel,
+    required this.openGoals,
+  });
 
   final ImportViewModel importViewModel;
+
+  /// Opens the list of goals.
+  final void Function(BuildContext context) openGoals;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +29,12 @@ class MoreScreen extends StatelessWidget {
           final isBusy = status is ImportInProgress;
           return ListView(
             children: [
+              ListTile(
+                leading: const Icon(Icons.flag),
+                title: Text(texts.goalsTitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => openGoals(context),
+              ),
               ListTile(
                 leading: const Icon(Icons.upload_file),
                 title: Text(texts.importCashewBackup),

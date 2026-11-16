@@ -203,5 +203,54 @@
       }
     }
   },
-  "budget": "Budget"
+  "budget": "Budget",
+  "goalsTitle": "Goals",
+  "noGoals": "No goals yet. Add the first one.",
+  "addGoal": "Add goal",
+  "newGoal": "New goal",
+  "goalName": "Name",
+  "goalTarget": "Target",
+  "goalKind": "I want to",
+  "goalKindSaving": "Save up",
+  "goalKindSpending": "Spend",
+  "deadline": "Deadline",
+  "noDeadline": "No deadline",
+  "removeDeadline": "Remove the deadline",
+  "goalReachedOfTarget": "{reached} of {target}",
+  "@goalReachedOfTarget": {
+    "placeholders": {
+      "reached": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "goalToGo": "{amount} to go",
+  "@goalToGo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "goalReached": "Reached",
+  "goalBy": "By {day}",
+  "@goalBy": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteGoalTitle": "Delete {name}?",
+  "@deleteGoalTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goal": "Goal"
 }

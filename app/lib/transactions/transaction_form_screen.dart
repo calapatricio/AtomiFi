@@ -283,6 +283,7 @@ class _ItemCard extends StatelessWidget {
               onChanged: (name) => item.name = name,
             ),
             if (form.itemBudgets.isNotEmpty) ..._budgetPicker(texts),
+            if (form.itemGoals.isNotEmpty) ..._goalPicker(texts),
             if (item.others.isNotEmpty && item.includesMe)
               _myPart(context, texts),
             for (final share in item.others)
@@ -363,20 +364,46 @@ class _ItemCard extends StatelessWidget {
 
   /// Chooses the budget the item is put in. Tapping the chosen one again
   /// takes the item out of it.
-  List<Widget> _budgetPicker(AppLocalizations texts) => [
-    Text(texts.budget),
-    ChoiceCarousel<Budget>(
-      choices: form.itemBudgets,
-      selected: form.itemBudgets
-          .where((budget) => budget.id == item.budgetId)
-          .firstOrNull,
-      labelOf: (budget) => budget.name,
-      colorOf: (budget) {
-        final color = budget.appearance.color;
+  List<Widget> _budgetPicker(AppLocalizations texts) => _picker<Budget>(
+    label: texts.budget,
+    choices: form.itemBudgets,
+    isChosen: (budget) => budget.id == item.budgetId,
+    nameOf: (budget) => budget.name,
+    appearanceOf: (budget) => budget.appearance,
+    onTapped: (budget) =>
+        item.budgetId = item.budgetId == budget.id ? null : budget.id,
+  );
+
+  /// Chooses the goal the item counts towards. Tapping the chosen one
+  /// again stops the item from counting.
+  List<Widget> _goalPicker(AppLocalizations texts) => _picker<Goal>(
+    label: texts.goal,
+    choices: form.itemGoals,
+    isChosen: (goal) => goal.id == item.goalId,
+    nameOf: (goal) => goal.name,
+    appearanceOf: (goal) => goal.appearance,
+    onTapped: (goal) => item.goalId = item.goalId == goal.id ? null : goal.id,
+  );
+
+  /// A row of [choices] under its [label], of which one at most is chosen.
+  static List<Widget> _picker<T>({
+    required String label,
+    required List<T> choices,
+    required bool Function(T choice) isChosen,
+    required String Function(T choice) nameOf,
+    required Appearance Function(T choice) appearanceOf,
+    required ValueChanged<T> onTapped,
+  }) => [
+    Text(label),
+    ChoiceCarousel<T>(
+      choices: choices,
+      selected: choices.where(isChosen).firstOrNull,
+      labelOf: nameOf,
+      colorOf: (choice) {
+        final color = appearanceOf(choice).color;
         return color == null ? null : Color(color);
       },
-      onSelected: (budget) =>
-          item.budgetId = item.budgetId == budget.id ? null : budget.id,
+      onSelected: onTapped,
     ),
   ];
 
