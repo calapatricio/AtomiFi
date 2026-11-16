@@ -521,4 +521,66 @@ void main() {
       },
     );
   });
+
+  group('Making items count towards a goal', () {
+    final payroll = income('payroll', bank, 200000);
+    const payrollItem = ItemId('payroll-item');
+
+    setUp(() async {
+      await store.goals.save(pizzaGoal());
+      await form.load();
+    });
+
+    test('offers the goals', () {
+      expect(form.itemGoals.map((goal) => goal.name), ['Pizza oven']);
+    });
+
+    test('makes a new item count towards the goal chosen for it', () async {
+      form
+        ..name = 'Bonus'
+        ..direction = Direction.income;
+      form.items.single
+        ..categoryId = salary.id
+        ..price = '200'
+        ..goalId = const GoalId('pizza');
+
+      await form.save();
+      final item = (await saved()).items.single;
+
+      expect(await itemsInGoal(store, 'pizza'), {item.id});
+    });
+
+    test('shows the goal an item already counts towards', () async {
+      await store.transactions.save(payroll);
+      await store.goals.save(pizzaGoal(itemIds: {payrollItem}));
+      form = transactionFormOn(store, existing: payroll);
+
+      await form.load();
+
+      expect(form.items.single.goalId, const GoalId('pizza'));
+    });
+
+    test('stops an item from counting when no goal is chosen', () async {
+      await store.transactions.save(payroll);
+      await store.goals.save(pizzaGoal(itemIds: {payrollItem}));
+      form = transactionFormOn(store, existing: payroll);
+      await form.load();
+
+      form.items.single.goalId = null;
+      await form.save();
+
+      expect(await itemsInGoal(store, 'pizza'), isEmpty);
+    });
+
+    test('stops the items of a deleted transaction from counting', () async {
+      await store.transactions.save(payroll);
+      await store.goals.save(pizzaGoal(itemIds: {payrollItem}));
+      form = transactionFormOn(store, existing: payroll);
+      await form.load();
+
+      await form.delete();
+
+      expect(await itemsInGoal(store, 'pizza'), isEmpty);
+    });
+  });
 }

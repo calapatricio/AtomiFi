@@ -213,6 +213,50 @@ void main() {
       expect(await itemsInBudget(store, 'trip'), isEmpty);
     });
 
+    testWidgets('offers no goal when there is none', (tester) async {
+      await pump(tester);
+
+      expect(find.text('Goal'), findsNothing);
+    });
+
+    testWidgets('makes an item count towards the goal that is tapped', (
+      tester,
+    ) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await store.goals.save(pizzaGoal(kind: GoalKind.spending));
+      await pump(tester, existing: shopping);
+
+      await tester.ensureVisible(find.widgetWithText(ChoiceChip, 'Pizza oven'));
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Pizza oven'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(await itemsInGoal(store, 'pizza'), {
+        const ItemId('shopping-food'),
+      });
+    });
+
+    testWidgets('stops the item from counting when its goal is tapped again', (
+      tester,
+    ) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await store.goals.save(
+        pizzaGoal(itemIds: {const ItemId('shopping-food')}),
+      );
+      await pump(tester, existing: shopping);
+
+      await tester.ensureVisible(find.widgetWithText(ChoiceChip, 'Pizza oven'));
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Pizza oven'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(await itemsInGoal(store, 'pizza'), isEmpty);
+    });
+
     testWidgets('adds a person to share an item with', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);
