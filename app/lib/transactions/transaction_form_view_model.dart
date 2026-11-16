@@ -434,10 +434,7 @@ final class TransactionFormViewModel extends ChangeNotifier
       shares: [
         if (!own.isZero) Share(const Me(), _signed(own, draft)),
         for (final share in draft._others)
-          Share(
-            Person(share.person.trim()),
-            _signed(_amountOf(share)!, draft),
-          ),
+          Share(Person(share.person.trim()), _signed(_amountOf(share)!, draft)),
       ],
       offsets: draft.offsets,
     );
@@ -463,9 +460,8 @@ final class TransactionFormViewModel extends ChangeNotifier
   );
 
   /// The price of [item] without its sign.
-  Money? _priceOf(ItemDraft item) => _read(
-    _goesAgainst(item) ? item.price.trim().substring(1) : item.price,
-  );
+  Money? _priceOf(ItemDraft item) =>
+      _read(_goesAgainst(item) ? item.price.trim().substring(1) : item.price);
 
   /// Whether [item] moves money the other way than the transaction does.
   static bool _goesAgainst(ItemDraft item) =>
