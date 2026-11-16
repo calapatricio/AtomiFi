@@ -72,12 +72,23 @@ final class CashewBackupConverter {
           if (category.parentId != null) _categoryOf(category),
       ];
 
+  /// The id Cashew gives the category it keeps balance corrections in:
+  /// opening balances and adjustments that are not spending or income.
+  static const _balanceCorrectionCategoryId = '0';
+
+  static CategorySide _sideOf(BackupCategory category) {
+    if (category.id == _balanceCorrectionCategoryId) {
+      return CategorySide.neutral;
+    }
+    return category.income ? CategorySide.income : CategorySide.expense;
+  }
+
   static Category _categoryOf(BackupCategory category) {
     final parentId = category.parentId;
     return Category(
       id: CategoryId(category.id),
       name: category.name,
-      side: category.income ? CategorySide.income : CategorySide.expense,
+      side: _sideOf(category),
       parentId: parentId == null ? null : CategoryId(parentId),
       appearance: appearanceOf(
         category.colour,

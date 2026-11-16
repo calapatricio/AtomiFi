@@ -2,7 +2,15 @@ import '../appearance.dart';
 import '../ids.dart';
 
 /// The side of the statistics a category is reported on.
-enum CategorySide { expense, income }
+enum CategorySide {
+  expense,
+  income,
+
+  /// On neither side. What is in the category changes the balance of its
+  /// account, but is not spending, income or part of any budget: a balance
+  /// correction, for instance.
+  neutral,
+}
 
 final class Category {
   const Category({
