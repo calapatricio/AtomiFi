@@ -441,4 +441,82 @@ void main() {
       expect(await store.transactions.all(), isEmpty);
     });
   });
+
+  group('Putting items in a budget', () {
+    final shopping = spending('shopping');
+    const shoppingItem = ItemId('shopping-food');
+
+    setUp(() async {
+      await store.budgets.save(tripBudget());
+      await store.budgets.save(monthlyBudget());
+      await form.load();
+    });
+
+    test('offers the budgets that take items one by one', () {
+      expect(form.itemBudgets.map((budget) => budget.name), ['Trip']);
+    });
+
+    test('puts a new item in the budget chosen for it', () async {
+      form.name = 'Hotel';
+      form.items.single
+        ..categoryId = food.id
+        ..price = '200'
+        ..budgetId = const BudgetId('trip');
+
+      await form.save();
+      final item = (await saved()).items.single;
+
+      expect(await itemsInBudget(store, 'trip'), {item.id});
+    });
+
+    test('shows the budget an item is already in', () async {
+      await store.transactions.save(shopping);
+      await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
+      form = transactionFormOn(store, existing: shopping);
+
+      await form.load();
+
+      expect(form.items.single.budgetId, const BudgetId('trip'));
+    });
+
+    test('takes an item out of its budget when none is chosen', () async {
+      await store.transactions.save(shopping);
+      await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
+      form = transactionFormOn(store, existing: shopping);
+      await form.load();
+
+      form.items.single.budgetId = null;
+      await form.save();
+
+      expect(await itemsInBudget(store, 'trip'), isEmpty);
+    });
+
+    test('takes an item that is removed out of its budget', () async {
+      await store.transactions.save(shopping);
+      await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
+      form = transactionFormOn(store, existing: shopping);
+      await form.load();
+
+      form.addItem();
+      form.items.last
+        ..categoryId = alcohol.id
+        ..price = '5';
+      form.removeItem(form.items.first);
+      await form.save();
+
+      expect(await itemsInBudget(store, 'trip'), isEmpty);
+    });
+
+    test('takes the items of a deleted transaction out of their budget',
+        () async {
+      await store.transactions.save(shopping);
+      await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
+      form = transactionFormOn(store, existing: shopping);
+      await form.load();
+
+      await form.delete();
+
+      expect(await itemsInBudget(store, 'trip'), isEmpty);
+    });
+  });
 }

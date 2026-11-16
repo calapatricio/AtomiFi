@@ -156,6 +156,7 @@ TransactionFormViewModel transactionFormOn(
     transactions: store.transactions,
     accounts: store.accounts,
     categories: store.categories,
+    budgets: BudgetAssignments(store.budgets),
     newId: () => 'new-${nextId++}',
     now: () => now,
     existing: existing,
@@ -192,3 +193,19 @@ Budget monthlyBudget({
   period: RecurringPeriod(Recurrence.calendarMonths),
   scope: scope,
 );
+
+Budget tripBudget({Set<ItemId> itemIds = const {}}) => Budget(
+  id: const BudgetId('trip'),
+  name: 'Trip',
+  limit: eur(50000),
+  period: RecurringPeriod(Recurrence.calendarMonths),
+  scope: ChosenItems(itemIds),
+);
+
+/// The items in the budget for chosen items with [id].
+Future<Set<ItemId>> itemsInBudget(InMemoryStore store, String id) async {
+  final budget = (await store.budgets.all()).firstWhere(
+    (budget) => budget.id == BudgetId(id),
+  );
+  return (budget.scope as ChosenItems).itemIds;
+}

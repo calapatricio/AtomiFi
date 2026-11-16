@@ -167,6 +167,52 @@ void main() {
       expect(find.text('Choose a category'), findsOneWidget);
     });
 
+    testWidgets('offers no budget when none takes items one by one', (
+      tester,
+    ) async {
+      await store.budgets.save(monthlyBudget());
+
+      await pump(tester);
+
+      expect(find.text('Budget'), findsNothing);
+    });
+
+    testWidgets('puts an item in the budget that is tapped', (tester) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await store.budgets.save(tripBudget());
+      await pump(tester, existing: shopping);
+
+      await tester.ensureVisible(find.widgetWithText(ChoiceChip, 'Trip'));
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(await itemsInBudget(store, 'trip'), {
+        const ItemId('shopping-food'),
+      });
+    });
+
+    testWidgets('takes the item out when its budget is tapped again', (
+      tester,
+    ) async {
+      final shopping = spending('shopping');
+      await store.transactions.save(shopping);
+      await store.budgets.save(
+        tripBudget(itemIds: {const ItemId('shopping-food')}),
+      );
+      await pump(tester, existing: shopping);
+
+      await tester.ensureVisible(find.widgetWithText(ChoiceChip, 'Trip'));
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(await itemsInBudget(store, 'trip'), isEmpty);
+    });
+
     testWidgets('adds a person to share an item with', (tester) async {
       final shopping = spending('shopping');
       await store.transactions.save(shopping);
