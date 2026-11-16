@@ -20,7 +20,7 @@
   currencies.
 - **Revaluation**: what an account was worth at one moment, typed in by me.
   The difference with the balance until then is the market's gain or loss.
-- **Category**: a name, a side (expense or income), an optional parent and
+- **Category**: a name, a side (expense, income or neutral), an optional parent and
   an appearance.
 - **Budget**: a limit on what I spend over a period. The period either
   starts over every so many days, weeks, months or years from a first day,
@@ -38,6 +38,8 @@
 2. Statistics count only my share of each item. Shares of other people never
    count, whether they have paid me back or not.
 3. Amounts are netted per category and reported on the category's side.
+   A neutral category, such as balance corrections, is on neither side: it
+   changes balances but is not spending, income or part of any budget.
 4. An item that offsets another is counted on the date of the item it
    offsets. This can be switched off, so that it counts on its own date.
 5. Transfers and revaluations never count as spending or income.
