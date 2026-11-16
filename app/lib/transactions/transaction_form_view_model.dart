@@ -358,10 +358,11 @@ final class TransactionFormViewModel extends ChangeNotifier
     if (!canSave) {
       throw StateError('The transaction is not complete yet.');
     }
+    final id = _existing?.id ?? TransactionId(_newId());
     final items = [for (final draft in _items) _itemOf(draft)];
     await _transactions.save(
       Transaction(
-        id: _existing?.id ?? TransactionId(_newId()),
+        id: id,
         name: _name.trim(),
         note: _note.trim(),
         dateTime: _dateTime,
