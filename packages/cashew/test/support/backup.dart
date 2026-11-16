@@ -37,7 +37,8 @@ Database openEmptyBackup() => sqlite3.openInMemory()
       wallet_fk TEXT NOT NULL,
       date_created INTEGER NOT NULL,
       paid INTEGER NOT NULL DEFAULT 0,
-      shared_reference_budget_pk TEXT
+      shared_reference_budget_pk TEXT,
+      objective_fk TEXT
     )''')
   ..execute('''
     CREATE TABLE budgets (
@@ -52,6 +53,20 @@ Database openEmptyBackup() => sqlite3.openInMemory()
       category_fks TEXT,
       category_fks_exclude TEXT,
       added_transactions_only INTEGER NOT NULL DEFAULT 0,
+      income INTEGER NOT NULL DEFAULT 0,
+      archived INTEGER NOT NULL DEFAULT 0,
+      wallet_fk TEXT NOT NULL DEFAULT '0'
+    )''')
+  ..execute('''
+    CREATE TABLE objectives (
+      objective_pk TEXT NOT NULL PRIMARY KEY,
+      name TEXT NOT NULL,
+      colour TEXT,
+      icon_name TEXT,
+      emoji_icon_name TEXT,
+      type INTEGER NOT NULL DEFAULT 0,
+      amount REAL NOT NULL,
+      end_date INTEGER,
       income INTEGER NOT NULL DEFAULT 0,
       archived INTEGER NOT NULL DEFAULT 0,
       wallet_fk TEXT NOT NULL DEFAULT '0'
@@ -112,6 +127,7 @@ BackupTransaction transaction({
   bool paid = true,
   String? pairedId,
   String? budgetId,
+  String? goalId,
 }) =>
     BackupTransaction(
       id: id,
@@ -125,6 +141,7 @@ BackupTransaction transaction({
       paid: paid,
       pairedId: pairedId,
       budgetId: budgetId,
+      goalId: goalId,
     );
 
 BackupBudget budget({
@@ -165,10 +182,39 @@ CashewBackup backup({
   List<BackupCategory>? categories,
   List<BackupTransaction> transactions = const [],
   List<BackupBudget> budgets = const [],
+  List<BackupGoal> goals = const [],
 }) =>
     CashewBackup(
       wallets: wallets ?? [wallet()],
       categories: categories ?? [category()],
       transactions: transactions,
       budgets: budgets,
+      goals: goals,
+    );
+
+BackupGoal goal({
+  String id = 'pizza',
+  String name = 'Objetivo Pizza',
+  double amount = 500,
+  bool income = true,
+  DateTime? end,
+  bool isLoan = false,
+  bool archived = false,
+  String walletId = 'imagin',
+  String? colour,
+  String? iconName,
+  String? emoji,
+}) =>
+    BackupGoal(
+      id: id,
+      name: name,
+      amount: amount,
+      income: income,
+      end: end,
+      isLoan: isLoan,
+      archived: archived,
+      walletId: walletId,
+      colour: colour,
+      iconName: iconName,
+      emoji: emoji,
     );

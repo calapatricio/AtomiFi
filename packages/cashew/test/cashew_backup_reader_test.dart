@@ -167,6 +167,52 @@ void main() {
       expect(budget.excludedCategoryIds, isEmpty);
     });
 
+    test('reads the goals', () {
+      database.execute(
+        'INSERT INTO objectives (objective_pk, name, colour, icon_name, '
+        'emoji_icon_name, type, amount, end_date, income, archived, '
+        'wallet_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          'pizza',
+          'Objetivo Pizza',
+          '0xff4caf50',
+          'pizza.png',
+          '🍕',
+          1,
+          500,
+          secondsOf(DateTime(2026, 12, 31)),
+          1,
+          1,
+          'broker',
+        ],
+      );
+
+      final goal = reader.read(database).goals.single;
+
+      expect(goal.id, 'pizza');
+      expect(goal.name, 'Objetivo Pizza');
+      expect(goal.colour, '0xff4caf50');
+      expect(goal.iconName, 'pizza.png');
+      expect(goal.emoji, '🍕');
+      expect(goal.isLoan, isTrue);
+      expect(goal.amount, 500);
+      expect(goal.end, DateTime(2026, 12, 31));
+      expect(goal.income, isTrue);
+      expect(goal.archived, isTrue);
+      expect(goal.walletId, 'broker');
+    });
+
+    test('reads the goal a transaction counts towards', () {
+      database.execute(
+        'INSERT INTO transactions (transaction_pk, name, amount, note, '
+        'category_fk, wallet_fk, date_created, objective_fk) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        ['bonus', 'Bonus', 200, '', 'work', 'imagin', 0, 'pizza'],
+      );
+
+      expect(reader.read(database).transactions.single.goalId, 'pizza');
+    });
+
     test('rejects a database that is not laid out like a backup', () {
       final other = sqlite3.openInMemory()
         ..execute('CREATE TABLE wallets (id TEXT)');

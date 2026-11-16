@@ -56,6 +56,20 @@ final class _Budgets implements BudgetRepository {
   Future<List<Budget>> all() async => saved;
 }
 
+final class _Goals implements GoalRepository {
+  final saved = <Goal>[];
+
+  @override
+  Future<void> save(Goal goal) async => saved.add(goal);
+
+  @override
+  Future<void> remove(GoalId id) async =>
+      saved.removeWhere((goal) => goal.id == id);
+
+  @override
+  Future<List<Goal>> all() async => saved;
+}
+
 final class _Transactions implements TransactionRepository {
   final saved = <Transaction>[];
 
@@ -80,6 +94,7 @@ void main() {
     late _Transactions transactions;
     late _Transfers transfers;
     late _Budgets budgets;
+    late _Goals goals;
     late LedgerWriter writer;
 
     setUp(() {
@@ -88,12 +103,14 @@ void main() {
       transactions = _Transactions();
       transfers = _Transfers();
       budgets = _Budgets();
+      goals = _Goals();
       writer = LedgerWriter(
         accounts: accounts,
         categories: categories,
         transactions: transactions,
         transfers: transfers,
         budgets: budgets,
+        goals: goals,
       );
     });
 
@@ -161,6 +178,27 @@ void main() {
       );
 
       expect(budgets.saved, [budget]);
+    });
+
+    test('stores the goals', () async {
+      final goal = Goal(
+        id: const GoalId('pizza'),
+        name: 'Pizza oven',
+        target: const Money(50000, Currency.eur),
+        kind: GoalKind.saving,
+      );
+
+      await writer.write(
+        ImportedLedger(
+          accounts: const [],
+          categories: const [],
+          transactions: const [],
+          goals: [goal],
+          skippedRows: 0,
+        ),
+      );
+
+      expect(goals.saved, [goal]);
     });
   });
 }
