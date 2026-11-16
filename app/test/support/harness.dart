@@ -1,6 +1,8 @@
 import 'package:atomifi/accounts/accounts_view_model.dart';
 import 'package:atomifi/budgets/budget_form_view_model.dart';
 import 'package:atomifi/budgets/budgets_view_model.dart';
+import 'package:atomifi/goals/goal_form_view_model.dart';
+import 'package:atomifi/goals/goals_view_model.dart';
 import 'package:atomifi/transactions/transaction_form_view_model.dart';
 import 'package:atomifi/transactions/transactions_view_model.dart';
 import 'package:atomifi/l10n/app_localizations.dart';
@@ -157,6 +159,7 @@ TransactionFormViewModel transactionFormOn(
     accounts: store.accounts,
     categories: store.categories,
     budgets: BudgetAssignments(store.budgets),
+    goals: GoalAssignments(store.goals),
     newId: () => 'new-${nextId++}',
     now: () => now,
     existing: existing,
@@ -209,3 +212,34 @@ Future<Set<ItemId>> itemsInBudget(InMemoryStore store, String id) async {
   );
   return (budget.scope as ChosenItems).itemIds;
 }
+
+GoalsViewModel goalsViewModelOn(InMemoryStore store) =>
+    GoalsViewModel(goals: store.goals, ledger: ledgerOn(store));
+
+GoalFormViewModel goalFormOn(InMemoryStore store) {
+  var nextId = 0;
+  return GoalFormViewModel(
+    goals: store.goals,
+    currency: Currency.eur,
+    newId: () => 'new-${nextId++}',
+    now: () => now,
+  );
+}
+
+Goal pizzaGoal({
+  GoalKind kind = GoalKind.saving,
+  DateTime? deadline,
+  Set<ItemId> itemIds = const {},
+}) => Goal(
+  id: const GoalId('pizza'),
+  name: 'Pizza oven',
+  target: eur(50000),
+  kind: kind,
+  deadline: deadline,
+  appearance: const Appearance(emoji: '🍕'),
+  itemIds: itemIds,
+);
+
+/// The items that count towards the goal with [id].
+Future<Set<ItemId>> itemsInGoal(InMemoryStore store, String id) async =>
+    (await store.goals.all()).firstWhere((goal) => goal.id == GoalId(id)).itemIds;

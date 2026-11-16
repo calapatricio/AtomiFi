@@ -17,13 +17,29 @@ final class _Importer implements BackupImporter {
 
 void main() {
   group('MoreScreen', () {
+    var goalsOpened = 0;
+
     Future<void> pump(
       WidgetTester tester,
       Future<ImportedLedger?> Function() import,
     ) => pumpScreen(
       tester,
-      MoreScreen(importViewModel: ImportViewModel(importer: _Importer(import))),
+      MoreScreen(
+        importViewModel: ImportViewModel(importer: _Importer(import)),
+        openGoals: (context) => goalsOpened++,
+      ),
     );
+
+    setUp(() => goalsOpened = 0);
+
+    testWidgets('opens the goals', (tester) async {
+      await pump(tester, () async => null);
+
+      await tester.tap(find.text('Goals'));
+      await tester.pumpAndSettle();
+
+      expect(goalsOpened, 1);
+    });
 
     testWidgets('offers to import a Cashew backup', (tester) async {
       await pump(tester, () async => null);
