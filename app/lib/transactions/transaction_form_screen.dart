@@ -317,6 +317,7 @@ class _ItemCard extends StatelessWidget {
               initialValue: item.price,
               label: texts.amount,
               currencySymbol: _currencySymbol(context),
+              canBeNegative: true,
               onChanged: (price) => item.price = price,
             ),
           ),
@@ -527,8 +528,11 @@ class _AmountField extends StatelessWidget {
     required this.label,
     required this.currencySymbol,
     required this.onChanged,
+    this.canBeNegative = false,
   });
 
+  /// Whether a minus can be typed before the amount.
+  final bool canBeNegative;
   final String initialValue;
   final String label;
   final String? currencySymbol;
@@ -538,7 +542,10 @@ class _AmountField extends StatelessWidget {
   Widget build(BuildContext context) => TextFormField(
     initialValue: initialValue,
     decoration: InputDecoration(labelText: label, suffixText: currencySymbol),
-    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    keyboardType: TextInputType.numberWithOptions(
+      decimal: true,
+      signed: canBeNegative,
+    ),
     textAlign: TextAlign.end,
     onChanged: onChanged,
   );

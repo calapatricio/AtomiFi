@@ -76,7 +76,9 @@ final class ItemDraft {
     _changed();
   }
 
-  /// The amount as typed, always without a sign.
+  /// The amount as typed. It has no sign unless the item goes against the
+  /// rest of the transaction, such as a deposit returned in a purchase:
+  /// then it starts with a minus.
   String get price => _price;
 
   set price(String price) {
@@ -360,11 +362,17 @@ final class TransactionFormViewModel extends ChangeNotifier
   /// What leaves or enters the account, when every amount can be read.
   Money? get total {
     final currency = this.currency;
-    final prices = [for (final item in _items) _priceOf(item)];
+    final prices = [
+      for (final item in _items)
+        switch (_priceOf(item)) {
+          final price? => _signed(price, item),
+          null => null,
+        },
+    ];
     if (currency == null || prices.contains(null)) return null;
     return prices.nonNulls.fold<Money>(
       Money.zero(currency),
-      (sum, price) => sum + _signed(price),
+      (sum, price) => sum + price,
     );
   }
 
@@ -424,9 +432,12 @@ final class TransactionFormViewModel extends ChangeNotifier
       name: name.isEmpty ? _name.trim() : name,
       categoryId: draft.categoryId!,
       shares: [
-        if (!own.isZero) Share(const Me(), _signed(own)),
+        if (!own.isZero) Share(const Me(), _signed(own, draft)),
         for (final share in draft._others)
-          Share(Person(share.person.trim()), _signed(_amountOf(share)!)),
+          Share(
+            Person(share.person.trim()),
+            _signed(_amountOf(share)!, draft),
+          ),
       ],
       offsets: draft.offsets,
     );
@@ -437,7 +448,7 @@ final class TransactionFormViewModel extends ChangeNotifier
     id: item.id,
     offsets: item.offsets,
     name: item.name,
-    price: item.price.abs().toDecimalString(),
+    price: _typedPriceOf(item),
     categoryId: item.categoryId,
     includesMe: !item.ownAmount.isZero,
     others: [
@@ -451,7 +462,26 @@ final class TransactionFormViewModel extends ChangeNotifier
     ],
   );
 
-  Money? _priceOf(ItemDraft item) => _read(item.price);
+  /// The price of [item] without its sign.
+  Money? _priceOf(ItemDraft item) => _read(
+    _goesAgainst(item) ? item.price.trim().substring(1) : item.price,
+  );
+
+  /// Whether [item] moves money the other way than the transaction does.
+  static bool _goesAgainst(ItemDraft item) =>
+      item.price.trim().startsWith(_minus);
+
+  /// The price of [item] as it is typed: with a minus when it goes against
+  /// the direction of the transaction.
+  String _typedPriceOf(Item item) {
+    final amount = item.price.abs().toDecimalString();
+    final goesAgainst =
+        !item.price.isZero &&
+        item.price.isPositive != (_direction == Direction.income);
+    return goesAgainst ? '$_minus$amount' : amount;
+  }
+
+  static const _minus = '-';
 
   Money? _amountOf(ShareDraft share) => _read(share.amount);
 
@@ -460,8 +490,12 @@ final class TransactionFormViewModel extends ChangeNotifier
     return currency == null ? null : Money.tryParse(typed, currency);
   }
 
-  Money _signed(Money amount) =>
-      _direction == Direction.expense ? -amount : amount;
+  /// [amount], which has no sign, as money that leaves or enters the
+  /// account because of [item].
+  Money _signed(Money amount, ItemDraft item) {
+    final leaves = (_direction == Direction.expense) != _goesAgainst(item);
+    return leaves ? -amount : amount;
+  }
 
   bool _isIncomplete(ShareDraft share) {
     final amount = _amountOf(share);

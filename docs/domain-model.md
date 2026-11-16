@@ -50,6 +50,10 @@
 6. Amounts in other currencies are converted to the statistics currency at
    the current rate.
 7. When a price cannot be divided evenly, I bear the leftover cents.
+8. The items of one transaction may have different signs: a deposit
+   returned in a purchase is an item with a positive price among negative
+   ones. The form asks for one direction for the whole transaction, and an
+   amount typed with a minus goes against it.
 
 ## How changes are made
 
