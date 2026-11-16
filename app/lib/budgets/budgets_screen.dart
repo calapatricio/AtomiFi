@@ -16,8 +16,9 @@ class BudgetsScreen extends StatefulWidget {
 
   final BudgetsViewModel viewModel;
 
-  /// Opens the form for a new budget and completes when the user leaves it.
-  final Future<void> Function(BuildContext context) openForm;
+  /// Opens the form for a new budget, or to edit [existing], and completes
+  /// when the user leaves it.
+  final Future<void> Function(BuildContext context, {Budget? existing}) openForm;
 
   @override
   State<BudgetsScreen> createState() => _BudgetsScreenState();
@@ -32,8 +33,10 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
     _viewModel.load();
   }
 
-  Future<void> _add() async {
-    await widget.openForm(context);
+  Future<void> _add() => _open();
+
+  Future<void> _open({Budget? existing}) async {
+    await widget.openForm(context, existing: existing);
     await _viewModel.load();
   }
 
@@ -79,6 +82,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                   for (final progress in _viewModel.progress)
                     _BudgetCard(
                       progress: progress,
+                      onEdit: () => _open(existing: progress.budget),
                       onRemove: () => _remove(progress.budget),
                     ),
                 ],
@@ -89,9 +93,14 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
 }
 
 class _BudgetCard extends StatelessWidget {
-  const _BudgetCard({required this.progress, required this.onRemove});
+  const _BudgetCard({
+    required this.progress,
+    required this.onEdit,
+    required this.onRemove,
+  });
 
   final BudgetProgress progress;
+  final VoidCallback onEdit;
   final VoidCallback onRemove;
 
   @override
@@ -101,7 +110,10 @@ class _BudgetCard extends StatelessWidget {
     final money = MoneyFormatter(Localizations.localeOf(context).toString());
     final limit = progress.budget.limit;
     return Card(
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,6 +162,7 @@ class _BudgetCard extends StatelessWidget {
             Text(_spanOf(context, texts), style: theme.textTheme.bodySmall),
           ],
         ),
+      ),
       ),
     );
   }

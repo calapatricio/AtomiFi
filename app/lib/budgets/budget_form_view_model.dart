@@ -4,27 +4,37 @@ import 'package:flutter/foundation.dart' show ChangeNotifier;
 /// What a budget counts, as the form offers it.
 enum BudgetCoverage { allSpending, categories, chosenItems }
 
-/// The state and the actions of the form that adds a budget.
+/// The state and the actions of the form that adds or edits a budget.
 final class BudgetFormViewModel extends ChangeNotifier {
   BudgetFormViewModel({
     required this._budgets,
     required this._categories,
-    required this.currency,
+    required Currency currency,
     required this._newId,
     required DateTime Function() now,
-  }) : _start = _firstDayOfMonth(now()) {
+    Budget? existing,
+  }) : _existing = existing,
+       currency = existing?.limit.currency ?? currency,
+       _name = existing?.name ?? '',
+       _limit = existing?.limit.toDecimalString() ?? '',
+       _start = _firstDayOfMonth(now()) {
     _end = DateTime(_start.year, _start.month + 1, 0);
+    if (existing != null) {
+      _takePeriodOf(existing);
+      _takeScopeOf(existing);
+    }
   }
 
   final BudgetRepository _budgets;
   final CategoryRepository _categories;
   final String Function() _newId;
+  final Budget? _existing;
 
   /// The currency the limit is typed in.
   final Currency currency;
 
-  String _name = '';
-  String _limit = '';
+  String _name;
+  String _limit;
   bool _repeats = true;
   String _every = '1';
   RecurrenceUnit _unit = RecurrenceUnit.month;
@@ -33,6 +43,9 @@ final class BudgetFormViewModel extends ChangeNotifier {
   BudgetCoverage _coverage = BudgetCoverage.allSpending;
   final _categoryIds = <CategoryId>{};
   List<Category> _mainCategories = const [];
+
+  /// Whether the form changes a budget instead of adding one.
+  bool get isEditing => _existing != null;
 
   String get name => _name;
 
@@ -104,11 +117,12 @@ final class BudgetFormViewModel extends ChangeNotifier {
     }
     await _budgets.save(
       Budget(
-        id: BudgetId(_newId()),
+        id: _existing?.id ?? BudgetId(_newId()),
         name: _name.trim(),
         limit: limit,
         period: period,
         scope: _scope,
+        appearance: _existing?.appearance ?? Appearance.none,
       ),
     );
   }
@@ -131,11 +145,43 @@ final class BudgetFormViewModel extends ChangeNotifier {
           );
   }
 
-  BudgetScope get _scope => switch (_coverage) {
-    BudgetCoverage.allSpending => const AllSpending(),
-    BudgetCoverage.categories => CategorySpending({..._categoryIds}),
-    BudgetCoverage.chosenItems => const ChosenItems({}),
-  };
+  /// What the budget covers as filled in. What the form does not show,
+  /// such as the items put in the budget being edited, stays as it was.
+  BudgetScope get _scope {
+    final before = _existing?.scope;
+    return switch (_coverage) {
+      BudgetCoverage.allSpending =>
+        before is AllSpending ? before : const AllSpending(),
+      BudgetCoverage.categories => CategorySpending({..._categoryIds}),
+      BudgetCoverage.chosenItems =>
+        before is ChosenItems ? before : const ChosenItems({}),
+    };
+  }
+
+  void _takePeriodOf(Budget budget) {
+    switch (budget.period) {
+      case RecurringPeriod(:final recurrence):
+        _every = '${recurrence.every}';
+        _unit = recurrence.unit;
+        _start = recurrence.anchor;
+      case FixedPeriod(:final range):
+        _repeats = false;
+        _start = range.start;
+        _end = DateTime(range.end.year, range.end.month, range.end.day - 1);
+    }
+  }
+
+  void _takeScopeOf(Budget budget) {
+    switch (budget.scope) {
+      case AllSpending():
+        _coverage = BudgetCoverage.allSpending;
+      case CategorySpending(:final categoryIds):
+        _coverage = BudgetCoverage.categories;
+        _categoryIds.addAll(categoryIds);
+      case ChosenItems():
+        _coverage = BudgetCoverage.chosenItems;
+    }
+  }
 
   void _change(void Function() change) {
     change();

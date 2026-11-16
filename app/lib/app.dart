@@ -78,7 +78,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     ),
   );
 
-  Future<void> _openBudgetForm(BuildContext context) =>
+  Future<void> _openBudgetForm(BuildContext context, {Budget? existing}) =>
       Navigator.of(context).push<void>(
         MaterialPageRoute(
           builder: (_) => BudgetFormScreen(
@@ -88,6 +88,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
               currency: _dependencies.mainCurrency,
               newId: _dependencies.newId,
               now: DateTime.now,
+              existing: existing,
             ),
           ),
         ),
@@ -101,7 +102,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     ),
   );
 
-  Future<void> _openGoalForm(BuildContext context) =>
+  Future<void> _openGoalForm(BuildContext context, {Goal? existing}) =>
       Navigator.of(context).push<void>(
         MaterialPageRoute(
           builder: (_) => GoalFormScreen(
@@ -110,6 +111,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
               currency: _dependencies.mainCurrency,
               newId: _dependencies.newId,
               now: DateTime.now,
+              existing: existing,
             ),
           ),
         ),

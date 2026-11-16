@@ -7,7 +7,7 @@ import '../money_formatter.dart';
 import '../widgets/choice_carousel.dart';
 import 'goal_form_view_model.dart';
 
-/// The form that adds a goal: its name and target, whether it is reached
+/// The form that adds or edits a goal: its name and target, whether it is reached
 /// by saving or by spending, and the day it should be reached by.
 class GoalFormScreen extends StatefulWidget {
   const GoalFormScreen({super.key, required this.viewModel});
@@ -43,7 +43,7 @@ class _GoalFormScreenState extends State<GoalFormScreen> {
       listenable: _form,
       builder: (context, _) => Scaffold(
         appBar: AppBar(
-          title: Text(texts.newGoal),
+          title: Text(_form.isEditing ? texts.editGoal : texts.newGoal),
           actions: [
             TextButton(
               onPressed: _form.canSave ? _save : null,

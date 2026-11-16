@@ -17,8 +17,9 @@ class GoalsScreen extends StatefulWidget {
 
   final GoalsViewModel viewModel;
 
-  /// Opens the form for a new goal and completes when the user leaves it.
-  final Future<void> Function(BuildContext context) openForm;
+  /// Opens the form for a new goal, or to edit [existing], and completes
+  /// when the user leaves it.
+  final Future<void> Function(BuildContext context, {Goal? existing}) openForm;
 
   @override
   State<GoalsScreen> createState() => _GoalsScreenState();
@@ -33,8 +34,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
     _viewModel.load();
   }
 
-  Future<void> _add() async {
-    await widget.openForm(context);
+  Future<void> _add() => _open();
+
+  Future<void> _open({Goal? existing}) async {
+    await widget.openForm(context, existing: existing);
     await _viewModel.load();
   }
 
@@ -80,6 +83,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   for (final progress in _viewModel.progress)
                     _GoalCard(
                       progress: progress,
+                      onEdit: () => _open(existing: progress.goal),
                       onRemove: () => _remove(progress.goal),
                     ),
                 ],
@@ -90,9 +94,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
 }
 
 class _GoalCard extends StatelessWidget {
-  const _GoalCard({required this.progress, required this.onRemove});
+  const _GoalCard({
+    required this.progress,
+    required this.onEdit,
+    required this.onRemove,
+  });
 
   final GoalProgress progress;
+  final VoidCallback onEdit;
   final VoidCallback onRemove;
 
   @override
@@ -104,7 +113,10 @@ class _GoalCard extends StatelessWidget {
     final goal = progress.goal;
     final deadline = goal.deadline;
     return Card(
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,6 +162,7 @@ class _GoalCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
       ),
     );
   }

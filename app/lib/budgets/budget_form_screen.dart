@@ -7,7 +7,7 @@ import '../money_formatter.dart';
 import '../widgets/choice_carousel.dart';
 import 'budget_form_view_model.dart';
 
-/// The form that adds a budget: its name and limit, how often it starts
+/// The form that adds or edits a budget: its name and limit, how often it starts
 /// over and what it counts.
 class BudgetFormScreen extends StatefulWidget {
   const BudgetFormScreen({super.key, required this.viewModel});
@@ -56,7 +56,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
       listenable: _form,
       builder: (context, _) => Scaffold(
         appBar: AppBar(
-          title: Text(texts.newBudget),
+          title: Text(_form.isEditing ? texts.editBudget : texts.newBudget),
           actions: [
             TextButton(
               onPressed: _form.canSave ? _save : null,

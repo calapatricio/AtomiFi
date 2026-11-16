@@ -252,5 +252,7 @@
       }
     }
   },
-  "goal": "Goal"
+  "goal": "Goal",
+  "editBudget": "Edit budget",
+  "editGoal": "Edit goal"
 }

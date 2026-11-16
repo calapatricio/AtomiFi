@@ -106,5 +106,7 @@
   "goalReached": "Conseguido",
   "goalBy": "Antes del {day}",
   "deleteGoalTitle": "¿Eliminar {name}?",
-  "goal": "Objetivo"
+  "goal": "Objetivo",
+  "editBudget": "Editar presupuesto",
+  "editGoal": "Editar objetivo"
 }
