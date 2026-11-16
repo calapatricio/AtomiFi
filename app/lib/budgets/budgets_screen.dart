@@ -18,7 +18,8 @@ class BudgetsScreen extends StatefulWidget {
 
   /// Opens the form for a new budget, or to edit [existing], and completes
   /// when the user leaves it.
-  final Future<void> Function(BuildContext context, {Budget? existing}) openForm;
+  final Future<void> Function(BuildContext context, {Budget? existing})
+  openForm;
 
   @override
   State<BudgetsScreen> createState() => _BudgetsScreenState();
@@ -114,55 +115,55 @@ class _BudgetCard extends StatelessWidget {
       child: InkWell(
         onTap: onEdit,
         child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    progress.budget.name,
-                    style: theme.textTheme.titleMedium,
+          padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      progress.budget.name,
+                      style: theme.textTheme.titleMedium,
+                    ),
                   ),
-                ),
-                PopupMenuButton<VoidCallback>(
-                  onSelected: (run) => run(),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(value: onRemove, child: Text(texts.delete)),
-                  ],
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 12),
-              child: LinearProgressIndicator(
-                value: (progress.spent.minorUnits / limit.minorUnits).clamp(
-                  0,
-                  1,
-                ),
-                color: progress.isOverspent ? theme.colorScheme.error : null,
+                  PopupMenuButton<VoidCallback>(
+                    onSelected: (run) => run(),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(value: onRemove, child: Text(texts.delete)),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            Text(
-              texts.budgetSpentOfLimit(
-                money.format(progress.spent),
-                money.format(limit),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 12),
+                child: LinearProgressIndicator(
+                  value: (progress.spent.minorUnits / limit.minorUnits).clamp(
+                    0,
+                    1,
+                  ),
+                  color: progress.isOverspent ? theme.colorScheme.error : null,
+                ),
               ),
-            ),
-            Text(
-              progress.isOverspent
-                  ? texts.budgetOver(money.format(progress.remaining.abs()))
-                  : texts.budgetLeft(money.format(progress.remaining)),
-              style: progress.isOverspent
-                  ? TextStyle(color: theme.colorScheme.error)
-                  : null,
-            ),
-            Text(_spanOf(context, texts), style: theme.textTheme.bodySmall),
-          ],
+              Text(
+                texts.budgetSpentOfLimit(
+                  money.format(progress.spent),
+                  money.format(limit),
+                ),
+              ),
+              Text(
+                progress.isOverspent
+                    ? texts.budgetOver(money.format(progress.remaining.abs()))
+                    : texts.budgetLeft(money.format(progress.remaining)),
+                style: progress.isOverspent
+                    ? TextStyle(color: theme.colorScheme.error)
+                    : null,
+              ),
+              Text(_spanOf(context, texts), style: theme.textTheme.bodySmall),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

@@ -258,17 +258,20 @@ void main() {
       expect(((await saved()).scope as AllSpending).except, {alcohol.id});
     });
 
-    test('keeps the subcategories it covered, which it does not show', () async {
-      const beer = CategoryId('beer');
-      await edit(monthlyBudget(scope: const CategorySpending({beer})));
+    test(
+      'keeps the subcategories it covered, which it does not show',
+      () async {
+        const beer = CategoryId('beer');
+        await edit(monthlyBudget(scope: const CategorySpending({beer})));
 
-      form.toggleCategory(food.id);
-      await form.save();
+        form.toggleCategory(food.id);
+        await form.save();
 
-      expect(((await saved()).scope as CategorySpending).categoryIds, {
-        beer,
-        food.id,
-      });
-    });
+        expect(((await saved()).scope as CategorySpending).categoryIds, {
+          beer,
+          food.id,
+        });
+      },
+    );
   });
 }

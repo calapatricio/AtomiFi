@@ -117,52 +117,55 @@ class _GoalCard extends StatelessWidget {
       child: InkWell(
         onTap: onEdit,
         child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
-            Row(
-              spacing: 12,
-              children: [
-                AppearanceAvatar(appearance: goal.appearance, name: goal.name),
-                Expanded(
-                  child: Text(goal.name, style: theme.textTheme.titleMedium),
-                ),
-                PopupMenuButton<VoidCallback>(
-                  onSelected: (run) => run(),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(value: onRemove, child: Text(texts.delete)),
-                  ],
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 12),
-              child: LinearProgressIndicator(
-                value: (progress.reached.minorUnits / goal.target.minorUnits)
-                    .clamp(0, 1),
+          padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Row(
+                spacing: 12,
+                children: [
+                  AppearanceAvatar(
+                    appearance: goal.appearance,
+                    name: goal.name,
+                  ),
+                  Expanded(
+                    child: Text(goal.name, style: theme.textTheme.titleMedium),
+                  ),
+                  PopupMenuButton<VoidCallback>(
+                    onSelected: (run) => run(),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(value: onRemove, child: Text(texts.delete)),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            Text(
-              texts.goalReachedOfTarget(
-                money.format(progress.reached),
-                money.format(goal.target),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 12),
+                child: LinearProgressIndicator(
+                  value: (progress.reached.minorUnits / goal.target.minorUnits)
+                      .clamp(0, 1),
+                ),
               ),
-            ),
-            Text(
-              progress.isReached
-                  ? texts.goalReached
-                  : texts.goalToGo(money.format(progress.remaining)),
-            ),
-            if (deadline != null)
               Text(
-                texts.goalBy(DateFormat.yMMMd(locale).format(deadline)),
-                style: theme.textTheme.bodySmall,
+                texts.goalReachedOfTarget(
+                  money.format(progress.reached),
+                  money.format(goal.target),
+                ),
               ),
-          ],
+              Text(
+                progress.isReached
+                    ? texts.goalReached
+                    : texts.goalToGo(money.format(progress.remaining)),
+              ),
+              if (deadline != null)
+                Text(
+                  texts.goalBy(DateFormat.yMMMd(locale).format(deadline)),
+                  style: theme.textTheme.bodySmall,
+                ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

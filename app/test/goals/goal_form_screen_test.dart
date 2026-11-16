@@ -43,10 +43,7 @@ void main() {
     });
 
     testWidgets('shows the goal being edited', (tester) async {
-      await pump(
-        tester,
-        existing: pizzaGoal(deadline: DateTime(2026, 12, 31)),
-      );
+      await pump(tester, existing: pizzaGoal(deadline: DateTime(2026, 12, 31)));
 
       expect(find.text('Edit goal'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Pizza oven'), findsOneWidget);
