@@ -100,8 +100,8 @@ final class _Goals implements GoalRepository {
   Future<void> remove(GoalId id) async => _store._goals.remove(id);
 
   @override
-  Future<List<Goal>> all() async => _store._goals.values.toList()
-    ..sort((a, b) => a.name.compareTo(b.name));
+  Future<List<Goal>> all() async =>
+      _store._goals.values.toList()..sort((a, b) => a.name.compareTo(b.name));
 }
 
 final class _Transactions implements TransactionRepository {

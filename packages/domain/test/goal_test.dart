@@ -125,14 +125,15 @@ void main() {
       await store.goals.save(_goal(id: 'car'));
     });
 
-    Future<Set<ItemId>> itemsOf(String id) async =>
-        (await store.goals.all()).firstWhere((goal) => goal.id == GoalId(id))
-            .itemIds;
+    Future<Set<ItemId>> itemsOf(String id) async => (await store.goals.all())
+        .firstWhere((goal) => goal.id == GoalId(id))
+        .itemIds;
 
     test('offers every goal', () async {
       final goals = await assignments.goals();
 
-      expect(goals.map((goal) => goal.id), const [GoalId('car'), GoalId('pizza')]);
+      expect(
+          goals.map((goal) => goal.id), const [GoalId('car'), GoalId('pizza')]);
     });
 
     test('tells which goal each item counts towards', () async {
