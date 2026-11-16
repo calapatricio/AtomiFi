@@ -142,8 +142,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
       budgets: (_) =>
           BudgetsScreen(viewModel: _budgets, openForm: _openBudgetForm),
       accounts: (_) => AccountsScreen(viewModel: _accounts),
-      more: (_) =>
-          MoreScreen(importViewModel: _import, openGoals: _openGoals),
+      more: (_) => MoreScreen(importViewModel: _import, openGoals: _openGoals),
     ),
   );
 }

@@ -242,4 +242,6 @@ Goal pizzaGoal({
 
 /// The items that count towards the goal with [id].
 Future<Set<ItemId>> itemsInGoal(InMemoryStore store, String id) async =>
-    (await store.goals.all()).firstWhere((goal) => goal.id == GoalId(id)).itemIds;
+    (await store.goals.all())
+        .firstWhere((goal) => goal.id == GoalId(id))
+        .itemIds;
