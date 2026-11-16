@@ -173,7 +173,7 @@ BudgetsViewModel budgetsViewModelOn(InMemoryStore store) => BudgetsViewModel(
   now: () => now,
 );
 
-BudgetFormViewModel budgetFormOn(InMemoryStore store) {
+BudgetFormViewModel budgetFormOn(InMemoryStore store, {Budget? existing}) {
   var nextId = 0;
   return BudgetFormViewModel(
     budgets: store.budgets,
@@ -181,6 +181,7 @@ BudgetFormViewModel budgetFormOn(InMemoryStore store) {
     currency: Currency.eur,
     newId: () => 'new-${nextId++}',
     now: () => now,
+    existing: existing,
   );
 }
 
@@ -216,13 +217,14 @@ Future<Set<ItemId>> itemsInBudget(InMemoryStore store, String id) async {
 GoalsViewModel goalsViewModelOn(InMemoryStore store) =>
     GoalsViewModel(goals: store.goals, ledger: ledgerOn(store));
 
-GoalFormViewModel goalFormOn(InMemoryStore store) {
+GoalFormViewModel goalFormOn(InMemoryStore store, {Goal? existing}) {
   var nextId = 0;
   return GoalFormViewModel(
     goals: store.goals,
     currency: Currency.eur,
     newId: () => 'new-${nextId++}',
     now: () => now,
+    existing: existing,
   );
 }
 

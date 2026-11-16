@@ -157,4 +157,118 @@ void main() {
       expect(((await saved()).scope as ChosenItems).itemIds, isEmpty);
     });
   });
+
+  group('Editing a budget', () {
+    Future<void> edit(Budget budget) async {
+      await store.budgets.save(budget);
+      form = budgetFormOn(store, existing: budget);
+      await form.load();
+    }
+
+    test('starts from a budget that starts over', () async {
+      await edit(
+        Budget(
+          id: const BudgetId('dca'),
+          name: 'Investments',
+          limit: const Money(10050, Currency.usd),
+          period: RecurringPeriod(
+            Recurrence(
+              every: 2,
+              unit: RecurrenceUnit.week,
+              anchor: DateTime(2026, 11, 13),
+            ),
+          ),
+          scope: CategorySpending({alcohol.id}),
+        ),
+      );
+
+      expect(form.isEditing, isTrue);
+      expect(form.name, 'Investments');
+      expect(form.limit, '100.50');
+      expect(form.currency, Currency.usd);
+      expect(form.repeats, isTrue);
+      expect(form.every, '2');
+      expect(form.unit, RecurrenceUnit.week);
+      expect(form.start, DateTime(2026, 11, 13));
+      expect(form.coverage, BudgetCoverage.categories);
+      expect(form.isCovered(alcohol.id), isTrue);
+      expect(form.canSave, isTrue);
+    });
+
+    test('starts from a budget for one stretch of time', () async {
+      await edit(
+        Budget(
+          id: const BudgetId('trip'),
+          name: 'Trip',
+          limit: eur(50000),
+          period: FixedPeriod(
+            DateRange(DateTime(2026, 8, 1), DateTime(2026, 8, 16)),
+          ),
+          scope: const ChosenItems({}),
+        ),
+      );
+
+      expect(form.repeats, isFalse);
+      expect(form.start, DateTime(2026, 8, 1));
+      expect(form.end, DateTime(2026, 8, 15));
+      expect(form.coverage, BudgetCoverage.chosenItems);
+    });
+
+    test('replaces the budget, keeping its id and its looks', () async {
+      await edit(
+        Budget(
+          id: const BudgetId('monthly'),
+          name: 'Monthly',
+          limit: eur(100000),
+          period: RecurringPeriod(Recurrence.calendarMonths),
+          scope: const AllSpending(),
+          appearance: const Appearance(color: 0xFF4CAF50),
+        ),
+      );
+
+      form
+        ..name = 'Everything'
+        ..limit = '900';
+      await form.save();
+      final budget = await saved();
+
+      expect(budget.id, const BudgetId('monthly'));
+      expect(budget.name, 'Everything');
+      expect(budget.limit, eur(90000));
+      expect(budget.appearance, const Appearance(color: 0xFF4CAF50));
+    });
+
+    test('keeps the items that were put in the budget', () async {
+      await edit(tripBudget(itemIds: {const ItemId('hotel')}));
+
+      form.limit = '750';
+      await form.save();
+
+      expect(((await saved()).scope as ChosenItems).itemIds, {
+        const ItemId('hotel'),
+      });
+    });
+
+    test('keeps what a budget for all spending leaves out', () async {
+      await edit(monthlyBudget(scope: AllSpending(except: {alcohol.id})));
+
+      form.limit = '750';
+      await form.save();
+
+      expect(((await saved()).scope as AllSpending).except, {alcohol.id});
+    });
+
+    test('keeps the subcategories it covered, which it does not show', () async {
+      const beer = CategoryId('beer');
+      await edit(monthlyBudget(scope: const CategorySpending({beer})));
+
+      form.toggleCategory(food.id);
+      await form.save();
+
+      expect(((await saved()).scope as CategorySpending).categoryIds, {
+        beer,
+        food.id,
+      });
+    });
+  });
 }

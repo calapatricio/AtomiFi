@@ -12,8 +12,10 @@ void main() {
 
     setUp(() async => store = await seededStore());
 
-    Future<void> pump(WidgetTester tester) =>
-        pumpScreen(tester, GoalFormScreen(viewModel: goalFormOn(store)));
+    Future<void> pump(WidgetTester tester, {Goal? existing}) => pumpScreen(
+      tester,
+      GoalFormScreen(viewModel: goalFormOn(store, existing: existing)),
+    );
 
     bool canTapSave(WidgetTester tester) =>
         tester
@@ -38,6 +40,19 @@ void main() {
 
       expect(find.text('New goal'), findsOneWidget);
       expect(canTapSave(tester), isFalse);
+    });
+
+    testWidgets('shows the goal being edited', (tester) async {
+      await pump(
+        tester,
+        existing: pizzaGoal(deadline: DateTime(2026, 12, 31)),
+      );
+
+      expect(find.text('Edit goal'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Pizza oven'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '500.00'), findsOneWidget);
+      expect(find.text('Dec 31, 2026'), findsOneWidget);
+      expect(canTapSave(tester), isTrue);
     });
 
     testWidgets('saves the goal typed into it', (tester) async {

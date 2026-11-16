@@ -89,4 +89,46 @@ void main() {
       expect(notifications, 4);
     });
   });
+
+  group('Editing a goal', () {
+    late InMemoryStore store;
+    late GoalFormViewModel form;
+    final goal = pizzaGoal(
+      kind: GoalKind.spending,
+      deadline: DateTime(2026, 12, 31),
+      itemIds: {const ItemId('deposit')},
+    );
+
+    setUp(() async {
+      store = await seededStore();
+      await store.goals.save(goal);
+      form = goalFormOn(store, existing: goal);
+    });
+
+    test('starts from what it holds', () {
+      expect(form.isEditing, isTrue);
+      expect(form.name, 'Pizza oven');
+      expect(form.target, '500.00');
+      expect(form.kind, GoalKind.spending);
+      expect(form.deadline, DateTime(2026, 12, 31));
+      expect(form.canSave, isTrue);
+    });
+
+    test('replaces it, keeping its id, its looks and its items', () async {
+      form
+        ..name = 'Big oven'
+        ..target = '800'
+        ..deadline = null;
+
+      await form.save();
+      final saved = (await store.goals.all()).single;
+
+      expect(saved.id, const GoalId('pizza'));
+      expect(saved.name, 'Big oven');
+      expect(saved.target, eur(80000));
+      expect(saved.deadline, isNull);
+      expect(saved.appearance, const Appearance(emoji: '🍕'));
+      expect(saved.itemIds, {const ItemId('deposit')});
+    });
+  });
 }

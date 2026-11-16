@@ -1,4 +1,5 @@
 import 'package:atomifi/budgets/budgets_screen.dart';
+import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:atomifi_domain/testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -9,17 +10,22 @@ void main() {
   group('BudgetsScreen', () {
     late InMemoryStore store;
     var formsOpened = 0;
+    Budget? edited;
 
     setUp(() async {
       store = await seededStore();
       formsOpened = 0;
+      edited = null;
     });
 
     Future<void> pump(WidgetTester tester) => pumpScreen(
       tester,
       BudgetsScreen(
         viewModel: budgetsViewModelOn(store),
-        openForm: (context) async => formsOpened++,
+        openForm: (context, {existing}) async {
+          formsOpened++;
+          edited = existing;
+        },
       ),
     );
 
@@ -63,6 +69,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(formsOpened, 1);
+    });
+
+    testWidgets('opens the form to edit the budget that is tapped', (
+      tester,
+    ) async {
+      await store.budgets.save(monthlyBudget());
+      await pump(tester);
+
+      await tester.tap(find.text('Monthly'));
+      await tester.pumpAndSettle();
+
+      expect(formsOpened, 1);
+      expect(edited?.name, 'Monthly');
     });
 
     testWidgets('deletes a budget once confirmed', (tester) async {

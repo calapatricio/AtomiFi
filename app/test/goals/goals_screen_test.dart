@@ -10,17 +10,22 @@ void main() {
   group('GoalsScreen', () {
     late InMemoryStore store;
     var formsOpened = 0;
+    Goal? edited;
 
     setUp(() async {
       store = await seededStore();
       formsOpened = 0;
+      edited = null;
     });
 
     Future<void> pump(WidgetTester tester) => pumpScreen(
       tester,
       GoalsScreen(
         viewModel: goalsViewModelOn(store),
-        openForm: (context) async => formsOpened++,
+        openForm: (context, {existing}) async {
+          formsOpened++;
+          edited = existing;
+        },
       ),
     );
 
@@ -68,6 +73,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(formsOpened, 1);
+    });
+
+    testWidgets('opens the form to edit the goal that is tapped', (
+      tester,
+    ) async {
+      await store.goals.save(pizzaGoal());
+      await pump(tester);
+
+      await tester.tap(find.text('Pizza oven'));
+      await tester.pumpAndSettle();
+
+      expect(formsOpened, 1);
+      expect(edited?.name, 'Pizza oven');
     });
 
     testWidgets('deletes a goal once confirmed', (tester) async {

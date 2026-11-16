@@ -1,4 +1,5 @@
 import 'package:atomifi/budgets/budget_form_screen.dart';
+import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:atomifi_domain/testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -11,8 +12,10 @@ void main() {
 
     setUp(() async => store = await seededStore());
 
-    Future<void> pump(WidgetTester tester) =>
-        pumpScreen(tester, BudgetFormScreen(viewModel: budgetFormOn(store)));
+    Future<void> pump(WidgetTester tester, {Budget? existing}) => pumpScreen(
+      tester,
+      BudgetFormScreen(viewModel: budgetFormOn(store, existing: existing)),
+    );
 
     bool canTapSave(WidgetTester tester) =>
         tester
@@ -25,6 +28,15 @@ void main() {
 
       expect(find.text('New budget'), findsOneWidget);
       expect(canTapSave(tester), isFalse);
+    });
+
+    testWidgets('shows the budget being edited', (tester) async {
+      await pump(tester, existing: monthlyBudget());
+
+      expect(find.text('Edit budget'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Monthly'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, '1000.00'), findsOneWidget);
+      expect(canTapSave(tester), isTrue);
     });
 
     testWidgets('saves the budget typed into it', (tester) async {
