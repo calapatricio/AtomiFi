@@ -12,6 +12,7 @@ final class Dependencies {
   const Dependencies({
     required this.accounts,
     required this.budgets,
+    required this.budgetAssignments,
     required this.categories,
     required this.transactions,
     required this.ledger,
@@ -29,6 +30,7 @@ final class Dependencies {
     return Dependencies(
       accounts: accounts,
       budgets: budgets,
+      budgetAssignments: BudgetAssignments(budgets),
       categories: categories,
       transactions: transactions,
       ledger: Ledger(
@@ -61,6 +63,7 @@ final class Dependencies {
 
   final AccountRepository accounts;
   final BudgetRepository budgets;
+  final BudgetAssignments budgetAssignments;
   final CategoryRepository categories;
   final TransactionRepository transactions;
   final Ledger ledger;

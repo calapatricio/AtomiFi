@@ -37,7 +37,8 @@ final class BudgetAssignments {
             in budgetByItem.entries)
           if (budgetId == budget.id) itemId,
       };
-      if (!_areSame(before, after)) await _budgets.save(budget.withItems(after));
+      if (!_areSame(before, after))
+        await _budgets.save(budget.withItems(after));
     }
   }
 

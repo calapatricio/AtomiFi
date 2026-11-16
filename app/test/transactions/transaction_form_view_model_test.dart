@@ -507,16 +507,18 @@ void main() {
       expect(await itemsInBudget(store, 'trip'), isEmpty);
     });
 
-    test('takes the items of a deleted transaction out of their budget',
-        () async {
-      await store.transactions.save(shopping);
-      await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
-      form = transactionFormOn(store, existing: shopping);
-      await form.load();
+    test(
+      'takes the items of a deleted transaction out of their budget',
+      () async {
+        await store.transactions.save(shopping);
+        await store.budgets.save(tripBudget(itemIds: {shoppingItem}));
+        form = transactionFormOn(store, existing: shopping);
+        await form.load();
 
-      await form.delete();
+        await form.delete();
 
-      expect(await itemsInBudget(store, 'trip'), isEmpty);
-    });
+        expect(await itemsInBudget(store, 'trip'), isEmpty);
+      },
+    );
   });
 }

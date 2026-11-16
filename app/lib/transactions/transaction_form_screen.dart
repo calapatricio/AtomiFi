@@ -282,6 +282,7 @@ class _ItemCard extends StatelessWidget {
               textCapitalization: TextCapitalization.sentences,
               onChanged: (name) => item.name = name,
             ),
+            if (form.itemBudgets.isNotEmpty) ..._budgetPicker(texts),
             if (item.others.isNotEmpty && item.includesMe)
               _myPart(context, texts),
             for (final share in item.others)
@@ -359,6 +360,25 @@ class _ItemCard extends StatelessWidget {
       ),
     );
   }
+
+  /// Chooses the budget the item is put in. Tapping the chosen one again
+  /// takes the item out of it.
+  List<Widget> _budgetPicker(AppLocalizations texts) => [
+    Text(texts.budget),
+    ChoiceCarousel<Budget>(
+      choices: form.itemBudgets,
+      selected: form.itemBudgets
+          .where((budget) => budget.id == item.budgetId)
+          .firstOrNull,
+      labelOf: (budget) => budget.name,
+      colorOf: (budget) {
+        final color = budget.appearance.color;
+        return color == null ? null : Color(color);
+      },
+      onSelected: (budget) =>
+          item.budgetId = item.budgetId == budget.id ? null : budget.id,
+    ),
+  ];
 
   /// The row that shows I am one of those the item is shared among, with
   /// the part that is left for me.

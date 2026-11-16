@@ -58,6 +58,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
           transactions: _dependencies.transactions,
           accounts: _dependencies.accounts,
           categories: _dependencies.categories,
+          budgets: _dependencies.budgetAssignments,
           newId: _dependencies.newId,
           now: DateTime.now,
           existing: existing,

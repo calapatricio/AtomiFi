@@ -371,7 +371,8 @@ final class TransactionFormViewModel extends ChangeNotifier
     );
     await _budgets.assign({
       for (final itemId in _existingItemIds) itemId: null,
-      for (final (index, item) in items.indexed) item.id: _items[index].budgetId,
+      for (final (index, item) in items.indexed)
+        item.id: _items[index].budgetId,
     });
   }
 
