@@ -10,17 +10,20 @@ final class LedgerWriter {
     required TransactionRepository transactions,
     required TransferRepository transfers,
     required BudgetRepository budgets,
+    required GoalRepository goals,
   })  : _accounts = accounts,
         _categories = categories,
         _transactions = transactions,
         _transfers = transfers,
-        _budgets = budgets;
+        _budgets = budgets,
+        _goals = goals;
 
   final AccountRepository _accounts;
   final CategoryRepository _categories;
   final TransactionRepository _transactions;
   final TransferRepository _transfers;
   final BudgetRepository _budgets;
+  final GoalRepository _goals;
 
   Future<void> write(ImportedLedger ledger) async {
     for (final account in ledger.accounts) {
@@ -37,6 +40,9 @@ final class LedgerWriter {
     }
     for (final budget in ledger.budgets) {
       await _budgets.save(budget);
+    }
+    for (final goal in ledger.goals) {
+      await _goals.save(goal);
     }
   }
 }

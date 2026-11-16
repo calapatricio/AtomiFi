@@ -27,6 +27,7 @@ final class Dependencies {
     final transactions = DriftTransactionRepository(database);
     final transfers = DriftTransferRepository(database);
     final budgets = DriftBudgetRepository(database);
+    final goals = DriftGoalRepository(database);
     return Dependencies(
       accounts: accounts,
       budgets: budgets,
@@ -45,6 +46,7 @@ final class Dependencies {
           transactions: transactions,
           transfers: transfers,
           budgets: budgets,
+          goals: goals,
         ),
         converter: const CashewBackupConverter(
           defaultCurrencyCode: _defaultCurrencyCode,

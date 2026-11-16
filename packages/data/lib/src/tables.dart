@@ -1,5 +1,5 @@
 import 'package:atomifi_domain/atomifi_domain.dart'
-    show CategorySide, RecurrenceUnit;
+    show CategorySide, GoalKind, RecurrenceUnit;
 import 'package:drift/drift.dart';
 
 @DataClassName('AccountRow')
@@ -148,4 +148,34 @@ class BudgetItems extends Table {
 
   @override
   Set<Column> get primaryKey => {budgetId, itemId};
+}
+
+@DataClassName('GoalRow')
+class Goals extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  IntColumn get targetAmount => integer()();
+  TextColumn get currencyCode => text()();
+  IntColumn get currencyDecimals => integer()();
+  TextColumn get kind => textEnum<GoalKind>()();
+  DateTimeColumn get deadline => dateTime().nullable()();
+  IntColumn get color => integer().nullable()();
+  TextColumn get iconName => text().nullable()();
+  TextColumn get emoji => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// The items that count towards a goal.
+///
+/// [itemId] is deliberately not a foreign key: an item is deleted and
+/// inserted again whenever its transaction is saved.
+@DataClassName('GoalItemRow')
+class GoalItems extends Table {
+  TextColumn get goalId => text().references(Goals, #id)();
+  TextColumn get itemId => text()();
+
+  @override
+  Set<Column> get primaryKey => {goalId, itemId};
 }

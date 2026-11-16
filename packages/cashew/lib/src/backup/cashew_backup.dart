@@ -62,6 +62,7 @@ final class BackupTransaction {
     this.subcategoryId,
     this.pairedId,
     this.budgetId,
+    this.goalId,
   });
 
   final String id;
@@ -83,6 +84,44 @@ final class BackupTransaction {
 
   /// The budget this transaction was added to by hand, if any.
   final String? budgetId;
+
+  /// The goal this transaction counted towards, if any.
+  final String? goalId;
+}
+
+/// A goal as Cashew keeps it. Cashew also keeps long-term loans as goals.
+final class BackupGoal {
+  const BackupGoal({
+    required this.id,
+    required this.name,
+    required this.amount,
+    required this.income,
+    required this.walletId,
+    this.end,
+    this.isLoan = false,
+    this.archived = false,
+    this.colour,
+    this.iconName,
+    this.emoji,
+  });
+
+  final String id;
+  final String name;
+
+  /// The target, in the currency of the wallet with [walletId].
+  final double amount;
+
+  /// Whether it is reached by putting money aside instead of by spending.
+  final bool income;
+  final String walletId;
+
+  /// The day it should be reached by, if one was set.
+  final DateTime? end;
+  final bool isLoan;
+  final bool archived;
+  final String? colour;
+  final String? iconName;
+  final String? emoji;
 }
 
 /// How often a budget of Cashew starts over, in the order Cashew numbers
@@ -145,10 +184,12 @@ final class CashewBackup {
     required this.categories,
     required this.transactions,
     required this.budgets,
+    required this.goals,
   });
 
   final List<BackupWallet> wallets;
   final List<BackupCategory> categories;
   final List<BackupTransaction> transactions;
   final List<BackupBudget> budgets;
+  final List<BackupGoal> goals;
 }

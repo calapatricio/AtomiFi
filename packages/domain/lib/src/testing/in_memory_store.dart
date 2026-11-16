@@ -4,6 +4,8 @@ import '../budget/budget.dart';
 import '../budget/budget_repository.dart';
 import '../category/category.dart';
 import '../category/category_repository.dart';
+import '../goal/goal.dart';
+import '../goal/goal_repository.dart';
 import '../ids.dart';
 import '../ledger/revaluation.dart';
 import '../ledger/revaluation_repository.dart';
@@ -18,6 +20,7 @@ final class InMemoryStore {
   final _accounts = <AccountId, Account>{};
   final _budgets = <BudgetId, Budget>{};
   final _categories = <CategoryId, Category>{};
+  final _goals = <GoalId, Goal>{};
   final _transactions = <TransactionId, Transaction>{};
   final _transfers = <TransferId, Transfer>{};
   final _revaluations = <RevaluationId, Revaluation>{};
@@ -25,6 +28,7 @@ final class InMemoryStore {
   late final AccountRepository accounts = _Accounts(this);
   late final BudgetRepository budgets = _Budgets(this);
   late final CategoryRepository categories = _Categories(this);
+  late final GoalRepository goals = _Goals(this);
   late final TransactionRepository transactions = _Transactions(this);
   late final TransferRepository transfers = _Transfers(this);
   late final RevaluationRepository revaluations = _Revaluations(this);
@@ -81,6 +85,22 @@ final class _Categories implements CategoryRepository {
 
   @override
   Future<List<Category>> all() async => _store._categories.values.toList()
+    ..sort((a, b) => a.name.compareTo(b.name));
+}
+
+final class _Goals implements GoalRepository {
+  _Goals(this._store);
+
+  final InMemoryStore _store;
+
+  @override
+  Future<void> save(Goal goal) async => _store._goals[goal.id] = goal;
+
+  @override
+  Future<void> remove(GoalId id) async => _store._goals.remove(id);
+
+  @override
+  Future<List<Goal>> all() async => _store._goals.values.toList()
     ..sort((a, b) => a.name.compareTo(b.name));
 }
 

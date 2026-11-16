@@ -5,9 +5,11 @@ import 'package:atomifi_domain/atomifi_domain.dart';
 import '../imported_ledger.dart';
 import 'cashew_backup.dart';
 import 'cashew_budget_converter.dart';
+import 'cashew_goal_converter.dart';
+import 'wallet_amounts.dart';
 
 /// Turns a Cashew backup into accounts, categories, transactions,
-/// transfers and budgets.
+/// transfers, budgets and goals.
 ///
 /// Everything keeps the id it has in Cashew, so importing a backup again
 /// replaces what the first import created.
@@ -21,31 +23,43 @@ final class CashewBackupConverter {
     final accounts = [for (final wallet in backup.wallets) _accountOf(wallet)];
     final categories = _categoriesOf(backup.categories);
     final movements = _Movements(backup.transactions, accounts, categories);
+    final amounts = WalletAmounts(
+      accounts: accounts,
+      defaultCurrency: Currency.iso(defaultCurrencyCode.toUpperCase()),
+    );
     return ImportedLedger(
       accounts: accounts,
       categories: categories,
       transactions: movements.transactions,
       transfers: movements.transfers,
-      budgets: CashewBudgetConverter(
-        accounts: accounts,
-        categories: categories,
-        defaultCurrency: Currency.iso(defaultCurrencyCode.toUpperCase()),
-      ).convert(backup.budgets, _budgetByItemOf(backup, movements)),
+      budgets: CashewBudgetConverter(amounts: amounts, categories: categories)
+          .convert(
+        backup.budgets,
+        _holderByItemOf(backup, movements, (source) => source.budgetId),
+      ),
+      goals: CashewGoalConverter(amounts).convert(
+        backup.goals,
+        _holderByItemOf(backup, movements, (source) => source.goalId),
+      ),
       skippedRows: backup.transactions.length - movements.count,
     );
   }
 
-  /// The budget each imported item was added to by hand in Cashew.
-  static Map<ItemId, String> _budgetByItemOf(
+  /// What each imported item was put in by hand in Cashew: its budget or
+  /// its goal, as [holderOf] reads it from the item's transaction.
+  static Map<ItemId, String> _holderByItemOf(
     CashewBackup backup,
     _Movements movements,
+    String? Function(BackupTransaction source) holderOf,
   ) {
     final imported = {
       for (final transaction in movements.transactions) transaction.id.value,
     };
     return {
-      for (final BackupTransaction(:id, :budgetId) in backup.transactions)
-        if (budgetId != null && imported.contains(id)) _itemIdOf(id): budgetId,
+      for (final source in backup.transactions)
+        if (imported.contains(source.id))
+          if (holderOf(source) case final holderId?)
+            _itemIdOf(source.id): holderId,
     };
   }
 

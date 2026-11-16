@@ -1,5 +1,5 @@
 import 'package:atomifi_domain/atomifi_domain.dart'
-    show CategorySide, RecurrenceUnit;
+    show CategorySide, GoalKind, RecurrenceUnit;
 import 'package:drift/drift.dart';
 
 import 'tables.dart';
@@ -19,6 +19,8 @@ part 'database.g.dart';
     Budgets,
     BudgetCategories,
     BudgetItems,
+    Goals,
+    GoalItems,
   ],
 )
 class AtomiFiDatabase extends _$AtomiFiDatabase {

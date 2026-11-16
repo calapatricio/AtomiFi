@@ -4,6 +4,8 @@ extension type const BudgetId(String value) {}
 
 extension type const CategoryId(String value) {}
 
+extension type const GoalId(String value) {}
+
 extension type const ItemId(String value) {}
 
 extension type const RevaluationId(String value) {}

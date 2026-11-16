@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:atomifi_domain/atomifi_domain.dart';
 
 import 'cashew_backup.dart';
+import 'wallet_amounts.dart';
 
 /// How an account, a category or a budget of Cashew looks.
 Appearance appearanceOf(String? colour, String? iconName, String? emoji) =>
@@ -18,18 +19,13 @@ Appearance appearanceOf(String? colour, String? iconName, String? emoji) =>
 /// left out.
 final class CashewBudgetConverter {
   CashewBudgetConverter({
-    required List<Account> accounts,
+    required WalletAmounts amounts,
     required List<Category> categories,
-    required Currency defaultCurrency,
-  })  : _currencyByAccountId = {
-          for (final account in accounts) account.id.value: account.currency,
-        },
-        _categoryIds = {for (final category in categories) category.id},
-        _defaultCurrency = defaultCurrency;
+  })  : _amounts = amounts,
+        _categoryIds = {for (final category in categories) category.id};
 
-  final Map<String, Currency> _currencyByAccountId;
+  final WalletAmounts _amounts;
   final Set<CategoryId> _categoryIds;
-  final Currency _defaultCurrency;
 
   /// The [budgets] as ours. [budgetByItem] tells which budget each imported
   /// item was added to by hand.
@@ -55,11 +51,8 @@ final class CashewBudgetConverter {
         appearance: appearanceOf(budget.colour, null, null),
       );
 
-  Money _limitOf(BackupBudget budget) {
-    final currency = _currencyByAccountId[budget.walletId] ?? _defaultCurrency;
-    final scale = math.pow(10, currency.decimals);
-    return Money((budget.amount.abs() * scale).round(), currency);
-  }
+  Money _limitOf(BackupBudget budget) =>
+      _amounts.of(budget.walletId, budget.amount);
 
   static BudgetPeriod _periodOf(BackupBudget budget) {
     final unit = switch (budget.reoccurrence) {

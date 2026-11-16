@@ -2,6 +2,8 @@ export 'src/backup/cashew_backup.dart';
 export 'src/backup/cashew_backup_converter.dart';
 export 'src/backup/cashew_backup_reader.dart';
 export 'src/backup/cashew_budget_converter.dart';
+export 'src/backup/cashew_goal_converter.dart';
+export 'src/backup/wallet_amounts.dart';
 export 'src/cashew_converter.dart';
 export 'src/cashew_export_parser.dart';
 export 'src/cashew_row.dart';

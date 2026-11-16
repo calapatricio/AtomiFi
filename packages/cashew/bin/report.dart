@@ -22,6 +22,7 @@ void main(List<String> arguments) {
     ..writeln('Transactions: ${ledger.transactions.length}')
     ..writeln('Transfers: ${ledger.transfers.length}')
     ..writeln('Budgets: ${ledger.budgets.length}')
+    ..writeln('Goals: ${ledger.goals.length}')
     ..writeln('Accounts: ${ledger.accounts.length}')
     ..writeln('Categories: ${ledger.categories.length}')
     ..writeln('Skipped (no amount or not paid yet): ${ledger.skippedRows}')

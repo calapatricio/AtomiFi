@@ -15,6 +15,7 @@ final class CashewBackupReader {
         categories: _categories(database),
         transactions: _transactions(database),
         budgets: _budgets(database),
+        goals: _goals(database),
       );
     } on SqliteException catch (error) {
       throw FormatException(
@@ -60,7 +61,7 @@ final class CashewBackupReader {
         for (final row in database.select(
           'SELECT transaction_pk, paired_transaction_fk, name, amount, note, '
           'category_fk, sub_category_fk, wallet_fk, date_created, paid, '
-          'shared_reference_budget_pk FROM transactions',
+          'shared_reference_budget_pk, objective_fk FROM transactions',
         ))
           BackupTransaction(
             id: row['transaction_pk'] as String,
@@ -74,6 +75,7 @@ final class CashewBackupReader {
             date: _dateOf(row['date_created'] as int),
             paid: row['paid'] == 1,
             budgetId: row['shared_reference_budget_pk'] as String?,
+            goalId: row['objective_fk'] as String?,
           ),
       ];
 
@@ -100,6 +102,33 @@ final class CashewBackupReader {
             walletId: row['wallet_fk'] as String,
           ),
       ];
+
+  static List<BackupGoal> _goals(CommonDatabase database) => [
+        for (final row in database.select(
+          'SELECT objective_pk, name, colour, icon_name, emoji_icon_name, '
+          'type, amount, end_date, income, archived, wallet_fk '
+          'FROM objectives',
+        ))
+          BackupGoal(
+            id: row['objective_pk'] as String,
+            name: row['name'] as String,
+            colour: row['colour'] as String?,
+            iconName: row['icon_name'] as String?,
+            emoji: row['emoji_icon_name'] as String?,
+            isLoan: row['type'] == _loanType,
+            amount: (row['amount'] as num).toDouble(),
+            end: _optionalDateOf(row['end_date'] as int?),
+            income: row['income'] == 1,
+            archived: row['archived'] == 1,
+            walletId: row['wallet_fk'] as String,
+          ),
+      ];
+
+  /// The number Cashew gives the goals that are long-term loans.
+  static const _loanType = 1;
+
+  static DateTime? _optionalDateOf(int? secondsSinceEpoch) =>
+      secondsSinceEpoch == null ? null : _dateOf(secondsSinceEpoch);
 
   /// A budget without a known way of starting over is taken not to.
   static BackupReoccurrence _reoccurrenceOf(int? index) =>
