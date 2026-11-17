@@ -15,26 +15,41 @@ Keep this file current: move things between sections as they are done.
   transaction form (items, categories, shares, budget and goal per item,
   amounts with a minus), budgets (list, add, edit, delete), goals under
   More (list, add, edit, delete), import of a Cashew backup, statistics
-  (period chooser, summary, ring by category with subcategories, line
-  over time, expenses or income).
+  under More (period chooser, summary, ring by category with
+  subcategories, line of the balance over time, list of the transactions
+  that count).
 
-## Next, in the order the owner asked
+## Waiting for the owner
 
-Nothing is fixed after budgets and goals; ask him. Candidates he has
-mentioned:
+- **Income recorded in expense categories.** In the statistics the
+  expenses were sometimes negative and the payroll was missing from the
+  income ring. The likely cause, to confirm with his data: Cashew lets an
+  income transaction use any category, and the import takes the side of a
+  category from Cashew's flag alone, so a payroll in a category that is
+  not flagged as income is netted against the expenses. Options put to
+  him: decide the side of an imported category from the money in it, or
+  let him change the side of a category in the app. Do not change how
+  amounts are netted (rule 2 of the domain model) without his say.
+
+## Next
+
+The owner wants what exists finished before new features. Candidates he
+has mentioned, the first at the top:
 
 1. Recurring and scheduled transactions (reuse `Recurrence`), including
-   subscriptions.
-2. More in the statistics: the transactions behind a category when it is
-   tapped, comparing with the period before, net worth over time, a
-   filter by account, and the switch for dating offsetting items.
-3. "Who owes me": linking repayments to items (`Item.offsets` exists in
+   subscriptions. Cashew's unpaid transactions are skipped by the import.
+2. Net worth in the statistics: what all the accounts held at the end of
+   the period shown, and how it changed over it. Needs exchange rates
+   first, because one account in another currency would make it fail.
+3. More in the statistics: comparing with the period before, a filter by
+   account, and the switch for dating offsetting items.
+4. "Who owes me": linking repayments to items (`Item.offsets` exists in
    the domain, there is no interface for it) and a view per person.
-4. Creating transfers and revaluations in the app (they only arrive
+5. Creating transfers and revaluations in the app (they only arrive
    through the import today).
-5. Attachments, Google sign-in and backup to Google Drive.
-6. Category management screen (editing, colours, subcategories).
-7. Receipt scanner (an idea for later).
+6. Attachments, Google sign-in and backup to Google Drive.
+7. Category management screen (editing, colours, subcategories, side).
+8. Receipt scanner (an idea for later).
 
 ## Known limits
 

@@ -39,14 +39,24 @@ What the owner decided, and why. Do not reopen these without asking him.
   with a "who owes me" view, not through Cashew's loan types.
 
 - **Statistics** are the most important screen: where the owner checks
-  what he spent on each thing over a month or a year. They show one
-  period at a time, chosen as: a period that repeats (every N days,
-  weeks, months or years from a day, with arrows to the one before and
-  after), the last N days, the time between two dates, or everything.
-  They open on the current calendar month and on the expenses. Tapping a
-  category with subcategories shows them, and the line over time then
-  follows that category alone. Cashew's separate "history" mode was left
-  out on purpose.
+  what he spent on each thing over a month or a year. They are opened
+  from More and show one period at a time, chosen as: a period that
+  repeats (every N days, weeks, months or years from a day, with arrows to
+  the one before and after), the last N days, the time between two dates,
+  or everything. They open on the current calendar month.
+  - The expenses or income switch changes only the ring and its
+    categories.
+  - Tapping a category, in the ring or under it, selects it: its
+    subcategories unfold under it, each with its amount and the part it is
+    of the category, and the line and the list are narrowed to it. Tapping
+    it again undoes that.
+  - The line is one for both sides: what was earned minus what was spent
+    so far, day by day. Touching it, or sliding along it, tells the total
+    on the nearest day.
+  - Under everything is the list of the transactions that count in the
+    period, each with the amount it counts for (the owner's share).
+    Tapping one opens it.
+  - Cashew's separate "history" mode was left out on purpose.
 
 ## Sync and data
 
@@ -80,5 +90,5 @@ What the owner decided, and why. Do not reopen these without asking him.
   subcategories with "None", and "Add category".
 - When "Include me" is off for a shared item, my row disappears and the
   parts of the others must add up to the price.
-- The bottom bar stays at four destinations: Transactions, Stats, Budgets
-  and More. The accounts are under More.
+- The bottom bar stays at four destinations: Transactions, Budgets,
+  Accounts and More. The statistics and the goals are under More.

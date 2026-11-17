@@ -40,7 +40,10 @@
   in them, the largest first, each with the part it is of the whole and
   split into its subcategories and itself. A category where more came
   back than was spent is left out.
-- **Trend**: the running total of one side day by day over a period.
+- **Trend**: what was earned minus what was spent so far, day by day
+  over a period. Neutral categories are left out.
+- **Stats entry**: a transaction that counts as income or spending in a
+  period, with the owner's share of its items.
 - **Money**: an integer number of minor units plus a currency. Negative is
   money leaving an account.
 

@@ -24,9 +24,8 @@ class EntryTile extends StatelessWidget {
       subtitle: Text(DateFormat.yMMMd(locale).format(entry.date)),
       trailing: Text(
         MoneyFormatter(locale).format(entry.amount),
-        style: Theme.of(
-          context,
-        ).textTheme.bodyLarge?.copyWith(color: colorOfSide(side)),
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: colorOfSide(side)),
       ),
       onTap: onTap,
     );

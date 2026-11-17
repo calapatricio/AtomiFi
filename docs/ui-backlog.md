@@ -18,8 +18,6 @@ feature:
   goals, subscriptions and scheduled transactions, and editing the
   accounts, categories, titles, budgets and goals.
 
-Today the bar has Transactions, Stats, Budgets and More, and the accounts
-are under More. Home is not built. The bar cannot take a fifth
-destination, so ask the owner whether Home replaces Stats in the bar
-(with the statistics opened from Home) or the statistics stay where they
-are.
+Today the bar has Transactions, Budgets, Accounts and More. The
+statistics and the goals are under More. Home is not built; when it is,
+the accounts move under More to make room for it.

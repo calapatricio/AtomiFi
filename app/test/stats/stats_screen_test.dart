@@ -190,10 +190,7 @@ void main() {
       await tap(tester, find.widgetWithText(FilledButton, 'Apply'));
 
       expect(find.text('Last 7 days'), findsOneWidget);
-      expect(
-        find.widgetWithIcon(IconButton, Icons.chevron_left),
-        findsNothing,
-      );
+      expect(find.widgetWithIcon(IconButton, Icons.chevron_left), findsNothing);
     });
 
     testWidgets('can show everything', (tester) async {
