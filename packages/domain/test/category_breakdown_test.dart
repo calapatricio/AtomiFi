@@ -86,8 +86,7 @@ void main() {
       expect(_breakdown({_alcohol: -1000}).single.parts, isEmpty);
     });
 
-    test('leaves out the categories with nothing spent, or with more back',
-        () {
+    test('leaves out the categories with nothing spent, or with more back', () {
       final amounts = _breakdown({_food: 300, _alcohol: -100, _salary: 900});
 
       expect(amounts.map((amount) => amount.category), [_alcohol]);

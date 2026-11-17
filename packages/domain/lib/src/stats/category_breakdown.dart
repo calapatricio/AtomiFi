@@ -65,8 +65,8 @@ final class CategoryBreakdown {
   Iterable<Category> _within(Category category) =>
       [category, ..._subcategoriesOf(category)];
 
-  Iterable<Category> _subcategoriesOf(Category category) => _categories
-      .where((candidate) => candidate.parentId == category.id);
+  Iterable<Category> _subcategoriesOf(Category category) =>
+      _categories.where((candidate) => candidate.parentId == category.id);
 
   /// The [candidates] with something in them, the largest first, each with
   /// the part it is of them all.
@@ -89,8 +89,7 @@ final class CategoryBreakdown {
   }
 
   static int _largestFirst(_Candidate one, _Candidate other) {
-    final byAmount =
-        other.amount.minorUnits.compareTo(one.amount.minorUnits);
+    final byAmount = other.amount.minorUnits.compareTo(one.amount.minorUnits);
     return byAmount != 0
         ? byAmount
         : one.category.name.compareTo(other.category.name);
