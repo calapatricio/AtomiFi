@@ -3,6 +3,7 @@ import 'package:atomifi/budgets/budget_form_view_model.dart';
 import 'package:atomifi/budgets/budgets_view_model.dart';
 import 'package:atomifi/goals/goal_form_view_model.dart';
 import 'package:atomifi/goals/goals_view_model.dart';
+import 'package:atomifi/stats/stats_view_model.dart';
 import 'package:atomifi/transactions/transaction_form_view_model.dart';
 import 'package:atomifi/transactions/transactions_view_model.dart';
 import 'package:atomifi/l10n/app_localizations.dart';
@@ -32,6 +33,12 @@ const alcohol = Category(
   id: CategoryId('alcohol'),
   name: 'Alcohol',
   side: CategorySide.expense,
+);
+const beer = Category(
+  id: CategoryId('beer'),
+  name: 'Beer',
+  side: CategorySide.expense,
+  parentId: CategoryId('alcohol'),
 );
 const salary = Category(
   id: CategoryId('salary'),
@@ -247,3 +254,10 @@ Future<Set<ItemId>> itemsInGoal(InMemoryStore store, String id) async =>
     (await store.goals.all())
         .firstWhere((goal) => goal.id == GoalId(id))
         .itemIds;
+
+StatsViewModel statsViewModelOn(InMemoryStore store) => StatsViewModel(
+  ledger: ledgerOn(store),
+  categories: store.categories,
+  currency: Currency.eur,
+  now: () => now,
+);
