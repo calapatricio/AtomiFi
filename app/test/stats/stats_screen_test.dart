@@ -127,12 +127,15 @@ void main() {
       await pump(tester);
       await scrollTo(tester, find.byType(LineChart));
 
+      expect(find.text('Total'), findsOneWidget);
+
       await tester.tapAt(
         tester.getTopLeft(find.byType(LineChart)) + const Offset(2, 20),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Nov 1, 2026'), findsOneWidget);
+      expect(find.text('Total'), findsNothing);
+      expect(find.text('Nov 1, 2026'), findsWidgets);
       expect(find.text('€2,000.00'), findsWidgets);
     });
 
