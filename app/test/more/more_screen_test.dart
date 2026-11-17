@@ -18,7 +18,7 @@ final class _Importer implements BackupImporter {
 void main() {
   group('MoreScreen', () {
     var goalsOpened = 0;
-    var accountsOpened = 0;
+    var statsOpened = 0;
 
     Future<void> pump(
       WidgetTester tester,
@@ -28,22 +28,22 @@ void main() {
       MoreScreen(
         importViewModel: ImportViewModel(importer: _Importer(import)),
         openGoals: (context) => goalsOpened++,
-        openAccounts: (context) => accountsOpened++,
+        openStats: (context) => statsOpened++,
       ),
     );
 
     setUp(() {
       goalsOpened = 0;
-      accountsOpened = 0;
+      statsOpened = 0;
     });
 
-    testWidgets('opens the accounts', (tester) async {
+    testWidgets('opens the stats', (tester) async {
       await pump(tester, () async => null);
 
-      await tester.tap(find.text('Accounts'));
+      await tester.tap(find.text('Stats'));
       await tester.pumpAndSettle();
 
-      expect(accountsOpened, 1);
+      expect(statsOpened, 1);
     });
 
     testWidgets('opens the goals', (tester) async {

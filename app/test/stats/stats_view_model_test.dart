@@ -12,6 +12,10 @@ void main() {
   final november = DateRange.month(2026, 11);
   final october = DateRange.month(2026, 10);
 
+  List<String> shownTransactions() => [
+    for (final entry in stats.entries) entry.transaction.id.value,
+  ];
+
   setUp(() async {
     store = await seededStore();
     await store.categories.save(beer);
@@ -52,20 +56,31 @@ void main() {
       expect(stats.total, eur(4000));
     });
 
-    test('show how the expenses built up, from the first day', () {
-      expect(stats.trend.map((point) => point.day), [
-        DateTime(2026, 11),
-        DateTime(2026, 11, 6),
-      ]);
-      expect(stats.trend.map((point) => point.total), [eur(0), eur(4000)]);
-    });
-
-    test('can look at the income instead', () {
+    test('can rank those of the income instead', () {
       stats.side = CategorySide.income;
 
       expect(stats.amounts.single.category.name, 'Salary');
       expect(stats.total, eur(200000));
-      expect(stats.trend.single.total, eur(200000));
+    });
+
+    test('show how the money built up, whichever side is looked at', () {
+      final totals = [eur(200000), eur(196000)];
+
+      expect(stats.trend.map((point) => point.day), [
+        DateTime(2026, 11),
+        DateTime(2026, 11, 6),
+      ]);
+      expect(stats.trend.map((point) => point.total), totals);
+
+      stats.side = CategorySide.income;
+
+      expect(stats.trend.map((point) => point.total), totals);
+    });
+
+    test('list the transactions that count, the latest first', () {
+      expect(shownTransactions(), hasLength(3));
+      expect(shownTransactions(), containsAll(['shop', 'bar']));
+      expect(shownTransactions().last, 'payroll');
     });
 
     test('tell their listeners about every change', () {
@@ -80,54 +95,64 @@ void main() {
     });
   });
 
-  group('Looking into a category', () {
-    test('shows its subcategories and itself', () {
-      stats.open(stats.amounts.first);
+  group('Selecting a category', () {
+    test('keeps the main categories as they were', () {
+      stats.select(stats.amounts.first);
 
-      expect(stats.openCategory?.category.name, 'Alcohol');
+      expect(stats.selected?.category.name, 'Alcohol');
       expect(stats.amounts.map((amount) => amount.category.name), [
-        'Beer',
         'Alcohol',
+        'Food',
       ]);
-      expect(stats.total, eur(2500));
-    });
-
-    test('shows how that category alone built up', () {
-      stats.open(stats.amounts.first);
-
-      expect(stats.trend.last.total, eur(2500));
-    });
-
-    test('does nothing for a category without subcategories', () {
-      stats.open(stats.amounts.last);
-
-      expect(stats.openCategory, isNull);
-    });
-
-    test('can be left again', () {
-      stats
-        ..open(stats.amounts.first)
-        ..close();
-
-      expect(stats.openCategory, isNull);
       expect(stats.total, eur(4000));
     });
 
-    test('is left when the other side is looked at', () {
-      stats
-        ..open(stats.amounts.first)
-        ..side = CategorySide.income;
+    test('lists only the transactions with something in it', () {
+      stats.select(stats.amounts.first);
 
-      expect(stats.openCategory, isNull);
+      expect(shownTransactions(), ['bar']);
+      expect(stats.entries.single.amount, eur(-2500));
     });
 
-    test('is left when the period has nothing in that category', () {
+    test('shows how that category alone built up, from the first day', () {
+      stats.select(stats.amounts.first);
+
+      expect(stats.trend.map((point) => point.total), [eur(0), eur(-2500)]);
+    });
+
+    test('is undone by selecting it again', () {
       stats
-        ..open(stats.amounts.first)
+        ..select(stats.amounts.first)
+        ..select(stats.amounts.first);
+
+      expect(stats.selected, isNull);
+      expect(shownTransactions(), hasLength(3));
+    });
+
+    test('moves to another category when that one is selected', () {
+      stats
+        ..select(stats.amounts.first)
+        ..select(stats.amounts.last);
+
+      expect(stats.selected?.category.name, 'Food');
+      expect(shownTransactions(), ['shop']);
+    });
+
+    test('is undone when the other side is looked at', () {
+      stats
+        ..select(stats.amounts.first)
+        ..side = CategorySide.income;
+
+      expect(stats.selected, isNull);
+    });
+
+    test('is undone when the period has nothing in that category', () {
+      stats
+        ..select(stats.amounts.first)
         ..showPrevious();
 
-      expect(stats.openCategory, isNull);
-      expect(stats.amounts.single.category.name, 'Food');
+      expect(stats.selected, isNull);
+      expect(shownTransactions(), ['old']);
     });
   });
 

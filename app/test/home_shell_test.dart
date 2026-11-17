@@ -1,3 +1,4 @@
+import 'package:atomifi/accounts/accounts_screen.dart';
 import 'package:atomifi/home_shell.dart';
 import 'package:atomifi/transactions/transactions_screen.dart';
 import 'package:atomifi_domain/testing.dart';
@@ -19,8 +20,8 @@ void main() {
           viewModel: transactionsViewModelOn(store),
           openForm: (context, {existing}) async {},
         ),
-        stats: (_) => const Text('Stats screen'),
         budgets: (_) => const Text('Budgets screen'),
+        accounts: (_) => AccountsScreen(viewModel: accountsViewModelOn(store)),
         more: (_) => const Text('More screen'),
       ),
     );
@@ -31,12 +32,12 @@ void main() {
       expect(find.widgetWithText(AppBar, 'Transactions'), findsOneWidget);
     });
 
-    testWidgets('goes to the stats and to the rest', (tester) async {
+    testWidgets('goes to the accounts and to the rest', (tester) async {
       await pump(tester);
 
-      await tester.tap(find.text('Stats'));
+      await tester.tap(find.text('Accounts'));
       await tester.pumpAndSettle();
-      expect(find.text('Stats screen'), findsOneWidget);
+      expect(find.widgetWithText(AppBar, 'Accounts'), findsOneWidget);
 
       await tester.tap(find.text('Budgets'));
       await tester.pumpAndSettle();
@@ -51,7 +52,7 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      await tester.tap(find.text('Budgets'));
+      await tester.tap(find.text('Accounts'));
       await tester.pumpAndSettle();
 
       await store.transactions.save(spending('shopping'));
