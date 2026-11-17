@@ -74,10 +74,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 onClose: _stats.close,
               ),
               if (_stats.trend.isNotEmpty)
-                TrendCard(
-                  trend: _stats.trend,
-                  color: colorOfSide(_stats.side),
-                ),
+                TrendCard(trend: _stats.trend, color: colorOfSide(_stats.side)),
             ],
           ),
         ),

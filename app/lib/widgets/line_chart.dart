@@ -102,7 +102,8 @@ final class _Scale {
   final double _minY;
   final double _maxY;
 
-  Offset placeOf(LinePoint point) => Offset(_acrossOf(point.x), heightOf(point.y));
+  Offset placeOf(LinePoint point) =>
+      Offset(_acrossOf(point.x), heightOf(point.y));
 
   /// How far down the space the value [y] is drawn.
   double heightOf(double y) {

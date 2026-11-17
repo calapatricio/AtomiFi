@@ -154,7 +154,8 @@ final class StatsViewModel extends ChangeNotifier {
   /// [trend] starting from nothing on the first day of [range], unless the
   /// period is everything, which starts with the first thing recorded.
   List<TrendPoint> _fromStartOf(DateRange range, List<TrendPoint> trend) {
-    final startsLater = trend.isNotEmpty && trend.first.day.isAfter(range.start);
+    final startsLater =
+        trend.isNotEmpty && trend.first.day.isAfter(range.start);
     if (_period is AllTime || !startsLater) return trend;
     return [TrendPoint(range.start, Money.zero(currency)), ...trend];
   }

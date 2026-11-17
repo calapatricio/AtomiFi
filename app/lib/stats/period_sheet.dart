@@ -122,11 +122,8 @@ class PeriodSheet extends StatelessWidget {
               child: DayButton(
                 label: texts.from,
                 day: days.format(form.firstDay),
-                onPressed: () => _pick(
-                  context,
-                  form.firstDay,
-                  (day) => form.firstDay = day,
-                ),
+                onPressed: () =>
+                    _pick(context, form.firstDay, (day) => form.firstDay = day),
               ),
             ),
             Expanded(

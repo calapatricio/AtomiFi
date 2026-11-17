@@ -138,11 +138,16 @@ class _AmountRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          AppearanceAvatar(appearance: category.appearance, name: category.name),
+          AppearanceAvatar(
+            appearance: category.appearance,
+            name: category.name,
+          ),
         ],
       ),
       title: Text(category.name),
-      subtitle: Text(NumberFormat.percentPattern(locale).format(amount.fraction)),
+      subtitle: Text(
+        NumberFormat.percentPattern(locale).format(amount.fraction),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -33,7 +33,11 @@ void main() {
 
       expect(
         (form.period as RepeatingPeriod).recurrence,
-        Recurrence(every: 20, unit: RecurrenceUnit.day, anchor: DateTime(2026, 8)),
+        Recurrence(
+          every: 20,
+          unit: RecurrenceUnit.day,
+          anchor: DateTime(2026, 8),
+        ),
       );
     });
 
