@@ -9,6 +9,9 @@ final class DateRange {
   factory DateRange.month(int year, int month) =>
       DateRange(DateTime(year, month), DateTime(year, month + 1));
 
+  /// A range that holds every date a record can have.
+  static final allTime = DateRange(DateTime(1), DateTime(10000));
+
   final DateTime start;
   final DateTime end;
 

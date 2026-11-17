@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import '../category/category.dart';
 import '../ids.dart';
 import '../ledger/item.dart';
@@ -8,6 +10,7 @@ import '../money/money.dart';
 import '../money/rate_table.dart';
 import 'date_range.dart';
 import 'period_stats.dart';
+import 'trend_point.dart';
 
 /// The date on which an item that offsets an earlier one enters the stats.
 enum OffsetDating {
@@ -17,6 +20,8 @@ enum OffsetDating {
   /// On the date of its own transaction.
   ownDate,
 }
+
+typedef _OwnAmount = ({DateTime date, CategoryId categoryId, Money amount});
 
 /// Works out the user's own spending and income.
 ///
@@ -45,27 +50,68 @@ final class StatsCalculator {
     List<Transaction> ledger, {
     bool Function(Item item)? where,
   }) {
-    final dateOfItem = _datesByItem(ledger);
     final netByCategory = <CategoryId, Money>{};
-    for (final transaction in ledger) {
-      for (final item in transaction.items) {
-        final date = _statsDate(item, transaction.dateTime, dateOfItem);
-        if (item.ownAmount.isZero || !period.contains(date)) continue;
-        if (where != null && !where(item)) continue;
-        _requireKnownCategory(item.categoryId);
-        final own = _converter.convert(item.ownAmount, currency);
-        netByCategory.update(
-          item.categoryId,
-          (net) => net + own,
-          ifAbsent: () => own,
-        );
-      }
+    for (final own in _ownAmounts(period, ledger, where)) {
+      netByCategory.update(
+        own.categoryId,
+        (net) => net + own.amount,
+        ifAbsent: () => own.amount,
+      );
     }
     return PeriodStats(
       currency: currency,
       netByCategory: netByCategory,
       sideOfCategory: _sideOfCategory,
     );
+  }
+
+  /// How the total of [side] built up over [period]: the total so far on
+  /// each day that changed it, earliest first. Only the items that [where]
+  /// accepts count when it is given.
+  List<TrendPoint> trendFor(
+    DateRange period,
+    List<Transaction> ledger,
+    CategorySide side, {
+    bool Function(Item item)? where,
+  }) {
+    final changeByDay = SplayTreeMap<DateTime, Money>();
+    for (final own in _ownAmounts(period, ledger, where)) {
+      if (_sideOfCategory[own.categoryId] != side) continue;
+      final change = side == CategorySide.expense ? -own.amount : own.amount;
+      changeByDay.update(
+        DateTime(own.date.year, own.date.month, own.date.day),
+        (sum) => sum + change,
+        ifAbsent: () => change,
+      );
+    }
+    var total = Money.zero(currency);
+    return [
+      for (final MapEntry(key: day, value: change) in changeByDay.entries)
+        TrendPoint(day, total += change),
+    ];
+  }
+
+  /// My share of each item that counts in [period], in [currency], with
+  /// the date it counts on.
+  Iterable<_OwnAmount> _ownAmounts(
+    DateRange period,
+    List<Transaction> ledger,
+    bool Function(Item item)? where,
+  ) sync* {
+    final dateOfItem = _datesByItem(ledger);
+    for (final transaction in ledger) {
+      for (final item in transaction.items) {
+        final date = _statsDate(item, transaction.dateTime, dateOfItem);
+        if (item.ownAmount.isZero || !period.contains(date)) continue;
+        if (where != null && !where(item)) continue;
+        _requireKnownCategory(item.categoryId);
+        yield (
+          date: date,
+          categoryId: item.categoryId,
+          amount: _converter.convert(item.ownAmount, currency),
+        );
+      }
+    }
   }
 
   DateTime _statsDate(

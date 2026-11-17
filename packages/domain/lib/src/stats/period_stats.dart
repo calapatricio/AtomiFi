@@ -22,6 +22,13 @@ final class PeriodStats {
   /// Net earnings in income categories.
   Money get income => _netOn(CategorySide.income);
 
+  /// What is left of the income after the expenses.
+  Money get balance => income - expenses;
+
+  /// What the neutral categories, such as balance corrections, added or
+  /// took. It is neither income nor spending.
+  Money get corrections => _netOn(CategorySide.neutral);
+
   /// The signed net amount of one category; negative means money spent.
   Money netFor(CategoryId categoryId) =>
       _netByCategory[categoryId] ?? Money.zero(currency);
