@@ -33,6 +33,14 @@
   optional deadline. Only the items put in it one by one count towards it,
   whatever their date, and only my own share of each. An item counts
   towards one goal at most.
+- **Statistics period**: the stretch of time the statistics look at:
+  everything, the time between two dates, the last so many days, or the
+  period a moment falls in among those that repeat.
+- **Category breakdown**: the main categories of one side with something
+  in them, the largest first, each with the part it is of the whole and
+  split into its subcategories and itself. A category where more came
+  back than was spent is left out.
+- **Trend**: the running total of one side day by day over a period.
 - **Money**: an integer number of minor units plus a currency. Negative is
   money leaving an account.
 

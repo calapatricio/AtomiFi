@@ -38,6 +38,16 @@ What the owner decided, and why. Do not reopen these without asking him.
 - **Loans and debts** will be tracked through shares and offsetting items
   with a "who owes me" view, not through Cashew's loan types.
 
+- **Statistics** are the most important screen: where the owner checks
+  what he spent on each thing over a month or a year. They show one
+  period at a time, chosen as: a period that repeats (every N days,
+  weeks, months or years from a day, with arrows to the one before and
+  after), the last N days, the time between two dates, or everything.
+  They open on the current calendar month and on the expenses. Tapping a
+  category with subcategories shows them, and the line over time then
+  follows that category alone. Cashew's separate "history" mode was left
+  out on purpose.
+
 ## Sync and data
 
 - **No server.** Backup is one file sent to Google Drive; restore takes
@@ -70,4 +80,5 @@ What the owner decided, and why. Do not reopen these without asking him.
   subcategories with "None", and "Add category".
 - When "Include me" is off for a shared item, my row disappears and the
   parts of the others must add up to the price.
-- The bottom bar stays at four destinations.
+- The bottom bar stays at four destinations: Transactions, Stats, Budgets
+  and More. The accounts are under More.

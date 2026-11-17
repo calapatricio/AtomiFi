@@ -31,7 +31,10 @@ Android first; iOS and web later.
 6. **Ask before deciding anything about behaviour** the documents do not
    settle: what a figure counts, what happens to data, what a screen
    offers. Decide code structure yourself; the owner reviews the result.
-7. Priorities: models and features first, visual polish later.
+7. Priorities: models and features first, visual polish later. In a
+   screen, what matters most is that it is intuitive: where the buttons
+   are, what is shown first, how few taps a common task takes. Colours and
+   fine details come after.
 
 ## The sandbox cannot run Dart
 
@@ -81,7 +84,7 @@ tool/ci.sh main                        # also builds the debug APK
 | `packages/domain` | The model and the rules, pure Dart (`atomifi_domain`). `package:atomifi_domain/testing.dart` exports `InMemoryStore`, the fake storage used by tests. |
 | `packages/data` | SQLite storage with Drift (`atomifi_data`): tables, database, one `Drift*Repository` per repository interface. Generated `.g.dart` files are not committed. |
 | `packages/cashew` | Import from Cashew (`atomifi_cashew`): CSV export and SQLite backup, `bin/report.dart`. |
-| `app` | The Flutter app. One folder per feature (`accounts`, `budgets`, `goals`, `transactions`, `categories`, `more`), `widgets` for shared ones, `l10n` for texts. |
+| `app` | The Flutter app. One folder per feature (`accounts`, `budgets`, `goals`, `stats`, `transactions`, `categories`, `more`), `widgets` for shared ones, `l10n` for texts. |
 | `docs` | The model, the decisions, the backlog, prompts for the owner. |
 | `tool` | CI helper scripts. |
 
@@ -129,6 +132,18 @@ domain imports nothing but Dart.
   `pizzaGoal`, `transactionFormOn`, ...). Add fixtures there, not in each
   test.
 - Material comes from `package:material_ui/material_ui.dart`.
+- Charts are small widgets drawn with `CustomPainter` in `app/lib/widgets`
+  (`DonutChart`, `LineChart`). They know nothing about money or
+  categories: the screen turns its figures into fractions and points. Do
+  not add a chart package without asking.
+- A screen is made of small widgets, each in its own file when it has a
+  job of its own (`stats/summary_card.dart`, `stats/period_bar.dart`), and
+  all its figures come ready from the view model, which gets them from the
+  domain. Widgets do not calculate.
+- Before writing a field or a control, look in `app/lib/widgets` for one
+  that already does it (`ChoiceCarousel`, `DayButton`, `RhythmFields`,
+  `AppearanceAvatar`), and move a private widget there when a second
+  screen needs it.
 - Import `ChangeNotifier` with
   `import 'package:flutter/foundation.dart' show ChangeNotifier;` because
   Flutter's own `Category` clashes with the domain's.
