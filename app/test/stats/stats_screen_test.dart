@@ -74,7 +74,7 @@ void main() {
       await record();
       await pump(tester);
 
-      expect(find.text('€2,000.00'), findsOneWidget);
+      expect(find.text('€2,000.00'), findsWidgets);
       expect(find.text('€40.00'), findsWidgets);
       expect(find.text('€1,960.00'), findsWidgets);
     });

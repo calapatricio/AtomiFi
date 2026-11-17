@@ -39,6 +39,7 @@ export 'src/stats/category_breakdown.dart';
 export 'src/stats/date_range.dart';
 export 'src/stats/period_stats.dart';
 export 'src/stats/stats_calculator.dart';
+export 'src/stats/stats_entry.dart';
 export 'src/stats/stats_period.dart';
 export 'src/stats/trend_point.dart';
 export 'src/time/recurrence.dart';

@@ -8,16 +8,15 @@ import '../widgets/appearance_avatar.dart';
 import '../widgets/donut_chart.dart';
 
 /// How an amount is spread over categories: a ring with a part per
-/// category and, under it, each category with its amount. Tapping a
-/// category that has subcategories looks into it.
+/// category and, under it, each category with its amount. The selected
+/// category unfolds its subcategories under itself.
 class CategoriesCard extends StatelessWidget {
   const CategoriesCard({
     super.key,
     required this.amounts,
     required this.total,
-    required this.openCategory,
-    required this.onOpen,
-    required this.onClose,
+    required this.selected,
+    required this.onSelect,
   });
 
   /// The categories to show, the largest first.
@@ -26,17 +25,19 @@ class CategoriesCard extends StatelessWidget {
   /// What [amounts] add up to.
   final Money total;
 
-  /// The category whose parts are shown, if one is being looked into.
-  final CategoryAmount? openCategory;
-  final ValueChanged<CategoryAmount> onOpen;
-  final VoidCallback onClose;
+  /// The category that is selected, if any.
+  final CategoryAmount? selected;
+
+  /// Called with the category that is tapped, in the ring or under it.
+  final ValueChanged<CategoryAmount> onSelect;
+
+  static const _indentOfParts = 24.0;
 
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = MoneyFormatter(Localizations.localeOf(context).toString());
-    final openCategory = this.openCategory;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -44,22 +45,7 @@ class CategoriesCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 12,
           children: [
-            Row(
-              children: [
-                if (openCategory != null)
-                  IconButton(
-                    onPressed: onClose,
-                    tooltip: texts.allCategories,
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                Expanded(
-                  child: Text(
-                    openCategory?.category.name ?? texts.statsByCategory,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-              ],
-            ),
+            Text(texts.statsByCategory, style: theme.textTheme.titleMedium),
             if (amounts.isEmpty)
               Text(texts.statsNothing)
             else ...[
@@ -74,7 +60,7 @@ class CategoriesCard extends StatelessWidget {
                           color: _colorOf(amount, index),
                         ),
                     ],
-                    onSegmentTap: (index) => onOpen(amounts[index]),
+                    onSegmentTap: (index) => onSelect(amounts[index]),
                     child: Text(
                       money.format(total),
                       style: theme.textTheme.titleLarge,
@@ -83,16 +69,32 @@ class CategoriesCard extends StatelessWidget {
                 ),
               ),
               for (final (index, amount) in amounts.indexed)
-                _AmountRow(
-                  amount: amount,
-                  color: _colorOf(amount, index),
-                  onTap: amount.parts.isEmpty ? null : () => onOpen(amount),
-                ),
+                ..._rowsOf(amount, _colorOf(amount, index)),
             ],
           ],
         ),
       ),
     );
+  }
+
+  /// The row of a category and, when it is the selected one, the rows of
+  /// its subcategories under it.
+  List<Widget> _rowsOf(CategoryAmount amount, Color color) {
+    final isSelected = amount.category.id == selected?.category.id;
+    return [
+      _AmountRow(
+        amount: amount,
+        color: color,
+        isSelected: isSelected,
+        onTap: () => onSelect(amount),
+      ),
+      if (isSelected)
+        for (final part in amount.parts)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: _indentOfParts),
+            child: _AmountRow(amount: part, color: color),
+          ),
+    ];
   }
 
   /// The color of a category, or one of a fixed set when it has none.
@@ -109,15 +111,17 @@ class _AmountRow extends StatelessWidget {
   const _AmountRow({
     required this.amount,
     required this.color,
-    required this.onTap,
+    this.isSelected = false,
+    this.onTap,
   });
 
   final CategoryAmount amount;
 
   /// The color of its part of the ring.
   final Color color;
+  final bool isSelected;
 
-  /// Looks into the category. Nothing when there is nothing to look into.
+  /// Selects the category. Nothing when it cannot be selected.
   final VoidCallback? onTap;
 
   @override
@@ -126,6 +130,7 @@ class _AmountRow extends StatelessWidget {
     final category = amount.category;
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      selected: isSelected,
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 8,
@@ -155,7 +160,8 @@ class _AmountRow extends StatelessWidget {
             MoneyFormatter(locale).format(amount.amount),
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          if (onTap != null) const Icon(Icons.chevron_right),
+          if (amount.parts.isNotEmpty)
+            Icon(isSelected ? Icons.expand_less : Icons.expand_more),
         ],
       ),
       onTap: onTap,

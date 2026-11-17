@@ -4,13 +4,13 @@ import '../l10n/app_localizations.dart';
 import 'import_view_model.dart';
 
 /// The things that are looked at or done once in a while, such as the
-/// accounts, the goals or importing a backup.
+/// statistics, the goals or importing a backup.
 class MoreScreen extends StatelessWidget {
   const MoreScreen({
     super.key,
     required this.importViewModel,
     required this.openGoals,
-    required this.openAccounts,
+    required this.openStats,
   });
 
   final ImportViewModel importViewModel;
@@ -18,8 +18,8 @@ class MoreScreen extends StatelessWidget {
   /// Opens the list of goals.
   final void Function(BuildContext context) openGoals;
 
-  /// Opens the list of accounts.
-  final void Function(BuildContext context) openAccounts;
+  /// Opens the statistics.
+  final void Function(BuildContext context) openStats;
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +34,10 @@ class MoreScreen extends StatelessWidget {
           return ListView(
             children: [
               ListTile(
-                leading: const Icon(Icons.account_balance_wallet),
-                title: Text(texts.accountsTitle),
+                leading: const Icon(Icons.pie_chart),
+                title: Text(texts.statsTitle),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => openAccounts(context),
+                onTap: () => openStats(context),
               ),
               ListTile(
                 leading: const Icon(Icons.flag),

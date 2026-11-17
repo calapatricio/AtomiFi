@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'period_form_view_model.dart';
 
 /// The state and the actions of the statistics: what I spent and earned
-/// over a period, category by category and day by day.
+/// over a period, category by category, day by day and transaction by
+/// transaction.
 final class StatsViewModel extends ChangeNotifier {
   StatsViewModel({
     required this._ledger,
@@ -23,7 +24,7 @@ final class StatsViewModel extends ChangeNotifier {
   StatsPeriod _period = RepeatingPeriod(Recurrence.calendarMonths);
   late DateTime _moment = _now();
   CategorySide _side = CategorySide.expense;
-  CategoryId? _openCategoryId;
+  CategoryId? _selectedCategoryId;
 
   List<Transaction> _transactions = const [];
   List<Category> _allCategories = const [];
@@ -34,6 +35,7 @@ final class StatsViewModel extends ChangeNotifier {
   );
   List<CategoryAmount> _mainAmounts = const [];
   List<TrendPoint> _trend = const [];
+  List<StatsEntry> _entries = const [];
 
   StatsPeriod get period => _period;
 
@@ -61,53 +63,47 @@ final class StatsViewModel extends ChangeNotifier {
     _refresh();
   }
 
-  /// The side the categories and the trend are about: expenses or income.
+  /// The side the categories are about: expenses or income.
   CategorySide get side => _side;
 
   set side(CategorySide side) {
     _side = side;
-    _openCategoryId = null;
+    _selectedCategoryId = null;
     _refresh();
   }
 
   /// The income, the expenses and what is left over the period.
   PeriodStats get summary => _summary;
 
-  /// The category being looked into, if any.
-  CategoryAmount? get openCategory => _mainAmounts
-      .where(
-        (amount) =>
-            amount.category.id == _openCategoryId && amount.parts.isNotEmpty,
-      )
-      .firstOrNull;
-
-  /// The parts of the category being looked into, or else the main
-  /// categories, the largest first.
-  List<CategoryAmount> get amounts => openCategory?.parts ?? _mainAmounts;
+  /// The main categories of [side] with something in them, the largest
+  /// first.
+  List<CategoryAmount> get amounts => _mainAmounts;
 
   /// What [amounts] add up to.
-  Money get total =>
-      openCategory?.amount ??
-      switch (_side) {
-        CategorySide.expense => _summary.expenses,
-        CategorySide.income => _summary.income,
-        CategorySide.neutral => _summary.corrections,
-      };
+  Money get total => switch (_side) {
+    CategorySide.expense => _summary.expenses,
+    CategorySide.income => _summary.income,
+    CategorySide.neutral => _summary.corrections,
+  };
 
-  /// How [total] built up day by day.
+  /// The category that [trend] and [entries] are narrowed to, if any.
+  CategoryAmount? get selected => _mainAmounts
+      .where((amount) => amount.category.id == _selectedCategoryId)
+      .firstOrNull;
+
+  /// How the money built up day by day: what was earned minus what was
+  /// spent so far, or what is in the selected category alone.
   List<TrendPoint> get trend => _trend;
 
-  /// Looks into the category of [amount], when it has subcategories with
-  /// something in them.
-  void open(CategoryAmount amount) {
-    if (amount.parts.isEmpty) return;
-    _openCategoryId = amount.category.id;
-    _refresh();
-  }
+  /// The transactions that count in the period, or those with something
+  /// in the selected category, the latest first.
+  List<StatsEntry> get entries => _entries;
 
-  /// Goes back to the main categories.
-  void close() {
-    _openCategoryId = null;
+  /// Narrows the trend and the transactions to the category of [amount],
+  /// or stops doing so when it is the one already selected.
+  void select(CategoryAmount amount) {
+    final id = amount.category.id;
+    _selectedCategoryId = id == _selectedCategoryId ? null : id;
     _refresh();
   }
 
@@ -129,26 +125,23 @@ final class StatsViewModel extends ChangeNotifier {
     final range = this.range;
     _summary = calculator.statsFor(range, _transactions);
     _mainAmounts = CategoryBreakdown(_allCategories).of(_summary, _side);
-    _openCategoryId = openCategory?.category.id;
+    _selectedCategoryId = selected?.category.id;
+    final isCounted = _isInSelectedCategory;
     _trend = _fromStartOf(
       range,
-      calculator.trendFor(
-        range,
-        _transactions,
-        _side,
-        where: _isInOpenCategory,
-      ),
+      calculator.trendFor(range, _transactions, where: isCounted),
     );
+    _entries = calculator.entriesFor(range, _transactions, where: isCounted);
     notifyListeners();
   }
 
-  /// Tells whether an item is in the category being looked into. Nothing
-  /// when no category is, so that every item counts.
-  bool Function(Item item)? get _isInOpenCategory {
-    final openCategoryId = _openCategoryId;
-    if (openCategoryId == null) return null;
+  /// Tells whether an item is in the selected category. Nothing when no
+  /// category is selected, so that every item counts.
+  bool Function(Item item)? get _isInSelectedCategory {
+    final selectedId = _selectedCategoryId;
+    if (selectedId == null) return null;
     final tree = CategoryTree(_allCategories);
-    return (item) => tree.isWithin(item.categoryId, openCategoryId);
+    return (item) => tree.isWithin(item.categoryId, selectedId);
   }
 
   /// [trend] starting from nothing on the first day of [range], unless the

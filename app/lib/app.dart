@@ -102,9 +102,15 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         ),
       );
 
-  void _openAccounts(BuildContext context) => unawaited(
+  void _openStats(BuildContext context) => unawaited(
     Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => AccountsScreen(viewModel: _accounts)),
+      MaterialPageRoute(
+        builder: (_) => StatsScreen(
+          viewModel: _stats,
+          openTransaction: (context, transaction) =>
+              _openTransactionForm(context, existing: transaction),
+        ),
+      ),
     ),
   );
 
@@ -156,13 +162,13 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         viewModel: _transactions,
         openForm: _openTransactionForm,
       ),
-      stats: (_) => StatsScreen(viewModel: _stats),
       budgets: (_) =>
           BudgetsScreen(viewModel: _budgets, openForm: _openBudgetForm),
+      accounts: (_) => AccountsScreen(viewModel: _accounts),
       more: (_) => MoreScreen(
         importViewModel: _import,
         openGoals: _openGoals,
-        openAccounts: _openAccounts,
+        openStats: _openStats,
       ),
     ),
   );

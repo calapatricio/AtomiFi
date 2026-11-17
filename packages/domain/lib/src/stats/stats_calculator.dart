@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
+
 import '../category/category.dart';
 import '../ids.dart';
 import '../ledger/item.dart';
@@ -10,6 +12,7 @@ import '../money/money.dart';
 import '../money/rate_table.dart';
 import 'date_range.dart';
 import 'period_stats.dart';
+import 'stats_entry.dart';
 import 'trend_point.dart';
 
 /// The date on which an item that offsets an earlier one enters the stats.
@@ -21,7 +24,12 @@ enum OffsetDating {
   ownDate,
 }
 
-typedef _OwnAmount = ({DateTime date, CategoryId categoryId, Money amount});
+typedef _OwnAmount = ({
+  Transaction transaction,
+  DateTime date,
+  CategoryId categoryId,
+  Money amount,
+});
 
 /// Works out the user's own spending and income.
 ///
@@ -65,23 +73,20 @@ final class StatsCalculator {
     );
   }
 
-  /// How the total of [side] built up over [period]: the total so far on
-  /// each day that changed it, earliest first. Only the items that [where]
-  /// accepts count when it is given.
+  /// How my money built up over [period]: what was earned minus what was
+  /// spent so far on each day that changed it, earliest first. Only the
+  /// items that [where] accepts count when it is given.
   List<TrendPoint> trendFor(
     DateRange period,
-    List<Transaction> ledger,
-    CategorySide side, {
+    List<Transaction> ledger, {
     bool Function(Item item)? where,
   }) {
     final changeByDay = SplayTreeMap<DateTime, Money>();
-    for (final own in _ownAmounts(period, ledger, where)) {
-      if (_sideOfCategory[own.categoryId] != side) continue;
-      final change = side == CategorySide.expense ? -own.amount : own.amount;
+    for (final own in _earnedOrSpent(period, ledger, where)) {
       changeByDay.update(
         DateTime(own.date.year, own.date.month, own.date.day),
-        (sum) => sum + change,
-        ifAbsent: () => change,
+        (sum) => sum + own.amount,
+        ifAbsent: () => own.amount,
       );
     }
     var total = Money.zero(currency);
@@ -90,6 +95,41 @@ final class StatsCalculator {
         TrendPoint(day, total += change),
     ];
   }
+
+  /// The transactions that count as income or spending in [period], the
+  /// latest first, each with my share of its items. Only the items that
+  /// [where] accepts count when it is given.
+  List<StatsEntry> entriesFor(
+    DateRange period,
+    List<Transaction> ledger, {
+    bool Function(Item item)? where,
+  }) {
+    final entryByKey = <(TransactionId, DateTime), StatsEntry>{};
+    for (final own in _earnedOrSpent(period, ledger, where)) {
+      entryByKey.update(
+        (own.transaction.id, own.date),
+        (entry) => entry.plus(own.amount),
+        ifAbsent: () => StatsEntry(
+          transaction: own.transaction,
+          date: own.date,
+          amount: own.amount,
+        ),
+      );
+    }
+    final entries = entryByKey.values.toList();
+    mergeSort(entries, compare: (a, b) => b.date.compareTo(a.date));
+    return entries;
+  }
+
+  /// My share of the items that are income or spending in [period].
+  Iterable<_OwnAmount> _earnedOrSpent(
+    DateRange period,
+    List<Transaction> ledger,
+    bool Function(Item item)? where,
+  ) =>
+      _ownAmounts(period, ledger, where).where(
+        (own) => _sideOfCategory[own.categoryId] != CategorySide.neutral,
+      );
 
   /// My share of each item that counts in [period], in [currency], with
   /// the date it counts on.
@@ -106,6 +146,7 @@ final class StatsCalculator {
         if (where != null && !where(item)) continue;
         _requireKnownCategory(item.categoryId);
         yield (
+          transaction: transaction,
           date: date,
           categoryId: item.categoryId,
           amount: _converter.convert(item.ownAmount, currency),

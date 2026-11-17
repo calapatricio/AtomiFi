@@ -288,5 +288,6 @@
   "apply": "Apply",
   "previousPeriod": "Previous period",
   "nextPeriod": "Next period",
-  "allCategories": "All categories"
+  "allCategories": "All categories",
+  "statsTotal": "Total"
 }

@@ -6,23 +6,41 @@ import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
 import '../widgets/line_chart.dart';
 
-/// How an amount built up over time: a line that goes from the first day
-/// to the last, with the total it reached.
-class TrendCard extends StatelessWidget {
-  const TrendCard({super.key, required this.trend, required this.color});
+/// How an amount built up over time: a line from the first day to the
+/// last. It tells the total it reached, or the total on the day that is
+/// touched.
+class TrendCard extends StatefulWidget {
+  const TrendCard({super.key, required this.trend});
 
   /// The total so far on each day, earliest first. It is not empty.
   final List<TrendPoint> trend;
-  final Color color;
 
+  @override
+  State<TrendCard> createState() => _TrendCardState();
+}
+
+class _TrendCardState extends State<TrendCard> {
   static const _chartHeight = 160.0;
+
+  /// The position in the trend of the day that was touched, if any.
+  int? _touched;
+
+  List<TrendPoint> get _trend => widget.trend;
+
+  @override
+  void didUpdateWidget(TrendCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.trend != _trend) _touched = null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final days = DateFormat.MMMd(locale);
+    final shortDays = DateFormat.MMMd(locale);
+    final touched = _touched;
+    final shown = touched == null ? _trend.last : _trend[touched];
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -30,16 +48,18 @@ class TrendCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 8,
           children: [
+            Text(texts.statsOverTime, style: theme.textTheme.titleMedium),
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    texts.statsOverTime,
-                    style: theme.textTheme.titleMedium,
+                    touched == null
+                        ? texts.statsTotal
+                        : DateFormat.yMMMd(locale).format(shown.day),
                   ),
                 ),
                 Text(
-                  MoneyFormatter(locale).format(trend.last.total),
+                  MoneyFormatter(locale).format(shown.total),
                   style: theme.textTheme.titleMedium,
                 ),
               ],
@@ -47,9 +67,11 @@ class TrendCard extends StatelessWidget {
             SizedBox(
               height: _chartHeight,
               child: LineChart(
-                color: color,
+                color: theme.colorScheme.primary,
+                selected: touched,
+                onSelected: (index) => setState(() => _touched = index),
                 points: [
-                  for (final point in trend)
+                  for (final point in _trend)
                     LinePoint(
                       point.day.millisecondsSinceEpoch.toDouble(),
                       point.total.minorUnits.toDouble(),
@@ -61,11 +83,11 @@ class TrendCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  days.format(trend.first.day),
+                  shortDays.format(_trend.first.day),
                   style: theme.textTheme.bodySmall,
                 ),
                 Text(
-                  days.format(trend.last.day),
+                  shortDays.format(_trend.last.day),
                   style: theme.textTheme.bodySmall,
                 ),
               ],
