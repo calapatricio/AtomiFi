@@ -254,5 +254,39 @@
   },
   "goal": "Goal",
   "editBudget": "Edit budget",
-  "editGoal": "Edit goal"
+  "editGoal": "Edit goal",
+  "statsTitle": "Stats",
+  "statsIncome": "Income",
+  "statsExpenses": "Expenses",
+  "statsBalance": "Balance",
+  "statsCorrections": "Balance corrections: {amount}",
+  "@statsCorrections": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "statsByCategory": "By category",
+  "statsOverTime": "Over time",
+  "statsNothing": "Nothing in this period",
+  "statsPeriod": "Period",
+  "periodRepeating": "Repeating",
+  "periodLastDays": "Last days",
+  "periodBetweenDates": "Between dates",
+  "periodAllTime": "All time",
+  "periodAllTimeHint": "Everything recorded, from the first day.",
+  "lastDays": "{count, plural, =1{Today} other{Last {count} days}}",
+  "@lastDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysCount": "Days",
+  "apply": "Apply",
+  "previousPeriod": "Previous period",
+  "nextPeriod": "Next period",
+  "allCategories": "All categories"
 }

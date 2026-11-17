@@ -1,10 +1,11 @@
-import 'package:atomifi_domain/atomifi_domain.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../l10n/app_localizations.dart';
 import '../money_formatter.dart';
 import '../widgets/choice_carousel.dart';
+import '../widgets/day_button.dart';
+import '../widgets/rhythm_fields.dart';
 import 'budget_form_view_model.dart';
 
 /// The form that adds or edits a budget: its name and limit, how often it starts
@@ -96,7 +97,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
                   value: _form.repeats,
                   onChanged: (repeats) => _form.repeats = repeats,
                 ),
-                if (_form.repeats) _rhythm(texts),
+                if (_form.repeats) _rhythm(),
                 _days(context, texts),
                 Text(
                   texts.covers,
@@ -115,33 +116,11 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
   }
 
   /// How often the budget starts over: every so many days, weeks and so on.
-  Widget _rhythm(AppLocalizations texts) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: 12,
-    children: [
-      SizedBox(
-        width: 96,
-        child: TextFormField(
-          initialValue: _form.every,
-          decoration: InputDecoration(labelText: texts.every),
-          keyboardType: TextInputType.number,
-          onChanged: (every) => _form.every = every,
-        ),
-      ),
-      Expanded(
-        child: DropdownMenu<RecurrenceUnit>(
-          expandedInsets: EdgeInsets.zero,
-          initialSelection: _form.unit,
-          dropdownMenuEntries: [
-            for (final unit in RecurrenceUnit.values)
-              DropdownMenuEntry(value: unit, label: _nameOf(unit, texts)),
-          ],
-          onSelected: (unit) {
-            if (unit != null) _form.unit = unit;
-          },
-        ),
-      ),
-    ],
+  Widget _rhythm() => RhythmFields(
+    every: _form.every,
+    unit: _form.unit,
+    onEveryChanged: (every) => _form.every = every,
+    onUnitChanged: (unit) => _form.unit = unit,
   );
 
   /// The day a period starts and, when the budget does not repeat, the day
@@ -152,7 +131,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
       spacing: 12,
       children: [
         Expanded(
-          child: _DayButton(
+          child: DayButton(
             label: _form.repeats ? texts.startingOn : texts.from,
             day: days.format(_form.start),
             onPressed: _pickStart,
@@ -160,7 +139,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
         ),
         if (!_form.repeats)
           Expanded(
-            child: _DayButton(
+            child: DayButton(
               label: texts.until,
               day: days.format(_form.end),
               onPressed: _pickEnd,
@@ -191,38 +170,5 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
           onSelected: (_) => _form.toggleCategory(category.id),
         ),
     ],
-  );
-
-  static String _nameOf(RecurrenceUnit unit, AppLocalizations texts) =>
-      switch (unit) {
-        RecurrenceUnit.day => texts.unitDays,
-        RecurrenceUnit.week => texts.unitWeeks,
-        RecurrenceUnit.month => texts.unitMonths,
-        RecurrenceUnit.year => texts.unitYears,
-      };
-}
-
-/// A button that shows a day under what it is the day of, and lets it be
-/// changed.
-class _DayButton extends StatelessWidget {
-  const _DayButton({
-    required this.label,
-    required this.day,
-    required this.onPressed,
-  });
-
-  final String label;
-  final String day;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => OutlinedButton(
-    onPressed: onPressed,
-    child: Column(
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-        Text(day),
-      ],
-    ),
   );
 }

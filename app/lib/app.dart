@@ -18,6 +18,8 @@ import 'home_shell.dart';
 import 'l10n/app_localizations.dart';
 import 'more/import_view_model.dart';
 import 'more/more_screen.dart';
+import 'stats/stats_screen.dart';
+import 'stats/stats_view_model.dart';
 import 'transactions/transaction_form_screen.dart';
 import 'transactions/transaction_form_view_model.dart';
 import 'transactions/transactions_screen.dart';
@@ -55,6 +57,12 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
   late final _goals = GoalsViewModel(
     goals: _dependencies.goals,
     ledger: _dependencies.ledger,
+  );
+  late final _stats = StatsViewModel(
+    ledger: _dependencies.ledger,
+    categories: _dependencies.categories,
+    currency: _dependencies.mainCurrency,
+    now: DateTime.now,
   );
   late final _import = ImportViewModel(importer: _dependencies.backupImporter);
 
@@ -94,6 +102,12 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         ),
       );
 
+  void _openAccounts(BuildContext context) => unawaited(
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => AccountsScreen(viewModel: _accounts)),
+    ),
+  );
+
   void _openGoals(BuildContext context) => unawaited(
     Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -123,6 +137,7 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
     _accounts.dispose();
     _budgets.dispose();
     _goals.dispose();
+    _stats.dispose();
     _import.dispose();
     super.dispose();
   }
@@ -141,10 +156,14 @@ class _AtomiFiAppState extends State<AtomiFiApp> {
         viewModel: _transactions,
         openForm: _openTransactionForm,
       ),
+      stats: (_) => StatsScreen(viewModel: _stats),
       budgets: (_) =>
           BudgetsScreen(viewModel: _budgets, openForm: _openBudgetForm),
-      accounts: (_) => AccountsScreen(viewModel: _accounts),
-      more: (_) => MoreScreen(importViewModel: _import, openGoals: _openGoals),
+      more: (_) => MoreScreen(
+        importViewModel: _import,
+        openGoals: _openGoals,
+        openAccounts: _openAccounts,
+      ),
     ),
   );
 }
